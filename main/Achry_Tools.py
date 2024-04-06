@@ -4,6 +4,7 @@ from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
 from tkinter import messagebox
+from mtlog import *
 
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 import re
@@ -18,6 +19,19 @@ import traceback
 import win32con
 
 logs = ""
+mtl = mtlog.new("log")
+def log_error(w, l):
+    messagebox.showerror(lang("error"), w)
+    mtlog.inp(w, l, 3)
+    pass
+def log_info(w, l):
+    messagebox.showinfo(lang("info"), w)
+    mtlog.inp(w, l, 1)
+    pass
+def log_insert(ins, w, l):
+    ins.insert(tk.END, w)
+    mtlog.inp(w, l, 1)
+    pass
 #去特效用到的功能
 class noEffect:
     @staticmethod
@@ -25,7 +39,7 @@ class noEffect:
         filename = askopenfilename()
         if filename:
             if not noEffect.check_file_extension(filename):
-                messagebox.showerror(lang("error"), lang("gui.noeffect.function(except).not_adofai_file"))
+                log_error(lang("gui.noeffect.function(except).not_adofai_file"), mtl)
                 return
             entry_path.delete(0, tk.END)
             entry_path.insert(tk.END, filename)
@@ -33,37 +47,33 @@ class noEffect:
     @staticmethod
     def process_file():
         filename = entry_path.get()
-        start = time.time()
         if not filename:
-            messagebox.showerror(lang("error"), lang("gui.noeffect.function(except).not_select_file"))
+            log_error(lang("gui.noeffect.function(except).not_select_file"), mtl)
             return
         if not noEffect.check_file_extension(filename):
-            messagebox.showerror(lang("error"), lang("gui.noeffect.function(except).not_adofai_file"))
+            log_error(lang("gui.noeffect.function(except).not_adofai_file"), mtl)
             return
+        start = time.time()
         
         # 在这里处理文件
         try:
             file_contents = open(filename, 'r', encoding='utf8').read()
             # 用正则把传进来的reList遍历一遍
-            uneffects = uneffect.get().split(',')
-            effects = ["SetObject","AddObject","SetFilterAdvanced","SetFloorIcon","AnimateTrack", "MoveTrack", "MoveDecorations", "SetText", "PositionTrack", "RecolorTrack", "ColorTrack", "CustomBackground", "Flash", "MoveCamera", "SetFilter", "HallOfMirrors", "ShakeScreen", "Bloom", "ScreenTile", "ScreenScroll", "RepeatEvents", "SetConditionalEvents", "AddDecoration", "AddText"]
+            effects = "$|SetObject|AddObject|SetFilterAdvanced|SetFloorIcon|AnimateTrack|MoveTrack|MoveDecorations|SetText|PositionTrack|RecolorTrack|ColorTrack|CustomBackground|Flash|MoveCamera|SetFilter|HallOfMirrors|ShakeScreen|Bloom|ScreenTile|ScreenScroll|RepeatEvents|SetConditionalEvents|AddDecoration|AddText|$"
             
-            for i in uneffects:
-                effects.remove(i)
+            for i in uneffect.get().split(','):
+                effects = re.sub(r"\|%s\|"%i, "|", effects)
             
-            for i in effects:
-                # 设置正则
-                regex_pattern = r'{.*?"' + i + r'".*?},'
-                # 进行替换操作
-                file_contents = re.sub(regex_pattern, '', file_contents)
+            # 设置正则 + 进行替换操作
+            file_contents = re.sub(r'{ ("floor": \d+, )?"eventType": "%s".*?}(,?)\s*\n'%re.sub(r"$\||\|$", "", effects), '', file_contents)
 
             file_directory = os.path.dirname(filename)
             open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(file_contents)
             end_time = time.time()
-            log_text.insert(tk.END, repl(repl(lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)))
+            log_insert(log_text, repl(repl(lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)), mtl)
         except Exception as e:
-             messagebox.showerror(lang("error"), repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
-             logger.error(f"An error occurred.\n{traceback.format_exc()}")
+            log_error(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
    
 
     @staticmethod
@@ -85,12 +95,12 @@ class Calc:
                 speed = float(calc_speed_entry.get())
                 xacc = float(calc_x_accuracy_entry.get())
             else:
-                messagebox.showerror(lang("error"),lang("gui.calc.function(except).write_empty"))
+                log_error(lang("gui.calc.function(except).write_empty"), mtl)
                 return
             
             if world_rank_entry.get() == '':
-                ranked_position = 1111111
-                messagebox.showerror(lang("error"),lang("gui.calc.function(except).write_rank"))
+                ranked_position = 2147483647
+                log_error(lang("gui.calc.function(except).write_rank"), mtl)
             else:
                 ranked_position = int(world_rank_entry.get())
 
@@ -101,8 +111,7 @@ class Calc:
 
             
             #计算关卡基础分 难度等会获取即diff
-            if float(difficult) < 1:
-                return 0
+            if float(difficult) < 1: return 0
             else:
                 switch = {
                     '1': 0.05,
@@ -162,8 +171,7 @@ class Calc:
                 
                 #判断基础分是否正确（输入不正确的难度会返回None)看上面代码
                 if score_base == None:
-                    #message弹窗
-                    messagebox.showerror(lang("error"),lang("gui.calc.function(except).error_level"))
+                    log_error(lang("gui.calc.function(except).error_level"), mtl)
                     return
             
                 #xacc基础分计算
@@ -176,75 +184,57 @@ class Calc:
                 elif xacc >= 95:
                     xacc_multi = ((xacc - 94) ** 1.6) / 12.1326 + 0.9176
                 else:
-                    messagebox.showerror(lang("error"),lang("gui.calc.function(except).xacc_so_low"))
+                    log_error(lang("gui.calc.function(except).xacc_so_low"), mtl)
                     return
 
             
                 #速度分
-                if speed < 1:
-                    speed_multi = 0
-                elif speed < 1.1:
-                    speed_multi = 25 * (speed - 1.1) ** 2 + 0.75
-                elif speed < 1.2:
-                    speed_multi = 0.75
-                elif speed < 1.25:
-                    speed_multi = 50 * (speed - 1.2) ** 2 + 0.75
-                elif speed < 1.3:
-                    speed_multi = -50 * (speed - 1.3) ** 2 + 1
-                elif speed < 1.5:
-                    speed_multi = 1
-                elif speed < 1.75:
-                    speed_multi = 2 * (speed - 1.5) ** 2 + 1
-                elif speed < 2:
-                    speed_multi = -2 * (speed - 2) ** 2 + 1.25
-                else:
-                    speed_multi = 1.25
-                    
-                    
+                if speed < 1:       speed_multi = 0
+                elif speed < 1.1:   speed_multi = 25 * (speed - 1.1) ** 2 + 0.75
+                elif speed < 1.2:   speed_multi = 0.75
+                elif speed < 1.25:  speed_multi = 50 * (speed - 1.2) ** 2 + 0.75
+                elif speed < 1.3:   speed_multi = -50 * (speed - 1.3) ** 2 + 1
+                elif speed < 1.5:   speed_multi = 1
+                elif speed < 1.75:  speed_multi = 2 * (speed - 1.5) ** 2 + 1
+                elif speed < 2:     speed_multi = -2 * (speed - 2) ** 2 + 1.25
+                else:               speed_multi = 1.25
+
                 #无空敲
-                no_early_multi = 1.1 if no_early else 1
+                base_score = score_base * xacc_multi * speed_multi * (1.1 if no_early else 1)
 
-                base_score = score_base * xacc_multi * speed_multi * no_early_multi
-
-                if not world_first:
-                    general_score = round(base_score * 1,2)
-                else:
-                    general_score = round(base_score * 1.1,2)
-
-                if ranked_position <= 20:
-                    ranked_score = round(base_score * (0.9 ** (ranked_position - 1)), 2)
-                else:
-                    ranked_score = round(base_score * (0.9 ** 0), 2)
-
-                messagebox.showinfo(lang("info"),repl(repl(lang("gui.calc.function(success)"), 1, general_score), 2, ranked_score))
+                log_info(
+                    repl(repl(lang("gui.calc.function(success)")
+                    , 1, (round(base_score * 1,2) if (not world_first) else round(base_score * 1.1,2)))
+                    , 2, (round(base_score * ((0.9 ** (ranked_position - 1)) if ranked_position <= 20 else 0), 2)))
+                    , mtl
+                )
         except Exception as e:
-            messagebox.showerror(lang("error"), repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
+            log_error(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
             logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
 class Search:
     @staticmethod
     def use_id():
         try:
-            print(combo_box.get())
+            ### print(combo_box.get())
             if combo_box.get() == 'TUF':
                 id = entry_id.get()
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_text2.insert(tk.END, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id))
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl)
                     return
                 
-                url = f"https://be.t21c.kro.kr/levels/{id}"
-                response = requests.get(url, headers={"accept": "application/json"})
-
+                response = requests.get(f"https://be.t21c.kro.kr/levels/{id}", headers={"accept": "application/json"})
                 info = response.json()
+
                 if 'statusCode' in info:
                     log_text2.delete(1.0, tk.END) 
-                    log_text2.insert(tk.END, repl(repl(repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, info["message"]), 2, info["statusCode"]), 3, id))
+                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, info["message"]), 2, info["statusCode"]), 3, id), mtl)
                     return
                 
-                message = \
-                repl(repl(repl(repl(repl(repl(repl(repl(repl(
-                    lang("gui.levelsearch.function(TUF_success)")
+                log_text2.delete(1.0, tk.END) 
+                log_insert(log_text2, 
+                repl(repl(repl(repl(repl(repl(repl(repl(repl(lang("gui.levelsearch.function(TUF_success)")
                 , 1, info['id'])
                 , 2, info['artist'])
                 , 3, info['song'])
@@ -253,15 +243,13 @@ class Search:
                 , 6, info['pguDiff'])
                 , 7, info['vidLink'])
                 , 8, info['dlLink'])
-                , 9, info['workshopLink']);
-                log_text2.delete(1.0, tk.END) 
-                log_text2.insert(tk.END, message)
+                , 9, info['workshopLink']), mtl)
 
             elif combo_box.get() == 'ADOFAI.GG':
                 id = entry_id.get()
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_text2.insert(tk.END, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id))
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl)
                     return
                 
                 response = requests.get(f"https://adofai.gg/api/v1/levels/{id}")
@@ -270,41 +258,38 @@ class Search:
                 if 'errors' in info:
                     msg = info["errors"][0]
                     log_text2.delete(1.0, tk.END) 
-                    log_text2.insert(tk.END, repl(repl(repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, msg['message']), 2, msg['code']), 3, id))
+                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, msg["message"]), 2, msg["code"]), 3, id), mtl)
                     return
 
-                message = \
-                repl(repl(repl(repl(repl(repl(repl(repl(repl(repl(repl(
-                    lang("gui.levelsearch.function(ADOFAIGG_success)")
+                log_text2.delete(1.0, tk.END) 
+                log_insert(log_text2, 
+                repl(repl(repl(repl(repl(repl(repl(repl(repl(repl(lang("gui.levelsearch.function(ADOFAIGG_success)")
                 , 1, info['id'])
                 , 2, [artist['name'] for artist in info['music']['artists']])
                 , 3, info['title'])
                 , 4, [creator['name'] for creator in info['creators']])
-                , 5, "null")
-                , 6, info['difficulty'])
-                , 7, info['video'])
-                , 8, info['download'])
-                , 9, info['workshop'])
-                , 10, info['tiles'])
-                , 11, [tag['name'] for tag in info['tags']]);
-                log_text2.delete(1.0, tk.END) 
-                log_text2.insert(tk.END, message)
+                , 5, info['difficulty'])
+                , 6, info['video'])
+                , 7, info['download'])
+                , 8, info['workshop'])
+                , 9, info['tiles'])
+                , 10, [tag['name'] for tag in info['tags']]), mtl)
             
             else:
                 id = int(entry_id.get())
 
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_text2.insert(tk.END, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id))
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl)
                     return
                 
                 aqr = requests.get('https://www.adofaiaqr.top/static/buttonsData.js').text[18:-3]
                 id = id-1
                 info = eval(aqr)[id]
 
-                message = \
-                repl(repl(repl(repl(repl(repl(repl(repl(
-                    lang("gui.levelsearch.function(AQR_success)")
+                log_text2.delete(1.0, tk.END) 
+                log_insert(log_text2, 
+                repl(repl(repl(repl(repl(repl(repl(repl(lang("gui.levelsearch.function(AQR_success)")
                 , 1, info['artist'])
                 , 2, info['song'])
                 , 3, info['author'])
@@ -312,13 +297,11 @@ class Search:
                 , 5, info['level'])
                 , 6, info['vluation'])
                 , 7, info['video_herf'])
-                , 8, info['href']);
-                log_text2.delete(1.0, tk.END) 
-                log_text2.insert(tk.END, message)
+                , 8, info['href']), mtl)
 
                 
         except Exception as e:
-            messagebox.showerror(lang("error"), repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e))
+            log_error( repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
             logger.error(f"An error occurred.\n{traceback.format_exc()}")
             #__import__('traceback').print_exc()
 
@@ -331,12 +314,10 @@ class Search:
             })
             info = response.json()
             log_text2.delete(1.0, tk.END)
-            log_text2.insert(tk.END, repl(lang("gui.levelsearch.function(find)"), 1, info['count']))
-            levels = info['results']
-            for infos in levels:
-                message = \
-                repl(repl(repl(repl(repl(repl(repl(repl(repl(
-                    lang("gui.levelsearch.function(TUF_success)")
+            log_insert(log_text2, repl(lang("gui.levelsearch.function(find)"), 1, info['count']), mtl)
+            for infos in info['results']:
+                log_insert(log_text2, 
+                repl(repl(repl(repl(repl(repl(repl(repl(repl(lang("gui.levelsearch.function(TUF_success)")
                 , 1, infos['id'])
                 , 2, infos['artist'])
                 , 3, infos['song'])
@@ -345,11 +326,10 @@ class Search:
                 , 6, infos['pguDiff'])
                 , 7, infos['vidLink'])
                 , 8, infos['dlLink'])
-                , 9, infos['workshopLink']); 
-                log_text2.insert(tk.END, message + '\n\n--------\n\n')
+                , 9, infos['workshopLink']) + '\n\n--------\n\n', mtl)
 
         except Exception as e:
-            messagebox.showerror(lang("error"), repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e))
+            log_error(repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
             logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
 class downloadFile:
@@ -357,6 +337,7 @@ class downloadFile:
     def select_file():
         filename = askdirectory()
         if filename:
+            # How???
             dn_path.delete(0, tk.END)
             dn_path.insert(tk.END, filename)
 
@@ -364,7 +345,7 @@ class downloadFile:
     def google_drive_download():
         # 构建请求的 URL，将 ID 作为参数传递
         if g_file_id_entry.get() == '':
-            messagebox.showerror(lang("error"), lang("gui.filedownload.function(except).id_is_empty"))
+            log_error(lang("gui.filedownload.function(except).id_is_empty"))
             return
         url = f"https://hjtbrz.mcfuns.cn/application/test/gdrive.php?id={g_file_id_entry.get()}"
 
@@ -400,37 +381,36 @@ class downloadFile:
 
                 bytes_written = 0
                 # total_size = int(response.headers.get('content-length', 0))
-                with open(dn_path.get() + '/' + filename, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=1024):
-                        if chunk:
-                            f.write(chunk)
-                            bytes_written += len(chunk)
-                            # progress = int(bytes_written / total_size * 100 + 0.01)
-                            # dn_progress["value"] = progress
-                            dn_status.configure(text=repl(repl(lang("gui.filedownload.function().downloadingprocess"), 1, round(bytes_written / 1048576,2)), 2, round(file_size / 1048576,2)))
-                            app.update_idletasks()
-                            dn_progress['value'] = bytes_written / file_size * 100
-                        if 'Error 404'.encode(encoding='utf-8') in chunk:
-                            messagebox.showerror(lang("error"), repl(lang("gui.filedownload.function(except).id_not_find"), 1, g_file_id_entry.get()))
-                            f.close()
-                            os.remove(dn_path.get() + '/' + filename)
-                            return
+                open(dn_path.get() + '/' + filename, "wb").write();
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:
+                        open(dn_path.get() + '/' + filename, "ab").write(chunk)
+                        bytes_written += len(chunk)
+                        # progress = int(bytes_written / total_size * 100 + 0.01)
+                        # dn_progress["value"] = progress
+                        dn_status.configure(text=repl(repl(lang("gui.filedownload.function().downloadingprocess"), 1, round(bytes_written / 1048576,2)), 2, round(file_size / 1048576,2)))
+                        app.update_idletasks()
+                        dn_progress['value'] = bytes_written / file_size * 100
+                    if 'Error 404'.encode(encoding='utf-8') in chunk:
+                        log_error(repl(lang("gui.filedownload.function(except).id_not_find"), 1, g_file_id_entry.get()), mtl)
+                        os.remove(dn_path.get() + '/' + filename)
+                        return
 
-                messagebox.showinfo(lang("info"),repl(lang("gui.filedownload.function(success)"), 1, filename))
+                log_info(repl(lang("gui.filedownload.function(success)"), 1, filename), mtl)
             else:
-                messagebox.showerror(lang("error"), repl(lang("gui.filedownload.function(except).fail"), 1, response.status_code))
+                log_error(lang("error"), repl(lang("gui.filedownload.function(except).fail"), 1, response.status_code), mtl)
         except Exception as e:
             if e.__class__.__name__ == 'PermissionError':
-                messagebox.showerror(lang("error"), repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e))
+                log_error(lang("error"), repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e), mtl)
             else:
-                messagebox.showerror(lang("error"), repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e))
+                log_error(lang("error"), repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
             logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
     @staticmethod
     def discord_download():
         # 构建请求的 URL
         if d_file_link_entry.get() == '':
-            messagebox.showerror(lang("error"), lang("gui.filedownload.function(except).link_is_empty"))
+            log_error(lang("gui.filedownload.function(except).link_is_empty"), mtl)
             return
 
         try:
@@ -457,29 +437,28 @@ class downloadFile:
 
                 bytes_written = 0
                 # total_size = int(response.headers.get('content-length', 0))
-                with open(dn_path.get() + '/' + filename, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=1024):
-                        if chunk:
-                            f.write(chunk)
-                            bytes_written += len(chunk)
-                            dn_status.configure(text=repl(repl(lang("gui.filedownload.function().downloadingprocess"), 1, round(bytes_written / 1048576,2)), 2, round(file_size / 1048576,2)))
-                            app.update_idletasks()
-                            dn_progress['value'] = bytes_written / file_size * 100
-                        if 'Error 404'.encode(encoding='utf-8') in chunk or not chunk:
-                            messagebox.showerror(lang("error"), repl(lang("gui.filedownload.function(except).link_not_find"), 1, g_file_id_entry.get()))
-                            f.close()
-                            os.remove(dn_path.get() + '/' + filename)
-                            return
+                open(dn_path.get() + '/' + filename, "wb").write();
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:
+                        open(dn_path.get() + '/' + filename, "ab").write(chunk)
+                        bytes_written += len(chunk)
+                        dn_status.configure(text=repl(repl(lang("gui.filedownload.function().downloadingprocess"), 1, round(bytes_written / 1048576,2)), 2, round(file_size / 1048576,2)))
+                        app.update_idletasks()
+                        dn_progress['value'] = bytes_written / file_size * 100
+                    if 'Error 404'.encode(encoding='utf-8') in chunk or not chunk:
+                        log_error(repl(lang("gui.filedownload.function(except).link_not_find"), 1, g_file_id_entry.get()), mtl)
+                        os.remove(dn_path.get() + '/' + filename)
+                        return
 
-                messagebox.showinfo(lang("info"), repl(lang("gui.filedownload.function(success)"), 1, filename))
+                log_info(repl(lang("gui.filedownload.function(success)"), 1, filename), mtl)
             else:
-                messagebox.showerror(lang("error"), repl(lang("gui.filedownload.function(except).fail"), 1, response.status_code))
+                log_error(repl(lang("gui.filedownload.function(except).fail"), 1, response.status_code), mtl)
         except Exception as e:
-            logger.error(f"An error occurred.\n{traceback.format_exc()}")
             if e.__class__.__name__ == 'PermissionError':
-                messagebox.showerror(lang("error"), repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e))
+                log_error(repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e), mtl)
             else:
-                messagebox.showerror(lang("error"), repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e))
+                log_error(repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
 
 class MenuFunction:
@@ -490,7 +469,7 @@ class MenuFunction:
  
         # 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
         log_window = tk.Toplevel(app)
-        log_window.title(lang("gui.log.title"))
+        log_window.title(lang("gui.log.name"))
         log_window.geometry("480x540")
         log_window.resizable(0, 0)
         log_text_debug = ScrolledText(log_window, height=10, width=50, font=("Consolas", 8))
@@ -505,18 +484,21 @@ class MenuFunction:
         log_text_debug.tag_configure("error", foreground="red")
         log_text_debug.tag_configure("critical", foreground="purple")
 
-        logs_lines = logs.split('\n')  # Assuming logs is a string with newline-separated entries
-        for line in logs_lines:
-            if "error" in line.lower():  # Check if the line contains the word "error"
-                log_text_debug.insert("end", line + '\n', "error")
-            elif "debug" in line.lower():  # Check if the line contains the word "debug"
-                log_text_debug.insert("end", line + '\n', "debug")
-            elif "info" in line.lower():  # Check if the line contains the word "info"
-                log_text_debug.insert("end", line + '\n', "info")
-            elif "warning" in line.lower():  # Check if the line contains the word "warning"
-                log_text_debug.insert("end", line + '\n', "warning")
-            else:
-                log_text_debug.insert("end", line + '\n', "critical")
+        # wait Achry Edit...
+        print(mtlog.out(mtl))
+        log_text_debug.insert(tk.END, mtlog.out(mtl))
+        ### logs_lines = logs.split('\n')  # Assuming logs is a string with newline-separated entries
+        ### for line in logs_lines:
+        ###     if "error" in line.lower():  # Check if the line contains the word "error"
+        ###         log_text_debug.insert("end", line + '\n', "error")
+        ###     elif "debug" in line.lower():  # Check if the line contains the word "debug"
+        ###         log_text_debug.insert("end", line + '\n', "debug")
+        ###     elif "info" in line.lower():  # Check if the line contains the word "info"
+        ###         log_text_debug.insert("end", line + '\n', "info")
+        ###     elif "warning" in line.lower():  # Check if the line contains the word "warning"
+        ###         log_text_debug.insert("end", line + '\n', "warning")
+        ###     else:
+        ###         log_text_debug.insert("end", line + '\n', "critical")
             
         log_text_debug.text.config(state=tk.DISABLED)
         button_save = tk.Button(log_window, text=lang("gui.log.save"), command=MenuFunction.save_log)
