@@ -552,7 +552,10 @@ def lang(string:str):
         messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
         sys.exit();
     array = string.split(".")
-    js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
+    try:
+        js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
+    except Exception as e:
+        messagebox.showerror("error", "file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__)
     ret = js["language"][js["getNowLanguage"]]
     try: 
         for i in array: ret = ret[i]
