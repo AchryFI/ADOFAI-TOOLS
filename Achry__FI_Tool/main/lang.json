@@ -85,7 +85,7 @@
           "title":"日志",
           "save":"保存",
           "copy":"复制",
-          "copy(success):":"已复制"
+          "function(copy_success)":"已复制"
         }
       },
       "info": "结果",

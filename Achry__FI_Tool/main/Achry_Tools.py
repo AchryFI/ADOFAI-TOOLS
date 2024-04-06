@@ -5,6 +5,7 @@ from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory
 from tkinter import messagebox
 
+from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 import re
 import time
 import requests
@@ -13,28 +14,10 @@ import os
 import sys
 import json
 import logging
+import traceback
+import win32con
 
-
-#我超这边
-def repl(string:str, id:int, to:str):
-    to = str(to)
-    return string.replace("${%s}"%id, to)
-def lang(string:str):
-    if not os.path.exists("lang.json"):
-        messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
-        sys.exit();
-    array = string.split(".")
-    #?下面这行干啥用的
-    print(__file__)
-    js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
-    ret = js["language"][js["getNowLanguage"]]
-    try: 
-        for i in array: ret = ret[i]
-    except Exception as e:
-        messagebox.showerror('error',"No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string)
-        return ""
-    return str(ret)
-
+logs = ""
 #去特效用到的功能
 class noEffect:
     @staticmethod
@@ -74,6 +57,7 @@ class noEffect:
             log_text.insert(tk.END, repl(repl(lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)))
         except Exception as e:
              messagebox.showerror(lang("error"), repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
+             logger.error(f"An error occurred.\n{traceback.format_exc()}")
    
 
     @staticmethod
@@ -229,6 +213,7 @@ class Calc:
                 messagebox.showinfo(lang("info"),repl(repl(lang("gui.calc.function(success)"), 1, general_score), 2, ranked_score))
         except Exception as e:
             messagebox.showerror(lang("error"), repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
 class Search:
     @staticmethod
@@ -326,10 +311,11 @@ class Search:
                 log_text2.insert(tk.END, message)
 
                 
-                
         except Exception as e:
             messagebox.showerror(lang("error"), repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e))
-            # __import__('traceback').print_exc()
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
+            #__import__('traceback').print_exc()
+
     @staticmethod
     def query():
         try:
@@ -358,6 +344,7 @@ class Search:
 
         except Exception as e:
             messagebox.showerror(lang("error"), repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e))
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
 class downloadFile:
     @staticmethod
@@ -426,13 +413,11 @@ class downloadFile:
             else:
                 messagebox.showerror(lang("error"), repl(lang("gui.filedownload.function(except).fail"), 1, response.status_code))
         except Exception as e:
-            import traceback
-            traceback.print_exc()
-
             if e.__class__.__name__ == 'PermissionError':
                 messagebox.showerror(lang("error"), repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e))
             else:
                 messagebox.showerror(lang("error"), repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e))
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
     @staticmethod
     def discord_download():
@@ -482,9 +467,7 @@ class downloadFile:
             else:
                 messagebox.showerror(lang("error"), repl(lang("gui.filedownload.function(except).fail"), 1, response.status_code))
         except Exception as e:
-            import traceback
-            traceback.print_exc()
-
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
             if e.__class__.__name__ == 'PermissionError':
                 messagebox.showerror(lang("error"), repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e))
             else:
@@ -492,25 +475,80 @@ class downloadFile:
 
 
 class MenuFunction:
+
     @staticmethod
     def show_log_ui():
-        #新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
-        log_window = tk.Toplevel(app)
-        log_window.title(lang("gui.log.title"))
-        log_window.geometry("480x540")
-        log_window.resizable(0, 0)
-        log_text = ScrolledText(log_window, height=10, width=50)
-        log_text.pack(fill="both", expand=True)
-        button_save = tk.Button(log_window, text=lang("gui.log.save"), command=lambda: MenuFunction.write_clipboard(log_text.get("1.0",tk.END)))
-        button_save.pack(fill="x")
-        button_copy = tk.Button(log_window, text=lang("gui.log.copy"), command=...)
-        button_copy.pack(fill="x")
-        log_window.mainloop()
+            global log_text_debug,logs
+            #新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
+            log_window = tk.Toplevel(app)
+            log_window.title(lang("gui.log.title"))
+            log_window.geometry("480x540")
+            log_window.resizable(0, 0)
+            log_text_debug = ScrolledText(log_window, height=10, width=50)
+            log_text_debug.pack(fill="both", expand=True)
+            log_text_debug.insert("1.0",logs)
+            button_save = tk.Button(log_window, text=lang("gui.log.save"))
+            button_save.pack(fill="x")
+            button_copy = tk.Button(log_window, text=lang("gui.log.copy"), command=lambda: MenuFunction.write_clipboard(log_text.get("1.0",tk.END)))
+            button_copy.pack(fill="x")
+
+            log_window.mainloop()
+    
+    def insert_line_log(log):
+        global logs
+        print(log)
+        logs += log
+
 
     @staticmethod
     def write_clipboard(text):
         print(text)
-        os.system(f"echo {text} | clip")
+        OpenClipboard()
+        SetClipboardData(win32con.CF_UNICODETEXT, text)
+        CloseClipboard()
+        messagebox.showinfo(lang("gui.log.function(copy_success)"), lang("gui.log.function(copy_success)"))
+
+
+#我超这边
+def repl(string:str, id:int, to:str):
+    to = str(to)
+    return string.replace("${%s}"%id, to)
+
+def lang(string:str):
+    if not os.path.exists("lang.json"):
+        messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
+        sys.exit();
+    array = string.split(".")
+    js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
+    ret = js["language"][js["getNowLanguage"]]
+    try: 
+        for i in array: ret = ret[i]
+    except Exception as e:
+        messagebox.showerror('error',"No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string)
+        return ""
+    return str(ret)
+
+
+# 创建一个继承自 logging.Handler 的自定义日志处理器
+class CustomHandler(logging.Handler):
+    def emit(self, record):
+        # 使用日志记录的消息调用自定义函数
+        log_message = self.format(record)
+        MenuFunction.insert_line_log(log_message)
+
+# 创建一个日志记录器
+logger = logging.getLogger('')
+logger.setLevel(logging.INFO)
+
+# 创建自定义处理器的实例，并添加到日志记录器
+custom_handler = CustomHandler()
+logger.addHandler(custom_handler)
+
+# 配置日志消息的格式
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+custom_handler.setFormatter(formatter)
+
+
 
 app = tk.Tk()
 app.title("ADOFAI Tools _ v1.O.1 _ _Achry_")
