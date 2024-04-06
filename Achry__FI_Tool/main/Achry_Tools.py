@@ -487,25 +487,38 @@ class MenuFunction:
     @staticmethod
     def show_log_ui():
         global log_text_debug, logs
+ 
         # 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
         log_window = tk.Toplevel(app)
         log_window.title(lang("gui.log.title"))
         log_window.geometry("480x540")
         log_window.resizable(0, 0)
-        log_text_debug = ScrolledText(log_window, height=10, width=50)
+        log_text_debug = ScrolledText(log_window, height=10, width=50, font=("Consolas", 8))
         log_text_debug.pack(fill="both", expand=True)
-
+        log_text_debug.text.config(state=tk.DISABLED)
         # Configure a tag for error messages in red
-        log_text_debug.tag_configure("error", foreground="red")
-
+        log_text_debug.text.config(state=tk.NORMAL)
         # Insert logs into the text widget, highlighting errors in red
+        log_text_debug.tag_configure("debug", foreground="gray")
+        log_text_debug.tag_configure("info", foreground="green")
+        log_text_debug.tag_configure("warning", foreground="orange")
+        log_text_debug.tag_configure("error", foreground="red")
+        log_text_debug.tag_configure("critical", foreground="purple")
+
         logs_lines = logs.split('\n')  # Assuming logs is a string with newline-separated entries
         for line in logs_lines:
             if "error" in line.lower():  # Check if the line contains the word "error"
                 log_text_debug.insert("end", line + '\n', "error")
+            elif "debug" in line.lower():  # Check if the line contains the word "debug"
+                log_text_debug.insert("end", line + '\n', "debug")
+            elif "info" in line.lower():  # Check if the line contains the word "info"
+                log_text_debug.insert("end", line + '\n', "info")
+            elif "warning" in line.lower():  # Check if the line contains the word "warning"
+                log_text_debug.insert("end", line + '\n', "warning")
             else:
-                log_text_debug.insert("end", line + '\n')
-
+                log_text_debug.insert("end", line + '\n', "critical")
+            
+        log_text_debug.text.config(state=tk.DISABLED)
         button_save = tk.Button(log_window, text=lang("gui.log.save"), command=MenuFunction.save_log)
         button_save.pack(fill="x")
         button_copy = tk.Button(log_window, text=lang("gui.log.copy"), command=lambda: MenuFunction.write_clipboard(logs))
@@ -582,7 +595,7 @@ custom_handler = CustomHandler()
 logger.addHandler(custom_handler)
 
 # 配置日志消息的格式
-formatter = logging.Formatter('[%(levelname)s] %(asctime)s: %(message)s\n')
+formatter = logging.Formatter('[%(asctime)s/%(levelname)s]: %(message)s\n')
 custom_handler.setFormatter(formatter)
 
 
@@ -844,6 +857,5 @@ changelog_text.insert(tk.END, default_changelog)
 
 # 禁止编辑更新日志文本框
 changelog_text.config(state=tk.DISABLED)
-
 # 启动Tkinter的事件循环
 app.mainloop()
