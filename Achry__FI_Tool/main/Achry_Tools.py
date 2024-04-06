@@ -2,7 +2,7 @@ import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
-from tkinter.filedialog import askopenfilename, askdirectory
+from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
 from tkinter import messagebox
 
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
@@ -45,7 +45,13 @@ class noEffect:
         try:
             file_contents = open(filename, 'r', encoding='utf8').read()
             # 用正则把传进来的reList遍历一遍
-            for i in ["SetObject","AddObject","SetFilterAdvanced","SetFloorIcon","AnimateTrack", "MoveTrack", "MoveDecorations", "SetText", "PositionTrack", "RecolorTrack", "ColorTrack", "CustomBackground", "Flash", "MoveCamera", "SetFilter", "HallOfMirrors", "ShakeScreen", "Bloom", "ScreenTile", "ScreenScroll", "RepeatEvents", "SetConditionalEvents", "AddDecoration", "AddText"]:
+            uneffects = uneffect.get().split(',')
+            effects = ["SetObject","AddObject","SetFilterAdvanced","SetFloorIcon","AnimateTrack", "MoveTrack", "MoveDecorations", "SetText", "PositionTrack", "RecolorTrack", "ColorTrack", "CustomBackground", "Flash", "MoveCamera", "SetFilter", "HallOfMirrors", "ShakeScreen", "Bloom", "ScreenTile", "ScreenScroll", "RepeatEvents", "SetConditionalEvents", "AddDecoration", "AddText"]
+            
+            for i in uneffects:
+                effects.remove(i)
+            
+            for i in effects:
                 # 设置正则
                 regex_pattern = r'{.*?"' + i + r'".*?},'
                 # 进行替换操作
@@ -401,8 +407,9 @@ class downloadFile:
                             bytes_written += len(chunk)
                             # progress = int(bytes_written / total_size * 100 + 0.01)
                             # dn_progress["value"] = progress
-                            dn_status.configure(text=repl(repl(lang("gui.filedownload.function().downloadprocess"), 1, round(bytes_written / 1048576,2)), 2, round(file_size / 1048576,2)))
+                            dn_status.configure(text=repl(repl(lang("gui.filedownload.function().downloadingprocess"), 1, round(bytes_written / 1048576,2)), 2, round(file_size / 1048576,2)))
                             app.update_idletasks()
+                            dn_progress['value'] = bytes_written / file_size * 100
                         if 'Error 404'.encode(encoding='utf-8') in chunk:
                             messagebox.showerror(lang("error"), repl(lang("gui.filedownload.function(except).id_not_find"), 1, g_file_id_entry.get()))
                             f.close()
@@ -455,8 +462,9 @@ class downloadFile:
                         if chunk:
                             f.write(chunk)
                             bytes_written += len(chunk)
-                            dn_status.configure(text=repl(repl(lang("gui.filedownload.function().downloadprocess"), 1, round(bytes_written / 1048576,2)), 2, round(file_size / 1048576,2)))
+                            dn_status.configure(text=repl(repl(lang("gui.filedownload.function().downloadingprocess"), 1, round(bytes_written / 1048576,2)), 2, round(file_size / 1048576,2)))
                             app.update_idletasks()
+                            dn_progress['value'] = bytes_written / file_size * 100
                         if 'Error 404'.encode(encoding='utf-8') in chunk or not chunk:
                             messagebox.showerror(lang("error"), repl(lang("gui.filedownload.function(except).link_not_find"), 1, g_file_id_entry.get()))
                             f.close()
@@ -478,21 +486,32 @@ class MenuFunction:
 
     @staticmethod
     def show_log_ui():
-            global log_text_debug,logs
-            #新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
-            log_window = tk.Toplevel(app)
-            log_window.title(lang("gui.log.title"))
-            log_window.geometry("480x540")
-            log_window.resizable(0, 0)
-            log_text_debug = ScrolledText(log_window, height=10, width=50)
-            log_text_debug.pack(fill="both", expand=True)
-            log_text_debug.insert("1.0",logs)
-            button_save = tk.Button(log_window, text=lang("gui.log.save"))
-            button_save.pack(fill="x")
-            button_copy = tk.Button(log_window, text=lang("gui.log.copy"), command=lambda: MenuFunction.write_clipboard(log_text.get("1.0",tk.END)))
-            button_copy.pack(fill="x")
+        global log_text_debug, logs
+        # 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
+        log_window = tk.Toplevel(app)
+        log_window.title(lang("gui.log.title"))
+        log_window.geometry("480x540")
+        log_window.resizable(0, 0)
+        log_text_debug = ScrolledText(log_window, height=10, width=50)
+        log_text_debug.pack(fill="both", expand=True)
 
-            log_window.mainloop()
+        # Configure a tag for error messages in red
+        log_text_debug.tag_configure("error", foreground="red")
+
+        # Insert logs into the text widget, highlighting errors in red
+        logs_lines = logs.split('\n')  # Assuming logs is a string with newline-separated entries
+        for line in logs_lines:
+            if "error" in line.lower():  # Check if the line contains the word "error"
+                log_text_debug.insert("end", line + '\n', "error")
+            else:
+                log_text_debug.insert("end", line + '\n')
+
+        button_save = tk.Button(log_window, text=lang("gui.log.save"), command=MenuFunction.save_log)
+        button_save.pack(fill="x")
+        button_copy = tk.Button(log_window, text=lang("gui.log.copy"), command=lambda: MenuFunction.write_clipboard(logs))
+        button_copy.pack(fill="x")
+
+        log_window.mainloop()
     
     def insert_line_log(log):
         global logs
@@ -507,6 +526,20 @@ class MenuFunction:
         SetClipboardData(win32con.CF_UNICODETEXT, text)
         CloseClipboard()
         messagebox.showinfo(lang("gui.log.function(copy_success)"), lang("gui.log.function(copy_success)"))
+
+    def save_log():
+        # Define the content to be saved
+        global logs
+        
+        # Ask the user for a filename to save the content
+        file_path = asksaveasfilename(defaultextension=".log",
+                                                filetypes=[("log files", "*.log"), ("All files", "*.*")])
+        
+        # Check if the user entered a file path
+        if file_path:
+            # Open the file at the specified path and write the content
+            with open(file_path, 'w') as file:
+                file.write(logs)
 
 
 #我超这边
@@ -525,6 +558,7 @@ def lang(string:str):
         for i in array: ret = ret[i]
     except Exception as e:
         messagebox.showerror('error',"No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string)
+        logger.error("No get lang \"%s\" as lang.json."%string)
         return ""
     return str(ret)
 
@@ -545,7 +579,7 @@ custom_handler = CustomHandler()
 logger.addHandler(custom_handler)
 
 # 配置日志消息的格式
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('[%(levelname)s] %(asctime)s: %(message)s\n')
 custom_handler.setFormatter(formatter)
 
 
@@ -572,6 +606,10 @@ entry_path = ttk.Entry(frame, width=30)
 entry_path.grid(row=0, column=1, padx=5, pady=5)
 button_browse = ttk.Button(frame, text=lang("gui.noeffect.browse"), command=noEffect.select_file)
 button_browse.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+label_path = ttk.Label(frame, text=lang("gui.noeffect.unremoved"))
+label_path.grid(row=1, column=0, padx=5, pady=5)
+uneffect = ttk.Entry(frame, width=30)
+uneffect.grid(row=1, column=1, padx=5, pady=5)
 frame.pack(fill="x")
 log_text = ScrolledText(level_conversion_frame, height=10, width=50)
 log_text.pack(fill="both", expand=True)
@@ -724,6 +762,9 @@ browse_button.grid(row=1, column=2, padx=5, pady=5)
 
 dn_status = ttk.Label(dn_setting, text=lang("gui.filedownload.status"))
 dn_status.grid(row=2, column=0, padx=5, pady=5)
+
+dn_progress = ttk.Progressbar(file_dn, orient="horizontal", length=200, mode="determinate")
+dn_progress.grid(row=3, column=0, padx=5, pady=5, sticky="ew", columnspan=1)
 
 notebook.add(file_dn,text=lang("gui.filedownload.name"))
 

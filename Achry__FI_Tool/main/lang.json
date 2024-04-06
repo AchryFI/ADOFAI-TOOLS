@@ -8,6 +8,7 @@
           "convert": "转换",
           "browse": "浏览",
           "file_path": "关卡路径:",
+          "unremoved": "不去除特效(逗号分割):",
           "function(except)": {
             "not_adofai_file": "选择的文件不是ADOFAI文件",
             "not_select_file": "未选择文件",
