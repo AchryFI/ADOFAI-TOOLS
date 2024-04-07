@@ -59,18 +59,15 @@ class noEffect:
         try:
             file_contents = open(filename, 'r', encoding='utf8').read()
             # 用正则把传进来的reList遍历一遍
-            effects = "$|SetObject|AddObject|SetFilterAdvanced|SetFloorIcon|AnimateTrack|MoveTrack|MoveDecorations|SetText|PositionTrack|RecolorTrack|ColorTrack|CustomBackground|Flash|MoveCamera|SetFilter|HallOfMirrors|ShakeScreen|Bloom|ScreenTile|ScreenScroll|RepeatEvents|SetConditionalEvents|AddDecoration|AddText|$"
-            # Prepare the pattern by removing leading and trailing '|' characters
-            pattern = r'{ ("floor": \d+, )?"eventType": "%s".*?}(,?)\s*\n' % re.sub(r"^\$|\$$", "", effects)
-
-            for i in uneffect.get().split(','):
-                effects = re.sub(r"\|%s\|"%i, "|", effects)
-
-            # 设置正则 + 进行替换操作
-            file_contents = re.sub(pattern, '', file_contents)
+            for i in ["SetObject","AddObject","SetFilterAdvanced","SetFloorIcon","AnimateTrack", "MoveTrack", "MoveDecorations", "SetText", "PositionTrack", "RecolorTrack", "ColorTrack", "CustomBackground", "Flash", "MoveCamera", "SetFilter", "HallOfMirrors", "ShakeScreen", "Bloom", "ScreenTile", "ScreenScroll", "RepeatEvents", "SetConditionalEvents", "AddDecoration", "AddText"]:
+                # 设置正则
+                regex_pattern = r'{.*?"' + i + r'".*?},'
+                # 进行替换操作
+                file_contents = re.sub(regex_pattern, '', file_contents)
 
             file_directory = os.path.dirname(filename)
             open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(file_contents)
+
             end_time = time.time()
             log_insert(log_text, repl(repl(lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)), mtl)
         except Exception as e:
