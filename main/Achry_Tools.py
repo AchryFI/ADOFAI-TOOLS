@@ -18,7 +18,8 @@ import traceback
 import win32con
 # import logging
 
-mtl = mtlog.new("log")
+logtime = "log%s"%int(time.time()*1000);
+mtl = mtlog.new(logtime)
 def log_fail(w, l):
     messagebox.showerror(lang("fail"), w)
     mtlog.inp(traceback.format_exc(), l, 4)
@@ -497,7 +498,7 @@ class MenuFunction:
         log_text_debug.tag_configure("DEBUG", foreground="#BFBFBF", background="#303841")
 
         mtl.close()
-        mtl = mtlog.new("log")
+        mtl = mtlog.new(logtime)
         logs = mtlog.out(mtl)
         this_endLog = "INFO"
         logs_lines = re.sub(r"\n\n", "\n", logs).split('\n')  # Assuming logs is a string with newline-separated entries
@@ -583,7 +584,7 @@ def lang(string:str):
     return str(ret)
 
 app = tk.Tk()
-app.title("ADOFAI Tools _ v1.O.2 _ _Achry_")
+app.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
 app.geometry("480x540")
 # 创建Notebook
 notebook = ttk.Notebook(app, bootstyle='info')
@@ -787,7 +788,7 @@ label_email.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 label_changelog = ttk.Label(page, text=lang("gui.about.updateLog"), font=('Helvetica', 16, 'bold'))
 label_changelog.grid(row=6, column=0, columnspan=2, padx=10, pady=10, sticky="w")
 
-changelog_text = tk.Text(page, height=3, width=50)
+changelog_text = tk.Text(page, height=12, width=63)
 changelog_text.grid(row=7, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
 
 ################################################################
@@ -812,8 +813,13 @@ app.config(menu=menubar)
 """"""
 
 # 插入默认更新日志
-default_changelog = "版本 1.0.1:\n- 更删除了欢迎页面，添加了关于页面\n- 将f-string外层单引号改为双引号"
-changelog_text.insert(tk.END, default_changelog)
+default_changelog = [
+    "版本 1.0.1:\n- 更删除了欢迎页面，添加了关于页面\n- 将f-string外层单引号改为双引号",
+    "版本 1.0.2:\n- 允许选择不需要删除的特效类型 并且允许它保存在Non-Effect里\n- 在文件下载中添加了进度栏\n- 添加了logging 库\n- 添加了日志功能",
+    "版本 1.0.3:\n- 删除了logging库 转用mtlog 这使得允许自动保存日志(更方便调试)\n- 更新了日志颜色区分",
+]
+for i in default_changelog:
+    changelog_text.insert(tk.END, i+"\n")
 
 # 禁止编辑更新日志文本框
 changelog_text.config(state=tk.DISABLED)
