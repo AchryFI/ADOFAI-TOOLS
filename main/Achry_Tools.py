@@ -60,19 +60,21 @@ class noEffect:
             file_contents = open(filename, 'r', encoding='utf8').read()
             # 用正则把传进来的reList遍历一遍
             effects = "$|SetObject|AddObject|SetFilterAdvanced|SetFloorIcon|AnimateTrack|MoveTrack|MoveDecorations|SetText|PositionTrack|RecolorTrack|ColorTrack|CustomBackground|Flash|MoveCamera|SetFilter|HallOfMirrors|ShakeScreen|Bloom|ScreenTile|ScreenScroll|RepeatEvents|SetConditionalEvents|AddDecoration|AddText|$"
-            
+            # Prepare the pattern by removing leading and trailing '|' characters
+            pattern = r'{ ("floor": \d+, )?"eventType": "%s".*?}(,?)\s*\n' % re.sub(r"^\$|\$$", "", effects)
+
             for i in uneffect.get().split(','):
                 effects = re.sub(r"\|%s\|"%i, "|", effects)
-            
+
             # 设置正则 + 进行替换操作
-            file_contents = re.sub(r'{ ("floor": \d+, )?"eventType": "%s".*?}(,?)\s*\n'%re.sub(r"$\||\|$", "", effects), '', file_contents)
+            file_contents = re.sub(pattern, '', file_contents)
 
             file_directory = os.path.dirname(filename)
             open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(file_contents)
             end_time = time.time()
             log_insert(log_text, repl(repl(lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)), mtl)
         except Exception as e:
-            log_error(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
+            messagebox.showerror(lang("error"), repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
             logger.error(f"An error occurred.\n{traceback.format_exc()}")
    
 
@@ -210,6 +212,7 @@ class Calc:
                 )
         except Exception as e:
             log_error(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+
             logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
 class Search:
@@ -487,18 +490,14 @@ class MenuFunction:
         # wait Achry Edit...
         print(mtlog.out(mtl))
         log_text_debug.insert(tk.END, mtlog.out(mtl))
-        ### logs_lines = logs.split('\n')  # Assuming logs is a string with newline-separated entries
-        ### for line in logs_lines:
-        ###     if "error" in line.lower():  # Check if the line contains the word "error"
-        ###         log_text_debug.insert("end", line + '\n', "error")
-        ###     elif "debug" in line.lower():  # Check if the line contains the word "debug"
-        ###         log_text_debug.insert("end", line + '\n', "debug")
-        ###     elif "info" in line.lower():  # Check if the line contains the word "info"
-        ###         log_text_debug.insert("end", line + '\n', "info")
-        ###     elif "warning" in line.lower():  # Check if the line contains the word "warning"
-        ###         log_text_debug.insert("end", line + '\n', "warning")
-        ###     else:
-        ###         log_text_debug.insert("end", line + '\n', "critical")
+        logs_lines = logs.split('\n')  # Assuming logs is a string with newline-separated entries
+        0
+        for line in logs_lines:
+             if "error" in line.lower():      log_text_debug.insert("end", line + '\n', "error")
+             elif "debug" in line.lower():    log_text_debug.insert("end", line + '\n', "debug")
+             elif "info" in line.lower():     log_text_debug.insert("end", line + '\n', "info")
+             elif "warning" in line.lower():  log_text_debug.insert("end", line + '\n', "warning")
+             else:                            log_text_debug.insert("end", line + '\n', "critical")
             
         log_text_debug.text.config(state=tk.DISABLED)
         button_save = tk.Button(log_window, text=lang("gui.log.save"), command=MenuFunction.save_log)
