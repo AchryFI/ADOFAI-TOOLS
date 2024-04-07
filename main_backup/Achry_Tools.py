@@ -18,13 +18,8 @@ import logging
 import traceback
 import win32con
 
-logs = ""
+logs = "error: hallo"
 mtl = mtlog.new("log")
-def log_fail(w, l, failcustom=False):
-    messagebox.showerror(lang("fail"), w)
-    if failcustom: mtlog.inp(w, l, 4)
-    else: mtlog.inp(traceback.format_exc(), l, 4)
-    pass
 def log_error(w, l):
     messagebox.showerror(lang("error"), w)
     mtlog.inp(w, l, 3)
@@ -33,12 +28,9 @@ def log_info(w, l):
     messagebox.showinfo(lang("info"), w)
     mtlog.inp(w, l, 1)
     pass
-def log_insert(ins, w, l, lvl=1, failcustom=False):
+def log_insert(ins, w, l):
     ins.insert(tk.END, w)
-    if lvl == 4: 
-        if failcustom:  mtlog.inp(w, l, lvl)
-        else: mtlog.inp(traceback.format_exc(), l, lvl)
-    else: mtlog.inp(w, l, lvl)
+    mtlog.inp(w, l, 1)
     pass
 #去特效用到的功能
 class noEffect:
@@ -65,28 +57,23 @@ class noEffect:
         
         # 在这里处理文件
         try:
-            this()
             file_contents = open(filename, 'r', encoding='utf8').read()
             # 用正则把传进来的reList遍历一遍
             effects = "$|SetObject|AddObject|SetFilterAdvanced|SetFloorIcon|AnimateTrack|MoveTrack|MoveDecorations|SetText|PositionTrack|RecolorTrack|ColorTrack|CustomBackground|Flash|MoveCamera|SetFilter|HallOfMirrors|ShakeScreen|Bloom|ScreenTile|ScreenScroll|RepeatEvents|SetConditionalEvents|AddDecoration|AddText|$"
             
-            if len(uneffect.get()) > 0 :
-                mtlog.inp("get uneffect value", log, 1)
-                for i in uneffect.get().split(','):
-                    mtlog.inp("removed effectList(%s)"%i, log, 1)
-                    effects = re.sub(r"\|%s\|"%i, "|", effects)
-            else:
-                mtlog.inp("not get uneffect value", log, 1)
+            for i in uneffect.get().split(','):
+                effects = re.sub(r"\|%s\|"%i, "|", effects)
             
             # 设置正则 + 进行替换操作
-            file_contents = re.sub(r'\n\t\t\s*{ ("floor": \d+, )?"eventType": "(%s)".*?}(,?)\s*'%re.sub(r"$\||\|$", "", effects), "", file_contents)
+            file_contents = re.sub(r'\n\t\t\s*{ ("floor": \d+, )?"eventType": "(%s)".*?}(,?)\s*'%re.sub(r"$\||\|$", "", effects), '', file_contents)
 
             file_directory = os.path.dirname(filename)
             open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(file_contents)
             end_time = time.time()
             log_insert(log_text, repl(repl(lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)), mtl)
         except Exception as e:
-            log_fail(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+            log_error(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
    
 
     @staticmethod
@@ -222,7 +209,8 @@ class Calc:
                     , mtl
                 )
         except Exception as e:
-            log_fail(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+            log_error(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
 class Search:
     @staticmethod
@@ -233,7 +221,7 @@ class Search:
                 id = entry_id.get()
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 4, True)
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl)
                     return
                 
                 response = requests.get(f"https://be.t21c.kro.kr/levels/{id}", headers={"accept": "application/json"})
@@ -241,7 +229,7 @@ class Search:
 
                 if 'statusCode' in info:
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, info["message"]), 2, info["statusCode"]), 3, id), mtl, 4, True)
+                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, info["message"]), 2, info["statusCode"]), 3, id), mtl)
                     return
                 
                 log_text2.delete(1.0, tk.END) 
@@ -261,7 +249,7 @@ class Search:
                 id = entry_id.get()
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 4, True)
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl)
                     return
                 
                 response = requests.get(f"https://adofai.gg/api/v1/levels/{id}")
@@ -270,44 +258,34 @@ class Search:
                 if 'errors' in info:
                     msg = info["errors"][0]
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, msg["message"]), 2, msg["code"]), 3, id), mtl, 4, True)
+                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, msg["message"]), 2, msg["code"]), 3, id), mtl)
                     return
-                try: info["artists"] = [artist['name'] for artist in info['music']['artists']]
-                except: 
-                    mtlog.inp("not artist in info[\"artist\"]", mtl, 3)
-                    info["artists"] = "-"
-                try: info["creators"] = [creator['name'] for creator in info['creators']]
-                except: 
-                    mtlog.inp("not creators in info[\"creators\"]", mtl, 3)
-                    info["creators"] = "-"
-                try: info["tags"] = [tag['name'] for tag in info['tags']]
-                except: 
-                    mtlog.inp("not tags in info[\"tags\"]", mtl, 3)
-                    info["tags"] = "-"
-                
+
                 log_text2.delete(1.0, tk.END) 
                 log_insert(log_text2, 
                 repl(repl(repl(repl(repl(repl(repl(repl(repl(repl(lang("gui.levelsearch.function(ADOFAIGG_success)")
                 , 1, info['id'])
-                , 2, info["artists"])
+                , 2, [artist['name'] for artist in info['music']['artists']])
                 , 3, info['title'])
-                , 4, info["creators"])
+                , 4, [creator['name'] for creator in info['creators']])
                 , 5, info['difficulty'])
                 , 6, info['video'])
                 , 7, info['download'])
                 , 8, info['workshop'])
                 , 9, info['tiles'])
-                , 10, info["tags"]), mtl)
+                , 10, [tag['name'] for tag in info['tags']]), mtl)
             
             else:
-                id = entry_id.get()
+                id = int(entry_id.get())
 
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 4, True)
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl)
                     return
+                
                 aqr = requests.get('https://www.adofaiaqr.top/static/buttonsData.js').text[18:-3]
-                info = eval(aqr)[int(id)-1]
+                id = id-1
+                info = eval(aqr)[id]
 
                 log_text2.delete(1.0, tk.END) 
                 log_insert(log_text2, 
@@ -323,8 +301,9 @@ class Search:
 
                 
         except Exception as e:
-            log_fail(repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
-            ### print_exc()
+            log_error( repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
+            #__import__('traceback').print_exc()
 
     @staticmethod
     def query():
@@ -350,7 +329,8 @@ class Search:
                 , 9, infos['workshopLink']) + '\n\n--------\n\n', mtl)
 
         except Exception as e:
-            log_fail(repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+            log_error(repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+            logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
 class downloadFile:
     @staticmethod
@@ -365,7 +345,7 @@ class downloadFile:
     def google_drive_download():
         # 构建请求的 URL，将 ID 作为参数传递
         if g_file_id_entry.get() == '':
-            log_fail(lang("gui.filedownload.function(except).id_is_empty"), mtl, 1)
+            log_error(lang("gui.filedownload.function(except).id_is_empty"))
             return
         url = f"https://hjtbrz.mcfuns.cn/application/test/gdrive.php?id={g_file_id_entry.get()}"
 
@@ -421,16 +401,16 @@ class downloadFile:
                 log_error(lang("error"), repl(lang("gui.filedownload.function(except).fail"), 1, response.status_code), mtl)
         except Exception as e:
             if e.__class__.__name__ == 'PermissionError':
-                log_fail(repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e), mtl)
+                log_error(lang("error"), repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e), mtl)
             else:
-                log_fail(repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+                log_error(lang("error"), repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
             logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
     @staticmethod
     def discord_download():
         # 构建请求的 URL
         if d_file_link_entry.get() == '':
-            log_fail(lang("gui.filedownload.function(except).link_is_empty"), mtl, True)
+            log_error(lang("gui.filedownload.function(except).link_is_empty"), mtl)
             return
 
         try:
@@ -480,13 +460,14 @@ class downloadFile:
                 log_error(repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
             logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
+
 class MenuFunction:
 
     @staticmethod
     def show_log_ui():
-        global log_text_debug, logs, mtl
+        global log_text_debug, logs
  
-        # 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志=
+        # 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
         log_window = tk.Toplevel(app)
         log_window.title(lang("gui.log.name"))
         log_window.geometry("480x540")
@@ -497,35 +478,27 @@ class MenuFunction:
         # Configure a tag for error messages in red
         log_text_debug.text.config(state=tk.NORMAL)
         # Insert logs into the text widget, highlighting errors in red
-        log_text_debug.tag_configure("INFO", foreground="#FFFFFF", background="#303841")
-        log_text_debug.tag_configure("WARN", foreground="#FFFF00", background="#303841")
-        log_text_debug.tag_configure("ERROR", foreground="#FFFFFF", background="#FF5555")
-        log_text_debug.tag_configure("FAIL", foreground="#FFFFFF", background="#BF0000")
-        log_text_debug.tag_configure("DEBUG", foreground="#BFBFBF", background="#303841")
+        log_text_debug.tag_configure("debug", foreground="gray")
+        log_text_debug.tag_configure("info", foreground="green")
+        log_text_debug.tag_configure("warning", foreground="orange")
+        log_text_debug.tag_configure("error", foreground="red")
+        log_text_debug.tag_configure("critical", foreground="purple")
 
-        mtl.close()
-        mtl = mtlog.new("log")
-        logs = mtlog.out(mtl)
-        this_endLog = "INFO"
-        logs_lines = re.sub(r"\n\n", "\n", logs).split('\n')  # Assuming logs is a string with newline-separated entries
+        # wait Achry Edit...
+        # print(mtlog.out(mtl))
+        # log_text_debug.insert(tk.END, mtlog.out(mtl))
+        logs_lines = logs.split('\n')  # Assuming logs is a string with newline-separated entries
         for line in logs_lines:
-            if "[ModsTag/INFO]" in line:    
-                log_text_debug.insert("end", line + '\n', "INFO")
-                this_endLog = "INFO"
-            elif "[ModsTag/WARN]" in line:  
-                log_text_debug.insert("end", line + '\n', "WARN")
-                this_endLog = "WARN"
-            elif "[ModsTag/ERROR]" in line: 
-                log_text_debug.insert("end", line + '\n', "ERROR")
-                this_endLog = "ERROR"
-            elif "[ModsTag/FAIL]" in line:  
-                log_text_debug.insert("end", line + '\n', "FAIL")
-                this_endLog = "FAIL"
-            elif "[ModsTag/DEBUG]" in line: 
-                log_text_debug.insert("end", line + '\n', "DEBUG")
-                this_endLog = "DEBUG"
-            else: 
-                log_text_debug.insert("end", line + '\n', this_endLog)
+            if "error" in line.lower():  # Check if the line contains the word "error"
+                log_text_debug.insert("end", line + '\n', "error")
+            elif "debug" in line.lower():  # Check if the line contains the word "debug"
+                log_text_debug.insert("end", line + '\n', "debug")
+            elif "info" in line.lower():  # Check if the line contains the word "info"
+                log_text_debug.insert("end", line + '\n', "info")
+            elif "warning" in line.lower():  # Check if the line contains the word "warning"
+                log_text_debug.insert("end", line + '\n', "warning")
+            else:
+                log_text_debug.insert("end", line + '\n', "critical")
             
         log_text_debug.text.config(state=tk.DISABLED)
         button_save = tk.Button(log_window, text=lang("gui.log.save"), command=MenuFunction.save_log)
@@ -610,7 +583,7 @@ custom_handler.setFormatter(formatter)
 
 
 app = tk.Tk()
-app.title("ADOFAI Tools _ v1.O.2 _ _Achry_")
+app.title("ADOFAI Tools _ v1.O.1 _ _Achry_")
 app.geometry("480x540")
 # 创建Notebook
 notebook = ttk.Notebook(app, bootstyle='info')
@@ -635,6 +608,7 @@ label_path = ttk.Label(frame, text=lang("gui.noeffect.unremoved"))
 label_path.grid(row=1, column=0, padx=5, pady=5)
 uneffect = ttk.Entry(frame, width=30)
 uneffect.grid(row=1, column=1, padx=5, pady=5)
+# 等待Achry制作一个文本框 用于自定义保存输入的名称
 frame.pack(fill="x")
 log_text = ScrolledText(level_conversion_frame, height=10, width=50)
 log_text.pack(fill="both", expand=True)
