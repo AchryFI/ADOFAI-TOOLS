@@ -55,11 +55,17 @@ class noEffect:
             return
         start = time.time()
         
-        # 在这里处理文件
+                # 在这里处理文件
         try:
             file_contents = open(filename, 'r', encoding='utf8').read()
             # 用正则把传进来的reList遍历一遍
-            for i in ["SetObject","AddObject","SetFilterAdvanced","SetFloorIcon","AnimateTrack", "MoveTrack", "MoveDecorations", "SetText", "PositionTrack", "RecolorTrack", "ColorTrack", "CustomBackground", "Flash", "MoveCamera", "SetFilter", "HallOfMirrors", "ShakeScreen", "Bloom", "ScreenTile", "ScreenScroll", "RepeatEvents", "SetConditionalEvents", "AddDecoration", "AddText"]:
+            uneffects = uneffect.get().split(',')
+            effects = ["SetObject","AddObject","SetFilterAdvanced","SetFloorIcon","AnimateTrack", "MoveTrack", "MoveDecorations", "SetText", "PositionTrack", "RecolorTrack", "ColorTrack", "CustomBackground", "Flash", "MoveCamera", "SetFilter", "HallOfMirrors", "ShakeScreen", "Bloom", "ScreenTile", "ScreenScroll", "RepeatEvents", "SetConditionalEvents", "AddDecoration", "AddText"]
+            
+            for i in uneffects:
+                effects.remove(i)
+            
+            for i in effects:
                 # 设置正则
                 regex_pattern = r'{.*?"' + i + r'".*?},'
                 # 进行替换操作
@@ -67,7 +73,6 @@ class noEffect:
 
             file_directory = os.path.dirname(filename)
             open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(file_contents)
-
             end_time = time.time()
             log_insert(log_text, repl(repl(lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)), mtl)
         except Exception as e:
