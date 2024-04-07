@@ -1,8 +1,0 @@
-[ModsTag/FAIL]: 'Traceback (most recent call last):\n  File "E:\\data\\User.modstag.Project\\Achry__FI_Tool\\main\\Achry_Tools.py", line 64, in process_file\n    this()\n    ^^^^\nNameError: name 'this' is not defined. Did you forget to import 'this'\n'
-[ModsTag/FAIL]: '错误:\nNameError:name 'this' is not defined\nTraceback (most recent call last):\n  File "E:\\data\\User.modstag.Project\\Achry__FI_Tool\\main\\Achry_Tools.py", line 64, in process_file\n    this()\n    ^^^^\nNameError: name 'this' is not defined. Did you forget to import 'this'\n'
-[ModsTag/ERROR]: '错误:\nKeyError:'message''
-[ModsTag/ERROR]: '错误:\nKeyError:'message''
-[ModsTag/FAIL]: 'NoneType: None\n'
-[ModsTag/FAIL]: 'NoneType: None\n'
-[ModsTag/ERROR]: '错误:\nValueError:'
-[ModsTag/ERROR]: '错误:\nValueError:'

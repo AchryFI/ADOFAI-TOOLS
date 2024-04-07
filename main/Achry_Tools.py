@@ -14,16 +14,14 @@ import webbrowser
 import os
 import sys
 import json
-import logging
 import traceback
 import win32con
+# import logging
 
-logs = ""
 mtl = mtlog.new("log")
-def log_fail(w, l, failcustom=False):
+def log_fail(w, l):
     messagebox.showerror(lang("fail"), w)
-    if failcustom: mtlog.inp(w, l, 4)
-    else: mtlog.inp(traceback.format_exc(), l, 4)
+    mtlog.inp(traceback.format_exc(), l, 4)
     pass
 def log_error(w, l):
     messagebox.showerror(lang("error"), w)
@@ -65,18 +63,17 @@ class noEffect:
         
         # 在这里处理文件
         try:
-            this()
             file_contents = open(filename, 'r', encoding='utf8').read()
             # 用正则把传进来的reList遍历一遍
             effects = "$|SetObject|AddObject|SetFilterAdvanced|SetFloorIcon|AnimateTrack|MoveTrack|MoveDecorations|SetText|PositionTrack|RecolorTrack|ColorTrack|CustomBackground|Flash|MoveCamera|SetFilter|HallOfMirrors|ShakeScreen|Bloom|ScreenTile|ScreenScroll|RepeatEvents|SetConditionalEvents|AddDecoration|AddText|$"
             
             if len(uneffect.get()) > 0 :
-                mtlog.inp("get uneffect value", log, 1)
+                mtlog.inp("get uneffect value", mtl, 1)
                 for i in uneffect.get().split(','):
-                    mtlog.inp("removed effectList(%s)"%i, log, 1)
+                    mtlog.inp("removed effectList(%s)"%i, mtl, 1)
                     effects = re.sub(r"\|%s\|"%i, "|", effects)
             else:
-                mtlog.inp("not get uneffect value", log, 1)
+                mtlog.inp("not get uneffect value", mtl, 1)
             
             # 设置正则 + 进行替换操作
             file_contents = re.sub(r'\n\t\t\s*{ ("floor": \d+, )?"eventType": "(%s)".*?}(,?)\s*'%re.sub(r"$\||\|$", "", effects), "", file_contents)
@@ -233,7 +230,7 @@ class Search:
                 id = entry_id.get()
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 4, True)
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 3)
                     return
                 
                 response = requests.get(f"https://be.t21c.kro.kr/levels/{id}", headers={"accept": "application/json"})
@@ -241,7 +238,7 @@ class Search:
 
                 if 'statusCode' in info:
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, info["message"]), 2, info["statusCode"]), 3, id), mtl, 4, True)
+                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, info["message"]), 2, info["statusCode"]), 3, id), mtl, 3)
                     return
                 
                 log_text2.delete(1.0, tk.END) 
@@ -261,7 +258,7 @@ class Search:
                 id = entry_id.get()
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 4, True)
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 3)
                     return
                 
                 response = requests.get(f"https://adofai.gg/api/v1/levels/{id}")
@@ -270,7 +267,7 @@ class Search:
                 if 'errors' in info:
                     msg = info["errors"][0]
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, msg["message"]), 2, msg["code"]), 3, id), mtl, 4, True)
+                    log_insert(log_text2, repl(repl(repl(lang("gui.levelsearch.function(except).status_error"), 1, msg["message"]), 2, msg["code"]), 3, id), mtl, 3)
                     return
                 try: info["artists"] = [artist['name'] for artist in info['music']['artists']]
                 except: 
@@ -304,7 +301,7 @@ class Search:
 
                 if id == '':
                     log_text2.delete(1.0, tk.END) 
-                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 4, True)
+                    log_insert(log_text2, repl(lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 3)
                     return
                 aqr = requests.get('https://www.adofaiaqr.top/static/buttonsData.js').text[18:-3]
                 info = eval(aqr)[int(id)-1]
@@ -320,11 +317,9 @@ class Search:
                 , 6, info['vluation'])
                 , 7, info['video_herf'])
                 , 8, info['href']), mtl)
-
-                
+      
         except Exception as e:
             log_fail(repl(repl(lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
-            ### print_exc()
 
     @staticmethod
     def query():
@@ -365,7 +360,7 @@ class downloadFile:
     def google_drive_download():
         # 构建请求的 URL，将 ID 作为参数传递
         if g_file_id_entry.get() == '':
-            log_fail(lang("gui.filedownload.function(except).id_is_empty"), mtl, 1)
+            log_error(lang("gui.filedownload.function(except).id_is_empty"), mtl)
             return
         url = f"https://hjtbrz.mcfuns.cn/application/test/gdrive.php?id={g_file_id_entry.get()}"
 
@@ -424,13 +419,12 @@ class downloadFile:
                 log_fail(repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e), mtl)
             else:
                 log_fail(repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
-            logger.error(f"An error occurred.\n{traceback.format_exc()}")
 
     @staticmethod
     def discord_download():
         # 构建请求的 URL
         if d_file_link_entry.get() == '':
-            log_fail(lang("gui.filedownload.function(except).link_is_empty"), mtl, True)
+            log_error(lang("gui.filedownload.function(except).link_is_empty"), mtl)
             return
 
         try:
@@ -475,16 +469,15 @@ class downloadFile:
                 log_error(repl(lang("gui.filedownload.function(except).fail"), 1, response.status_code), mtl)
         except Exception as e:
             if e.__class__.__name__ == 'PermissionError':
-                log_error(repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e), mtl)
+                log_fail(repl(repl(repl(repl(lang("gui.filedownload.function(except).error"), 1, dn_path.get()), 2, filename), 3, e.__class__.__name__), 4, e), mtl)
             else:
-                log_error(repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
-            logger.error(f"An error occurred.\n{traceback.format_exc()}")
+                log_fail(repl(repl(lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
 
 class MenuFunction:
 
     @staticmethod
     def show_log_ui():
-        global log_text_debug, logs, mtl
+        global log_text_debug, mtl
  
         # 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志=
         log_window = tk.Toplevel(app)
@@ -578,36 +571,16 @@ def lang(string:str):
         js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
     except Exception as e:
         messagebox.showerror("error", "file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__)
+        mtlog.inp("file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__, mtl, 4)
+        return ""
     ret = js["language"][js["getNowLanguage"]]
     try: 
         for i in array: ret = ret[i]
     except Exception as e:
         messagebox.showerror('error',"No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string)
-        logger.error("No get lang \"%s\" as lang.json."%string)
+        mtlog.inp("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string, mtl, 4)
         return ""
     return str(ret)
-
-
-# 创建一个继承自 logging.Handler 的自定义日志处理器
-class CustomHandler(logging.Handler):
-    def emit(self, record):
-        # 使用日志记录的消息调用自定义函数
-        log_message = self.format(record)
-        MenuFunction.insert_line_log(log_message)
-
-# 创建一个日志记录器
-logger = logging.getLogger('')
-logger.setLevel(logging.INFO)
-
-# 创建自定义处理器的实例，并添加到日志记录器
-custom_handler = CustomHandler()
-logger.addHandler(custom_handler)
-
-# 配置日志消息的格式
-formatter = logging.Formatter('[%(asctime)s/%(levelname)s]: %(message)s\n')
-custom_handler.setFormatter(formatter)
-
-
 
 app = tk.Tk()
 app.title("ADOFAI Tools _ v1.O.2 _ _Achry_")
@@ -616,13 +589,10 @@ app.geometry("480x540")
 notebook = ttk.Notebook(app, bootstyle='info')
 
 
-"""
+################################################################
+# No Effect UI                                                 #
+################################################################
 
-------------
-去特效ui
-___________
-
-"""
 level_conversion_frame = ttk.Frame(app)
 frame = ttk.Frame(level_conversion_frame)
 label_path = ttk.Label(frame, text=lang("gui.noeffect.file_path"))
@@ -642,13 +612,11 @@ button_convert = ttk.Button(level_conversion_frame, text=lang("gui.noeffect.conv
 button_convert.pack(fill="x", padx=5, pady=5)
 notebook.add(level_conversion_frame, text=lang("gui.noeffect.name"))
 
-"""
 
-------------
-计算工具ui
-___________
+################################################################
+# Calc UI                                                      #
+################################################################
 
-"""
 notebook.pack(fill=tk.BOTH, expand=True)
 # 创建计算工具帧
 calculation_tool_frame = ttk.Frame(notebook)
@@ -693,15 +661,10 @@ world_rank_entry.grid(row=2, column=3, padx=5, pady=5, sticky="we")
 calculate_button_pp = ttk.Button(calc_label_frame, text=lang("gui.calc.calcScore"), command=Calc.clac_score)
 calculate_button_pp.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
+################################################################
+# Search Chart UI                                              #
+################################################################
 
-
-"""
-
-------------
-关卡查询ui
-___________
-
-"""
 # 创建一个 Frame 用于容纳两个 Frame
 get_level_info_frame = ttk.Frame(app)
 get_level_info_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -742,13 +705,9 @@ log_text2 = ScrolledText(frame_log2, height=10, width=50)
 log_text2.pack(fill="both", expand=True)
 notebook.add(get_level_info_frame, text=lang("gui.levelsearch.name"))
 
-"""
-
-------------
-文件下载ui
-___________
-
-"""
+################################################################
+# File Download UI                                             #
+################################################################
 
 # Google Drive Section
 file_dn = ttk.Frame(app)
@@ -793,13 +752,9 @@ dn_progress.grid(row=3, column=0, padx=5, pady=5, sticky="ew", columnspan=1)
 
 notebook.add(file_dn,text=lang("gui.filedownload.name"))
 
-"""
-
-------------
-欢迎ui
-___________
-
-"""
+################################################################
+# Welcome UI                                                   #
+################################################################
 
 # 创建关于页面
 page = ttk.Frame(notebook)
@@ -835,13 +790,9 @@ label_changelog.grid(row=6, column=0, columnspan=2, padx=10, pady=10, sticky="w"
 changelog_text = tk.Text(page, height=3, width=50)
 changelog_text.grid(row=7, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
 
-"""
-
-------------
-菜单ui
-___________
-
-"""
+################################################################
+# Menu UI                                                      #
+################################################################
 
 #这里写一个菜单栏，有日志（debug用）
 # 创建一个顶级菜单
