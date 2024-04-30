@@ -21,8 +21,10 @@ class mtlog:
   def out(this:str, escaping=False):
     if type(this) != _io.TextIOWrapper: print("this variables not is _io.TextIOWrapper")
     r = open(this.name, "r", encoding=this.encoding).read()
-    print(r)
+    ### print(r)
     if escaping:
       r = r.replace("\\\\", "\\").replace("\\b", "\b").replace("\\f", "\f").replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t")
+    else:
+      r = r.replace("\\n", "\n\t")
     return r
   pass
