@@ -1,6 +1,6 @@
 {
   "getNowLanguage": "zh_cn",
-  "language": {
+  "language": [{
     "zh_cn": {
       "gui" : {
         "noeffect": {
@@ -80,7 +80,8 @@
           "specialThanks": "特别感谢: ",
           "contact_us": "联系我们",
           "email": "邮箱",
-          "updateLog": "更新日志"
+          "updateLog": "更新日志",
+          "github": "Github链接"
         },
         "log":{
           "name":"日志",
@@ -95,5 +96,5 @@
       "yes":"是",
       "no":"否"
     }
-  }
+}]
 }
