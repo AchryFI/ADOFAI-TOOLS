@@ -1,6 +1,6 @@
 import os, _io, sys, time, re, json
 
-class mtlog:
+class log:
   def new(fileName:str, encoding:str="UTF-8"):
     if not os.path.exists("log"): 
       os.system("mkdir log")
@@ -29,6 +29,37 @@ class mtlog:
     return r
   pass
 
+class language:
+  def repl(string:str, id:int, to:str):
+      to = str(to)
+      return string.replace("${%s}"%id, to)
+  def lang(string:str):
+      if not os.path.exists("lang.json"):
+          messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
+          sys.exit();
+      array = string.split(".")
+      try:
+          js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
+      except Exception as e:
+          messagebox.showerror("error", "file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__)
+          mtlog.inp("file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__, mtl, 4)
+          return ""
+      try:
+          for i in js["language"]:
+              for key,val in i.items():
+                  if js["getNowLanguage"] == key:
+                      ret = val
+
+      except:
+          messagebox.showerror('error', traceback.print_exc())
+
+      try: 
+          for i in array: ret = ret[i]
+      except Exception as e:
+          messagebox.showerror('error',"No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string)
+          mtlog.inp("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string, mtl, 4)
+          return ""
+      return str(ret)
 class string_convert:
   def match(patter, string): return {"success": re.match(patter, string) != None, "match": re.match(patter, string) if re.match(patter, string) != None else ""};
   def search(patter, string): return {"success": re.search(patter, string) != None, "match": re.search(patter, string) if re.search(patter, string) != None else ""};

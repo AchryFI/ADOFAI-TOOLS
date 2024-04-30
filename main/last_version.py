@@ -4,7 +4,7 @@ from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
 from tkinter import messagebox
-from mtlog import *
+from mtapi import *
 
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 import re
@@ -21,24 +21,75 @@ import win32con
 logtime = "log%s"%int(time.time()*1000);
 mtl = mtlog.new(logtime)
 def log_fail(w, l):
+    """
+    w : content
+    l : log file
+    """
     messagebox.showerror(lang("fail"), w)
     mtlog.inp(traceback.format_exc(), l, 4)
     pass
 def log_error(w, l):
+    """
+    w : content
+    l : log file
+    """
     messagebox.showerror(lang("error"), w)
     mtlog.inp(w, l, 3)
     pass
 def log_info(w, l):
+    """
+    w : content
+    l : log file
+    """
     messagebox.showinfo(lang("info"), w)
     mtlog.inp(w, l, 1)
     pass
 def log_insert(ins, w, l, lvl=1, failcustom=False):
+    """
+    ins : insert id
+    w : tkinter input
+    l : log file
+    """
     ins.insert(tk.END, w)
     if lvl == 4: 
         if failcustom:  mtlog.inp(w, l, lvl)
         else: mtlog.inp(traceback.format_exc(), l, lvl)
     else: mtlog.inp(w, l, lvl)
     pass
+
+#我超这边
+def repl(string:str, id:int, to:str):
+    to = str(to)
+    return string.replace("${%s}"%id, to)
+
+def lang(string:str):
+    if not os.path.exists("lang.json"):
+        messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
+        sys.exit();
+    array = string.split(".")
+    try:
+        js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
+    except Exception as e:
+        messagebox.showerror("error", "file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__)
+        mtlog.inp("file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__, mtl, 4)
+        return ""
+    try:
+        for i in js["language"]:
+            for key,val in i.items():
+                if js["getNowLanguage"] == key:
+                    ret = val
+
+    except:
+        messagebox.showerror('error', traceback.print_exc())
+
+    try: 
+        for i in array: ret = ret[i]
+    except Exception as e:
+        messagebox.showerror('error',"No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string)
+        mtlog.inp("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string, mtl, 4)
+        return ""
+    return str(ret)
+
 #去特效用到的功能
 class noEffect:
     @staticmethod
@@ -52,6 +103,21 @@ class noEffect:
             entry_path.insert(tk.END, filename)
 
     @staticmethod
+    def insert():
+        true = False
+        get_ = select_box.get()
+        for i in insert_effect:
+            if get_ == i:
+                true = True;
+                break;
+        if true:
+            insert_effect.remove(get_)
+            log_insert(log_text, repl(lang("gui.noeffect.remove_success"), 0, insert_effect), mtl)
+        else: 
+            insert_effect.append(get_)
+            log_insert(log_text, repl(lang("gui.noeffect.add_success"), 0, insert_effect), mtl)
+
+    @staticmethod
     def process_file():
         filename = entry_path.get()
         if not filename:
@@ -62,22 +128,20 @@ class noEffect:
             return
         start = time.time()
         
-        # 在这里处理文件
+        # 在这里处理文件  
         try:
-            file_contents = open(filename, 'r', encoding='utf8').read()
-            # 用正则把传进来的reList遍历一遍
-            effects = "$|SetObject|AddObject|SetFilterAdvanced|SetFloorIcon|AnimateTrack|MoveTrack|MoveDecorations|SetText|PositionTrack|RecolorTrack|ColorTrack|CustomBackground|Flash|MoveCamera|SetFilter|HallOfMirrors|ShakeScreen|Bloom|ScreenTile|ScreenScroll|RepeatEvents|SetConditionalEvents|AddDecoration|AddText|$"
-            
-            if len(uneffect.get()) > 0 :
-                mtlog.inp("get uneffect value", mtl, 1)
-                for i in uneffect.get().split(','):
-                    mtlog.inp("removed effectList(%s)"%i, mtl, 1)
-                    effects = re.sub(r"\|%s\|"%i, "|", effects)
+            file_contents = adofai_convert.to_json(open(filename, 'r', encoding='utf8').readlines())
+            effect = insert_effect
+
+            if len(effect) > 0 :
+                mtlog.inp("get remove effect", mtl, 1)
+                for i in effect:
+                    mtlog.inp("removed effect(%s)"%i, mtl, 1)
+                    regex_pattern = r'\t*\s*\{.*\"eventType\": \"(%s)\".*\}(,?)\s?'%i
+                    # 进行替换操作
+                    file_contents = re.sub(regex_pattern, "", file_contents)
             else:
-                mtlog.inp("not get uneffect value", mtl, 1)
-            
-            # 设置正则 + 进行替换操作
-            file_contents = re.sub(r'\n\t\t\s*{ ("floor": \d+, )?"eventType": "(%s)".*?}(,?)\s*'%re.sub(r"$\||\|$", "", effects), "", file_contents)
+                mtlog.inp("not get remove effect", mtl, 1)
 
             file_directory = os.path.dirname(filename)
             open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(file_contents)
@@ -86,6 +150,40 @@ class noEffect:
         except Exception as e:
             log_fail(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
    
+    @staticmethod
+    def setting():
+        log_window = tk.Toplevel(app)
+        log_window.title(lang("gui.noeffect.name"))
+        log_window.geometry("480x540")
+        setting_effect = ttk.LabelFrame(log_window, text="不需要去的").grid(row=0, column=0)
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=0, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=2, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=4, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=6, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=8, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=10, sticky="nsew")
+
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=0, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=2, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=4, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=6, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=8, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=10, sticky="nsew")
+
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=0, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=2, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=4, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=6, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=8, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=10, sticky="nsew")
+
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=0, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=2, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=4, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=6, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=8, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=10, sticky="nsew")
+
 
     @staticmethod
     def check_file_extension(filename):
@@ -186,14 +284,10 @@ class Calc:
                     return
             
                 #xacc基础分计算
-                if xacc == 100:
-                    xacc_multi = 7
-                elif xacc >= 99.8:
-                    xacc_multi = (xacc - 99.73334) * 15 + 3
-                elif xacc >= 99:
-                    xacc_multi = (xacc - 97) ** 1.5484 - 0.9249
-                elif xacc >= 95:
-                    xacc_multi = ((xacc - 94) ** 1.6) / 12.1326 + 0.9176
+                if xacc == 100: xacc_multi = 7
+                elif xacc >= 99.8: xacc_multi = (xacc - 99.73334) * 15 + 3
+                elif xacc >= 99: xacc_multi = (xacc - 97) ** 1.5484 - 0.9249
+                elif xacc >= 95: xacc_multi = ((xacc - 94) ** 1.6) / 12.1326 + 0.9176
                 else:
                     log_error(lang("gui.calc.function(except).xacc_so_low"), mtl)
                     return
@@ -558,30 +652,10 @@ class MenuFunction:
                 file.write(logs)
 
 
-#我超这边
-def repl(string:str, id:int, to:str):
-    to = str(to)
-    return string.replace("${%s}"%id, to)
-
-def lang(string:str):
-    if not os.path.exists("lang.json"):
-        messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
-        sys.exit();
-    array = string.split(".")
-    try:
-        js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
-    except Exception as e:
-        messagebox.showerror("error", "file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__)
-        mtlog.inp("file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__, mtl, 4)
-        return ""
-    ret = js["language"][js["getNowLanguage"]]
-    try: 
-        for i in array: ret = ret[i]
-    except Exception as e:
-        messagebox.showerror('error',"No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string)
-        mtlog.inp("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string, mtl, 4)
-        return ""
-    return str(ret)
+print(__import__("win32api").GetSystemDefaultLangID())
+locale = {"2052":"zh_cn",
+          "1033":"en_us",
+          "1042":"kr"}
 
 app = tk.Tk()
 app.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
@@ -594,6 +668,7 @@ notebook = ttk.Notebook(app, bootstyle='info')
 # No Effect UI                                                 #
 ################################################################
 
+insert_effect = []
 level_conversion_frame = ttk.Frame(app)
 frame = ttk.Frame(level_conversion_frame)
 label_path = ttk.Label(frame, text=lang("gui.noeffect.file_path"))
@@ -602,10 +677,43 @@ entry_path = ttk.Entry(frame, width=30)
 entry_path.grid(row=0, column=1, padx=5, pady=5)
 button_browse = ttk.Button(frame, text=lang("gui.noeffect.browse"), command=noEffect.select_file)
 button_browse.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
-label_path = ttk.Label(frame, text=lang("gui.noeffect.unremoved"))
+
+button_browse = ttk.Button(frame, text=lang("gui.noeffect.setting"), command=noEffect.setting)
+button_browse.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+label_path = ttk.Label(frame, text=lang("gui.noeffect.removed"))
 label_path.grid(row=1, column=0, padx=5, pady=5)
-uneffect = ttk.Entry(frame, width=30)
-uneffect.grid(row=1, column=1, padx=5, pady=5)
+# uneffect = ttk.Entry(frame, width=30)
+# uneffect.grid(row=1, column=1, padx=5, pady=5)
+select_box = ttk.Combobox(frame, values=[
+    "SetObject",
+    "AddObject",
+    "SetFilterAdvanced",
+    "SetFloorIcon",
+    "AnimateTrack",
+    "MoveTrack",
+    "MoveDecorations",
+    "SetText",
+    "PositionTrack",
+    "RecolorTrack",
+    "ColorTrack",
+    "CustomBackground",
+    "Flash",
+    "MoveCamera",
+    "SetFilter",
+    "HallOfMirrors",
+    "ShakeScreen",
+    "Bloom",
+    "ScreenTile",
+    "ScreenScroll",
+    "RepeatEvents",
+    "SetConditionalEvents",
+    "AddDecoration",
+    "AddText"
+])
+select_box.grid(row=1, column=1, padx=5, pady=5)
+select_box.current(1)
+button_insert = ttk.Button(frame, text=lang("gui.noeffect.insert"), command=noEffect.insert)
+button_insert.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
 frame.pack(fill="x")
 log_text = ScrolledText(level_conversion_frame, height=10, width=50)
 log_text.pack(fill="both", expand=True)
@@ -726,7 +834,7 @@ d_file = ttk.LabelFrame(file_dn, text="discord[Use Link]")
 d_file.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 
 d_file_link = tk.StringVar()
-d_file_link_entry = ttk.Entry(d_file, textvariable=d_file_link, width=48)
+d_file_link_entry = ttk.Entry(d_file, width=48)
 d_file_link_entry.grid(row=0, column=0, padx=5, pady=5)
 
 d_download_button = ttk.Button(d_file, text=lang("gui.filedownload.download"), command=downloadFile.discord_download)
@@ -773,23 +881,30 @@ link_special = ttk.Label(page, text="ModsTag", foreground="blue", cursor="hand2"
 link_special.grid(row=1, column=1, padx=10, pady=5, sticky="w")
 link_special.bind("<Button-1>", lambda e: webbrowser.open("https://space.bilibili.com/496716004"))
 
+label_special = ttk.Label(page, text=lang("gui.about.github"))
+label_special.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+link_special = ttk.Label(page, text="AchryFI/ADOFAI-TOOLS", foreground="blue", cursor="hand2")
+link_special.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+link_special.bind("<Button-1>", lambda e: webbrowser.open("https://github.com/AchryFI/ADOFAI-TOOLS/"))
+
+
 label_contact = ttk.Label(page, text=lang("gui.about.contact_us"), font=('Helvetica', 16, 'bold'))
-label_contact.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="w")
+label_contact.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="w")
 
 label_qq = ttk.Label(page, text="QQ：377504570")
-label_qq.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+label_qq.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
 label_uid = ttk.Label(page, text="Bili/UID:1232092699")
-label_uid.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+label_uid.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
-label_email = ttk.Label(page, text=lang("gui.about.email")+":37750470@qq.com")
-label_email.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+label_email = ttk.Label(page, text=lang("gui.about.email")+":achry@achry.space")
+label_email.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
 label_changelog = ttk.Label(page, text=lang("gui.about.updateLog"), font=('Helvetica', 16, 'bold'))
-label_changelog.grid(row=6, column=0, columnspan=2, padx=10, pady=10, sticky="w")
+label_changelog.grid(row=7, column=0, columnspan=2, padx=10, pady=10, sticky="w")
 
 changelog_text = tk.Text(page, height=12, width=63)
-changelog_text.grid(row=7, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
+changelog_text.grid(row=8, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
 
 ################################################################
 # Menu UI                                                      #
