@@ -150,6 +150,40 @@ class noEffect:
         except Exception as e:
             log_fail(repl(repl(lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
    
+    @staticmethod
+    def setting():
+        log_window = tk.Toplevel(app)
+        log_window.title(lang("gui.noeffect.name"))
+        log_window.geometry("480x540")
+        setting_effect = ttk.LabelFrame(log_window, text="不需要去的").grid(row=0, column=0)
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=0, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=2, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=4, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=6, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=8, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=0, column=10, sticky="nsew")
+
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=0, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=2, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=4, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=6, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=8, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=1, column=10, sticky="nsew")
+
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=0, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=2, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=4, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=6, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=8, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=2, column=10, sticky="nsew")
+
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=0, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=2, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=4, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=6, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=8, sticky="nsew")
+        ttk.Checkbutton(setting_effect,  onvalue=1, offvalue=0).grid(row=3, column=10, sticky="nsew")
+
 
     @staticmethod
     def check_file_extension(filename):
@@ -643,40 +677,43 @@ entry_path = ttk.Entry(frame, width=30)
 entry_path.grid(row=0, column=1, padx=5, pady=5)
 button_browse = ttk.Button(frame, text=lang("gui.noeffect.browse"), command=noEffect.select_file)
 button_browse.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
-label_path = ttk.Label(frame, text=lang("gui.noeffect.removed"))
-label_path.grid(row=1, column=0, padx=5, pady=5)
-# uneffect = ttk.Entry(frame, width=30)
-# uneffect.grid(row=1, column=1, padx=5, pady=5)
-select_box = ttk.Combobox(frame, values=[
-    "SetObject",
-    "AddObject",
-    "SetFilterAdvanced",
-    "SetFloorIcon",
-    "AnimateTrack",
-    "MoveTrack",
-    "MoveDecorations",
-    "SetText",
-    "PositionTrack",
-    "RecolorTrack",
-    "ColorTrack",
-    "CustomBackground",
-    "Flash",
-    "MoveCamera",
-    "SetFilter",
-    "HallOfMirrors",
-    "ShakeScreen",
-    "Bloom",
-    "ScreenTile",
-    "ScreenScroll",
-    "RepeatEvents",
-    "SetConditionalEvents",
-    "AddDecoration",
-    "AddText"
-])
-select_box.grid(row=1, column=1, padx=5, pady=5)
-select_box.current(1)
-button_insert = ttk.Button(frame, text=lang("gui.noeffect.insert"), command=noEffect.insert)
-button_insert.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
+
+button_browse = ttk.Button(frame, text=lang("gui.noeffect.setting"), command=noEffect.setting)
+button_browse.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+# label_path = ttk.Label(frame, text=lang("gui.noeffect.removed"))
+# label_path.grid(row=1, column=0, padx=5, pady=5)
+# # uneffect = ttk.Entry(frame, width=30)
+# # uneffect.grid(row=1, column=1, padx=5, pady=5)
+# select_box = ttk.Combobox(frame, values=[
+#     "SetObject",
+#     "AddObject",
+#     "SetFilterAdvanced",
+#     "SetFloorIcon",
+#     "AnimateTrack",
+#     "MoveTrack",
+#     "MoveDecorations",
+#     "SetText",
+#     "PositionTrack",
+#     "RecolorTrack",
+#     "ColorTrack",
+#     "CustomBackground",
+#     "Flash",
+#     "MoveCamera",
+#     "SetFilter",
+#     "HallOfMirrors",
+#     "ShakeScreen",
+#     "Bloom",
+#     "ScreenTile",
+#     "ScreenScroll",
+#     "RepeatEvents",
+#     "SetConditionalEvents",
+#     "AddDecoration",
+#     "AddText"
+# ])
+# select_box.grid(row=1, column=1, padx=5, pady=5)
+# select_box.current(1)
+# button_insert = ttk.Button(frame, text=lang("gui.noeffect.insert"), command=noEffect.insert)
+# button_insert.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
 frame.pack(fill="x")
 log_text = ScrolledText(level_conversion_frame, height=10, width=50)
 log_text.pack(fill="both", expand=True)
@@ -797,7 +834,7 @@ d_file = ttk.LabelFrame(file_dn, text="discord[Use Link]")
 d_file.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 
 d_file_link = tk.StringVar()
-d_file_link_entry = ttk.Entry(d_file, textvariable=d_file_link, width=48)
+d_file_link_entry = ttk.Entry(d_file, width=48)
 d_file_link_entry.grid(row=0, column=0, padx=5, pady=5)
 
 d_download_button = ttk.Button(d_file, text=lang("gui.filedownload.download"), command=downloadFile.discord_download)
