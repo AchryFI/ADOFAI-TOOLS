@@ -639,6 +639,13 @@ class noEffect():
                         else:
                             log.inp("removed effect(%s) in %s"%(i, ii), mtl, 1)
                     file_contents["actions"] = now_file_contenes
+                    now_file_contenes = []
+                    for ii in range(len(file_contents["decorations"])):
+                        if file_contents["decorations"][ii]["eventType"] != i:
+                            now_file_contenes.append(file_contents["decorations"][ii])
+                        else:
+                            log.inp("removed effect(%s) in %s"%(i, ii), mtl, 1)
+                    file_contents["decorations"] = now_file_contenes
             else:
                 log.inp("not get remove effect", mtl, 1)
 

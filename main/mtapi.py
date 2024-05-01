@@ -102,7 +102,6 @@ class adofai_convert:
     else:
       result["success"] = False;
     return result;
-
   # main
   def to_json(string_data, is_dict=False):
     if (is_dict):
@@ -139,8 +138,20 @@ class adofai_convert:
     is_actions = False;
     is_decorations = False;
     jsonDecode = {};
-    for now_text in string_data:
+    fixFuckYouWithNextLineBugFix = "";
+    string_data.append("");
+    tmp_string_data = string_data;
+    string_data = [];
+    for now_text in tmp_string_data:
       now_text = now_text.replace("\n", "");
+      if (string_convert.match(r"\\n", now_text)["success"]):
+        fixFuckYouWithNextLineBugFix += now_text;
+      else:
+        string_data.append(fixFuckYouWithNextLineBugFix);
+        fixFuckYouWithNextLineBugFix = now_text;
+        pass;
+      pass;
+    for now_text in string_data:
       # is type first
       if (is_setting):
         if (string_convert.match(r"\t+}", now_text)["success"]): 
