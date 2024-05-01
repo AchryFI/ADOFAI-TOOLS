@@ -18,12 +18,11 @@ import traceback
 import win32con
 # import logging
 
+################################################################
+# Log content function                                         # 日志内容功能
+################################################################
 logtime = "log%s"%int(time.time()*1000);
 mtl = log.new(logtime)
-################################################################
-# Log content function                                         # 日志内容函数
-################################################################
-
 def log_fail(w, l):
     """
     w : content
@@ -57,110 +56,11 @@ def log_insert(ins, w, l, lvl=1, failcustom=False):
         else: log.inp(traceback.format_exc(), l, lvl)
     else: log.inp(w, l, lvl)
 
+
 ################################################################
-# noEffect function                                            # 去特效函数
+# calc function                                                # 计算函数
 ################################################################
-class noEffect:
-    @staticmethod
-    def select_file():
-        filename = askopenfilename()
-        if filename:
-            if not filename.lower().endswith('.adofai'):
-                log_error(language.lang("gui.noeffect.function(except).not_adofai_file"), mtl)
-                return
-            entry_path.delete(0, tk.END)
-            entry_path.insert(tk.END, filename)
-
-    @staticmethod
-    def get_list_effect():
-        log_insert(log_text, language.repl(language.lang("gui.noeffect.get_list_effect"), 0, insert_effect), mtl)
-
-    @staticmethod
-    def insert(no_log=False):
-        global insert_effect, array_StringVar
-
-        for get_ in array_StringVar:
-            get_ = get_.get()
-            value = True
-            if "T:" in get_:
-                for i in insert_effect:
-                    if i == get_[2:]:
-                        value = False
-                        break;
-                if value:
-                    insert_effect.append(get_[2:])
-                    if (not no_log): log_insert(log_text, language.repl(language.lang("gui.noeffect.add_success"), 0, get_[2:]), mtl)
-            if "F:" in get_:
-                for i in insert_effect:
-                    if i == get_[2:]:
-                        value = False
-                        break;
-                if not value:
-                    insert_effect.remove(get_[2:])
-                    if (not no_log): log_insert(log_text, language.repl(language.lang("gui.noeffect.remove_success"), 0, get_[2:]), mtl)
-
-
-    @staticmethod
-    def process_file():
-        filename = entry_path.get()
-        if not filename:
-            log_error(language.lang("gui.noeffect.function(except).not_select_file"), mtl)
-            return
-        if not filename.lower().endswith('.adofai'):
-            log_error(language.lang("gui.noeffect.function(except).not_adofai_file"), mtl)
-            return
-        start = time.time()
-        
-        # 在这里处理文件  
-        try:
-            file_contents = adofai_convert.to_json(open(filename, 'r', encoding='utf8').readlines())
-            effect = insert_effect
-
-            if len(effect) > 0 :
-                log.inp("get remove effect", mtl, 1)
-                for i in effect:
-                    log.inp("removed effect(%s)"%i, mtl, 1)
-                    regex_pattern = r'\t*\s*\{.*\"eventType\": \"(%s)\".*\}(,?)\s?'%i
-                    # 进行替换操作
-                    file_contents = re.sub(regex_pattern, "", file_contents)
-            else:
-                log.inp("not get remove effect", mtl, 1)
-
-            file_directory = os.path.dirname(filename)
-            open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(file_contents)
-            end_time = time.time()
-            log_insert(log_text, language.repl(language.repl(language.lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)), mtl)
-        except Exception as e:
-            log_fail(language.repl(language.repl(language.lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
-   
-    @staticmethod
-    def setting():
-        log_window = tk.Toplevel(app)
-        log_window.title(language.lang("gui.noeffect.name"))
-        log_window.geometry("480x540")
-        style = ttk.Style()
-        style.configure("custom.TCheckbutton", font=("Consolas", 10))
-        setting_effect = ttk.LabelFrame(log_window, text="不需要去的", style="custom.TCheckbutton")
-
-        select_array = []
-        row = 0
-
-        for i in range(len(adofai_const().effect)):
-            select_array.append(ttk.Checkbutton(
-                setting_effect, 
-                text=adofai_const().effect[i].ljust(24, " "), 
-                variable=array_StringVar[i], 
-                onvalue="T:"+adofai_const().effect[i], 
-                offvalue="F:"+adofai_const().effect[i], 
-                style="custom.TCheckbutton", 
-                command=noEffect.insert
-            ))
-            select_array[i].grid(row=row, column=0)
-            row += 1
-        setting_effect.grid(row=0, column=0)
-
-
-class Calc:
+class calc:
     @staticmethod
     def clac_score():
         try:
@@ -285,7 +185,10 @@ class Calc:
         except Exception as e:
             log_fail(language.repl(language.repl(language.lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
 
-class Search:
+################################################################
+# search function                                              # 搜索函数
+################################################################
+class search:
     @staticmethod
     def use_id():
         try:
@@ -411,6 +314,9 @@ class Search:
         except Exception as e:
             log_fail(language.repl(language.repl(language.lang("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
 
+################################################################
+# downloadFile function                                        # 下载文件函数
+################################################################
 class downloadFile:
     @staticmethod
     def select_file():
@@ -537,7 +443,10 @@ class downloadFile:
             else:
                 log_fail(language.repl(language.repl(language.lang("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
 
-class MenuFunction:
+################################################################
+# menuFunction function                                        # 菜单函数
+################################################################
+class menuFunction:
 
     @staticmethod
     def show_log_ui():
@@ -585,9 +494,9 @@ class MenuFunction:
                 log_text_debug.insert("end", line + '\n', this_endLog)
             
         log_text_debug.text.config(state=tk.DISABLED)
-        button_save = tk.Button(log_window, text=language.lang("gui.log.save"), command=MenuFunction.save_log)
+        button_save = tk.Button(log_window, text=language.lang("gui.log.save"), command=menuFunction.save_log)
         button_save.pack(fill="x")
-        button_copy = tk.Button(log_window, text=language.lang("gui.log.copy"), command=lambda: MenuFunction.write_clipboard(logs))
+        button_copy = tk.Button(log_window, text=language.lang("gui.log.copy"), command=lambda: menuFunction.write_clipboard(logs))
         button_copy.pack(fill="x")
 
         log_window.mainloop()
@@ -634,65 +543,173 @@ notebook = ttk.Notebook(app, bootstyle='info')
 
 
 ################################################################
-# No Effect UI                                                 #
+# No Effect ui & function                                      # 去特效界面和函数
 ################################################################
-insert_effect = []
-array_StringVar = [
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar(),
-    tk.StringVar()
-]
-level_conversion_frame = ttk.Frame(app)
-frame = ttk.Frame(level_conversion_frame)
-label_path = ttk.Label(frame, text=language.lang("gui.noeffect.file_path"))
-label_path.grid(row=0, column=0, padx=5, pady=5)
-entry_path = ttk.Entry(frame, width=30)
-entry_path.grid(row=0, column=1, padx=5, pady=5)
-button_browse = ttk.Button(frame, text=language.lang("gui.noeffect.browse"), command=noEffect.select_file)
-button_browse.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+class noEffect():
+    def __init__(self):
+        self.this = self
+        self.insert_effect = []
+        self.array_StringVar = [
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar(),
+            tk.StringVar()
+        ]
+        self.log_text = None
+        self.entry_path = None
 
-button_browse = ttk.Button(frame, text=language.lang("gui.noeffect.setting"), command=noEffect.setting)
-button_browse.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+    @staticmethod
+    def select_file(this):
+        filename = askopenfilename()
+        if filename:
+            if not filename.lower().endswith('.adofai'):
+                log_error(language.lang("gui.noeffect.function(except).not_adofai_file"), mtl)
+                return
+            this.entry_path.delete(0, tk.END)
+            this.entry_path.insert(tk.END, filename)
 
-button_browse = ttk.Button(frame, text=language.lang("gui.noeffect.check"), command=noEffect.get_list_effect)
-button_browse.grid(row=0, column=4, padx=5, pady=5, sticky="ew")
-frame.pack(fill="x")
-log_text = ScrolledText(level_conversion_frame, height=10, width=50)
-log_text.pack(fill="both", expand=True)
-button_convert = ttk.Button(level_conversion_frame, text=language.lang("gui.noeffect.convert"), command=noEffect.process_file)
-button_convert.pack(fill="x", padx=5, pady=5)
-notebook.add(level_conversion_frame, text=language.lang("gui.noeffect.name"))
-for i in range(len(array_StringVar)):
-    array_StringVar[i].set("T:"+adofai_const().effect[i])
-noEffect.insert(True)
+    @staticmethod
+    def get_list_effect(this):
+        log_insert(this.log_text, language.repl(language.lang("gui.noeffect.get_list_effect"), 1, this.insert_effect), mtl)
 
+    @staticmethod
+    def insert(this, no_log=False):
+        for get_ in this.array_StringVar:
+            get_ = get_.get()
+            value = True
+            if "T:" in get_:
+                for i in this.insert_effect:
+                    if i == get_[2:]:
+                        value = False
+                        break;
+                if value:
+                    this.insert_effect.append(get_[2:])
+                    if (not no_log): log_insert(this.log_text, language.repl(language.lang("gui.noeffect.add_success"), 1, get_[2:]), mtl)
+            if "F:" in get_:
+                for i in this.insert_effect:
+                    if i == get_[2:]:
+                        value = False
+                        break;
+                if not value:
+                    this.insert_effect.remove(get_[2:])
+                    if (not no_log): log_insert(this.log_text, language.repl(language.lang("gui.noeffect.remove_success"), 1, get_[2:]), mtl)
 
+    @staticmethod
+    def process_file(this):
+        filename = this.entry_path.get()
+        if not filename:
+            log_error(language.lang("gui.noeffect.function(except).not_select_file"), mtl)
+            return
+        if not filename.lower().endswith('.adofai'):
+            log_error(language.lang("gui.noeffect.function(except).not_adofai_file"), mtl)
+            return
+        start = time.time()
+        
+        # 在这里处理文件  
+        try:
+            convert = adofai_convert.to_dict(open(filename, 'r', encoding='utf8').readlines())
+            file_contents = convert["result"]
+            effect = this.insert_effect
+
+            if len(effect) > 0 :
+                log.inp("get remove effect", mtl, 1)
+                for i in effect:
+                    now_file_contenes = []
+                    for ii in range(len(file_contents["actions"])):
+                        if file_contents["actions"][ii]["eventType"] != i:
+                            now_file_contenes.append(file_contents["actions"][ii])
+                        else:
+                            log.inp("removed effect(%s) in %s"%(i, ii), mtl, 1)
+                    file_contents["actions"] = now_file_contenes
+            else:
+                log.inp("not get remove effect", mtl, 1)
+
+            convert["result"] = file_contents
+            file_directory = os.path.dirname(filename)
+            open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(adofai_convert.to_json(convert, True))
+            end_time = time.time()
+            log_insert(this.log_text, language.repl(language.repl(language.lang("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)), mtl)
+        except Exception as e:
+            log_fail(language.repl(language.repl(language.lang("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e), mtl)
+   
+    @staticmethod
+    def setting(this):
+        log_window = tk.Toplevel(app)
+        log_window.title(language.lang("gui.noeffect.name"))
+        log_window.geometry("480x540")
+        style = ttk.Style()
+        style.configure("custom.TCheckbutton", font=("Consolas", 10))
+        setting_effect = ttk.LabelFrame(log_window, text="不需要去的", style="custom.TCheckbutton")
+
+        select_array = []
+        row = 0
+
+        for i in range(len(adofai_const().effect)):
+            select_array.append(ttk.Checkbutton(
+                setting_effect, 
+                text=adofai_const().effect[i].ljust(24, " "), 
+                variable=this.array_StringVar[i], 
+                onvalue="T:"+adofai_const().effect[i], 
+                offvalue="F:"+adofai_const().effect[i], 
+                style="custom.TCheckbutton", 
+                command=lambda: noEffect.insert(this)
+            ))
+            select_array[i].grid(row=row, column=0)
+            row += 1
+        setting_effect.grid(row=0, column=0)
+
+    def main(self):
+        self.this = self
+        level_conversion_frame = ttk.Frame(app)
+        frame = ttk.Frame(level_conversion_frame)
+        label_path = ttk.Label(frame, text=language.lang("gui.noeffect.file_path"))
+        label_path.grid(row=0, column=0, padx=5, pady=5)
+        self.entry_path = ttk.Entry(frame, width=30)
+        self.entry_path.grid(row=0, column=1, padx=5, pady=5)
+        button_browse = ttk.Button(frame, text=language.lang("gui.noeffect.browse"), command=lambda: self.select_file(self))
+        button_browse.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+
+        button_browse = ttk.Button(frame, text=language.lang("gui.noeffect.setting"), command=lambda: self.setting(self))
+        button_browse.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+
+        button_browse = ttk.Button(frame, text=language.lang("gui.noeffect.check"), command=lambda: self.get_list_effect(self))
+        button_browse.grid(row=0, column=4, padx=5, pady=5, sticky="ew")
+        frame.pack(fill="x")
+        self.log_text = ScrolledText(level_conversion_frame, height=10, width=50)
+        self.log_text.pack(fill="both", expand=True)
+        button_convert = ttk.Button(level_conversion_frame, text=language.lang("gui.noeffect.convert"), command=lambda: self.process_file(self))
+        button_convert.pack(fill="x", padx=5, pady=5)
+        notebook.add(level_conversion_frame, text=language.lang("gui.noeffect.name"))
+        notebook.pack(fill=tk.BOTH, expand=True)
+        for i in range(len(self.array_StringVar)):
+            self.array_StringVar[i].set("T:"+adofai_const().effect[i])
+        self.insert(self, True)
+
+noEffect().main()
 ################################################################
 # Calc UI                                                      #
 ################################################################
 
-notebook.pack(fill=tk.BOTH, expand=True)
 # 创建计算工具帧
 calculation_tool_frame = ttk.Frame(notebook)
 notebook.add(calculation_tool_frame, text=language.lang("gui.calc.name"))
@@ -733,7 +750,7 @@ world_rank_label.grid(row=2, column=2, padx=5, pady=5, sticky="e")
 world_rank_entry = ttk.Entry(calc_label_frame, width=12)
 world_rank_entry.grid(row=2, column=3, padx=5, pady=5, sticky="we")
 #计算按钮
-calculate_button_pp = ttk.Button(calc_label_frame, text=language.lang("gui.calc.calcScore"), command=Calc.clac_score)
+calculate_button_pp = ttk.Button(calc_label_frame, text=language.lang("gui.calc.calcScore"), command=calc.clac_score)
 calculate_button_pp.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
 ################################################################
@@ -754,7 +771,7 @@ label_id = ttk.Label(frame_id, text=language.lang("gui.levelsearch.id"))
 label_id.grid(row=0, column=0, padx=5, pady=5)
 entry_id = ttk.Entry(frame_id,width=35)
 entry_id.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-button_search_id = ttk.Button(frame_id, text=language.lang("gui.levelsearch.search"), command=Search.use_id)
+button_search_id = ttk.Button(frame_id, text=language.lang("gui.levelsearch.search"), command=search.use_id)
 button_search_id.grid(row=0, column=2, padx=5, pady=5)
 # 通过信息查询部分
 frame_info = ttk.Labelframe(get_level_info_frame,text=language.lang("gui.levelsearch.info_search"))
@@ -771,7 +788,7 @@ label_author = ttk.Label(frame_info, text=language.lang("gui.levelsearch.author"
 label_author.grid(row=2, column=0, padx=5, pady=5)
 entry_author = ttk.Entry(frame_info,width=35)
 entry_author.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
-button_search_info = ttk.Button(frame_info, text=language.lang("gui.levelsearch.search"), command=Search.query)
+button_search_info = ttk.Button(frame_info, text=language.lang("gui.levelsearch.search"), command=search.query)
 button_search_info.grid(row=3, columnspan=2, padx=5, pady=5, sticky="ew")
 # 日志部分
 frame_log2 = ttk.Frame(get_level_info_frame)
@@ -885,7 +902,7 @@ filemenu.add_command(label="退出", command=lambda: exit())
 menubar.add_cascade(label="文件", menu=filemenu)
 
 editmenu = ttk.Menu(menubar, tearoff=False)
-editmenu.add_command(label="日志",command=MenuFunction.show_log_ui)
+editmenu.add_command(label="日志",command=menuFunction.show_log_ui)
 menubar.add_cascade(label="调试", menu=editmenu)
 
 # 显示菜单
@@ -898,7 +915,7 @@ default_changelog = [
     "版本 1.0.1:\n- 更删除了欢迎页面，添加了关于页面\n- 将f-string外层单引号改为双引号",
     "版本 1.0.2:\n- 允许选择不需要删除的特效类型 并且允许它保存在Non-Effect里\n- 在文件下载中添加了进度栏\n- 添加了logging 库\n- 添加了日志功能",
     "版本 1.0.3:\n- 删除了logging库 转用log 这使得允许自动保存日志(更方便调试)\n- 更新了日志颜色区分",
-    "版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释",
+    "版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释\n- (未完成)优化代码排版",
 ]
 for i in default_changelog:
     changelog_text.insert(tk.END, i+"\n")

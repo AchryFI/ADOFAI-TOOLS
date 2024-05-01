@@ -1,4 +1,5 @@
 import os, _io, sys, time, re, json
+from tkinter import messagebox
 
 class log:
   def new(fileName:str, encoding:str="UTF-8"):
@@ -118,19 +119,18 @@ class adofai_convert:
     decorations = {"decorations": jsonDecode["decorations"]};
     settings = {"settings": jsonDecode["settings"]};
 
-
     output += "{\n\t"+json.dumps(data, separators=[", ", ": "])[:-1][1:]+", ";
-    output += json.dumps(settings, indent="\t", separators=[", ", ": "])[:-2][1:]+", \n\t\"actions\": [";
+    output += json.dumps(settings, indent="\t", separators=[", ", ": "])[:-2][1:]+", \n\t\"actions\": [\n";
     for out in range(len(actions["actions"])):
-      output += "\n\t\t";
-      output += json.dumps(actions["actions"][out], separators=[", ", ": "]);
+      output += "\t\t";
+      output += json.dumps(actions["actions"][out], separators=[", ", ": "])+",\n";
       pass;
-    output += "\n\t], \n\t\"decorations\": [";
+    output = output[:-2]+"\n\t], \n\t\"decorations\": [\n";
     for out in range(len(decorations["decorations"])):
-      output += "\n\t\t";
-      output += json.dumps(decorations["decorations"][out], separators=[", ", ": "]);
+      output += "\t\t";
+      output += json.dumps(decorations["decorations"][out], separators=[", ", ": "])+",\n";
       pass;
-    output += "\n\t]\n}";
+    output = output[:-2]+"\n\t]\n}";
     return output;
   def to_dict(string_data):
     is_angleData = False;

@@ -13,9 +13,9 @@
           "pop": "弹出",
           "file_path": "关卡路径:",
           "removed": "去除特效:",
-          "remove_success": "删除\"${0}\"成功",
-          "add_success": "加入\"${0}\"成功",
-          "get_list_effect": "当前去除特效: ${0}",
+          "remove_success": "删除\"${1}\"成功",
+          "add_success": "加入\"${1}\"成功",
+          "get_list_effect": "当前去除特效: ${1}",
           "function(except)": {
             "not_adofai_file": "选择的文件不是ADOFAI文件",
             "not_select_file": "未选择文件",
