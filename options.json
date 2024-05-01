@@ -1,0 +1,17 @@
+{
+  "Version": [10,0,5],
+  "DebugMode": false,
+  "AsyncBuild": true,
+  "BuildTool": "E:\\data\\User.modstag.BuildTool",
+  "SitePackagesInstall": [],
+  "BuildData": [
+    {
+      "ModelName": "Achry_Tools",
+      "ModelCMD": false,
+      "ModelIsOneFile": true,
+      "ModelIsTK": true,
+      "ModelIsICON": "logo.ico",
+      "BuildToolName": null
+    }
+  ]
+}
