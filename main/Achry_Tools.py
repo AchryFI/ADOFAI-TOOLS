@@ -366,7 +366,6 @@ class downloadFile:
 
                 bytes_written = 0
                 # total_size = int(response.headers.get('content-length', 0))
-                open(dn_path.get() + '/' + filename, "wb").write();
                 for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
                         open(dn_path.get() + '/' + filename, "ab").write(chunk)
@@ -421,7 +420,6 @@ class downloadFile:
 
                 bytes_written = 0
                 # total_size = int(response.headers.get('content-length', 0))
-                open(dn_path.get() + '/' + filename, "wb").write();
                 for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
                         open(dn_path.get() + '/' + filename, "ab").write(chunk)
@@ -659,7 +657,7 @@ class noEffect():
         log_window.geometry("480x540")
         style = ttk.Style()
         style.configure("custom.TCheckbutton", font=("Consolas", 10))
-        setting_effect = ttk.LabelFrame(log_window, text="不需要去的", style="custom.TCheckbutton")
+        setting_effect = ttk.LabelFrame(log_window, text="需要去的", width=20)
 
         select_array = []
         row = 0
