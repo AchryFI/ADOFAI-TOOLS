@@ -202,3 +202,35 @@ class adofai_convert:
         pass;
       pass;
     return {"result": jsonDecode, "type": "angleData" if is_angleData else "pathData" if is_pathData else "None"};
+  pass;
+class adofai_const:
+  def __init__(self):
+    self.Rad2Deg = 57.295780181884766
+    self.effect = [
+      "SetObject",
+      "AddObject",
+      "SetFilterAdvanced",
+      "SetFloorIcon",
+      "AnimateTrack",
+      "MoveTrack",
+      "MoveDecorations",
+      "SetText",
+      "PositionTrack",
+      "RecolorTrack",
+      "ColorTrack",
+      "CustomBackground",
+      "Flash",
+      "MoveCamera",
+      "SetFilter",
+      "HallOfMirrors",
+      "ShakeScreen",
+      "Bloom",
+      "ScreenTile",
+      "ScreenScroll",
+      "RepeatEvents",
+      "SetConditionalEvents",
+      "AddDecoration",
+      "AddText"
+    ]
+    # self.action = []
+    # self.decorations = []

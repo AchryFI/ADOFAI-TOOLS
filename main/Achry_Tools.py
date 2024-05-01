@@ -51,7 +51,7 @@ def log_insert(ins, w, l, lvl=1, failcustom=False):
     w : tkinter input
     l : log file
     """
-    ins.insert(tk.END, w)
+    ins.insert(tk.END, w+"\n")
     if lvl == 4: 
         if failcustom:  log.inp(w, l, lvl)
         else: log.inp(traceback.format_exc(), l, lvl)
@@ -72,19 +72,33 @@ class noEffect:
             entry_path.insert(tk.END, filename)
 
     @staticmethod
-    def insert():
-        true = False
-        get_ = select_box.get()
-        for i in insert_effect:
-            if get_ == i:
-                true = True;
-                break;
-        if true:
-            insert_effect.remove(get_)
-            log_insert(log_text, language.repl(language.lang("gui.noeffect.remove_success"), 0, insert_effect), mtl)
-        else: 
-            insert_effect.append(get_)
-            log_insert(log_text, language.repl(language.lang("gui.noeffect.add_success"), 0, insert_effect), mtl)
+    def get_list_effect():
+        log_insert(log_text, language.repl(language.lang("gui.noeffect.get_list_effect"), 0, insert_effect), mtl)
+
+    @staticmethod
+    def insert(no_log=False):
+        global insert_effect, array_StringVar
+
+        for get_ in array_StringVar:
+            get_ = get_.get()
+            value = True
+            if "T:" in get_:
+                for i in insert_effect:
+                    if i == get_[2:]:
+                        value = False
+                        break;
+                if value:
+                    insert_effect.append(get_[2:])
+                    if (not no_log): log_insert(log_text, language.repl(language.lang("gui.noeffect.add_success"), 0, get_[2:]), mtl)
+            if "F:" in get_:
+                for i in insert_effect:
+                    if i == get_[2:]:
+                        value = False
+                        break;
+                if not value:
+                    insert_effect.remove(get_[2:])
+                    if (not no_log): log_insert(log_text, language.repl(language.lang("gui.noeffect.remove_success"), 0, get_[2:]), mtl)
+
 
     @staticmethod
     def process_file():
@@ -127,68 +141,23 @@ class noEffect:
         style = ttk.Style()
         style.configure("custom.TCheckbutton", font=("Consolas", 10))
         setting_effect = ttk.LabelFrame(log_window, text="不需要去的", style="custom.TCheckbutton")
-        array_StringVar = [
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar(),
-            tk.StringVar()
-        ]
 
-        for i in range(len(array_StringVar)):
-            array_StringVar[i].set("True")
-
-        array_Checkbutton = [
-            ttk.Checkbutton(setting_effect, text="SetObject             ", variable=array_StringVar[ 0], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="AddObject             ", variable=array_StringVar[ 1], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="SetFilterAdvanced     ", variable=array_StringVar[ 2], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="SetFloorIcon          ", variable=array_StringVar[ 3], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="AnimateTrack          ", variable=array_StringVar[ 4], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="MoveTrack             ", variable=array_StringVar[ 5], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="MoveDecorations       ", variable=array_StringVar[ 6], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="SetText               ", variable=array_StringVar[ 7], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="PositionTrack         ", variable=array_StringVar[ 8], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="RecolorTrack          ", variable=array_StringVar[ 9], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="ColorTrack            ", variable=array_StringVar[10], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="CustomBackground      ", variable=array_StringVar[11], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="Flash                 ", variable=array_StringVar[12], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="MoveCamera            ", variable=array_StringVar[13], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="SetFilter             ", variable=array_StringVar[14], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="HallOfMirrors         ", variable=array_StringVar[15], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="ShakeScreen           ", variable=array_StringVar[16], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="Bloom                 ", variable=array_StringVar[17], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="ScreenTile            ", variable=array_StringVar[18], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="ScreenScroll          ", variable=array_StringVar[18], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="RepeatEvents          ", variable=array_StringVar[20], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="SetConditionalEvents  ", variable=array_StringVar[21], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="AddDecoration         ", variable=array_StringVar[22], onvalue="True", offvalue="False", style="custom.TCheckbutton"),
-            ttk.Checkbutton(setting_effect, text="AddText               ", variable=array_StringVar[23], onvalue="True", offvalue="False", style="custom.TCheckbutton")
-        ]
-        setting_effect.grid(row=0, column=0)
+        select_array = []
         row = 0
 
-        for i in range(len(array_Checkbutton)):
-            array_Checkbutton[i].grid(row=row, column=0)
+        for i in range(len(adofai_const().effect)):
+            select_array.append(ttk.Checkbutton(
+                setting_effect, 
+                text=adofai_const().effect[i].ljust(24, " "), 
+                variable=array_StringVar[i], 
+                onvalue="T:"+adofai_const().effect[i], 
+                offvalue="F:"+adofai_const().effect[i], 
+                style="custom.TCheckbutton", 
+                command=noEffect.insert
+            ))
+            select_array[i].grid(row=row, column=0)
             row += 1
+        setting_effect.grid(row=0, column=0)
 
 
 class Calc:
@@ -275,7 +244,7 @@ class Calc:
 
                 #基础分
                 ### print(difficult)
-                score_base = switch.get(difficult, None)
+                score_base = switch.get(str(difficult), None)
                 ### print(score_base)
                 
                 #判断基础分是否正确（输入不正确的难度会返回None)看上面代码
@@ -667,8 +636,33 @@ notebook = ttk.Notebook(app, bootstyle='info')
 ################################################################
 # No Effect UI                                                 #
 ################################################################
-
 insert_effect = []
+array_StringVar = [
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar(),
+    tk.StringVar()
+]
 level_conversion_frame = ttk.Frame(app)
 frame = ttk.Frame(level_conversion_frame)
 label_path = ttk.Label(frame, text=language.lang("gui.noeffect.file_path"))
@@ -680,45 +674,18 @@ button_browse.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
 button_browse = ttk.Button(frame, text=language.lang("gui.noeffect.setting"), command=noEffect.setting)
 button_browse.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
-label_path = ttk.Label(frame, text=language.lang("gui.noeffect.removed"))
-label_path.grid(row=1, column=0, padx=5, pady=5)
-# uneffect = ttk.Entry(frame, width=30)
-# uneffect.grid(row=1, column=1, padx=5, pady=5)
-select_box = ttk.Combobox(frame, values=[
-    "SetObject",
-    "AddObject",
-    "SetFilterAdvanced",
-    "SetFloorIcon",
-    "AnimateTrack",
-    "MoveTrack",
-    "MoveDecorations",
-    "SetText",
-    "PositionTrack",
-    "RecolorTrack",
-    "ColorTrack",
-    "CustomBackground",
-    "Flash",
-    "MoveCamera",
-    "SetFilter",
-    "HallOfMirrors",
-    "ShakeScreen",
-    "Bloom",
-    "ScreenTile",
-    "ScreenScroll",
-    "RepeatEvents",
-    "SetConditionalEvents",
-    "AddDecoration",
-    "AddText"
-])
-select_box.grid(row=1, column=1, padx=5, pady=5)
-button_insert = ttk.Button(frame, text=language.lang("gui.noeffect.insert"), command=noEffect.insert)
-button_insert.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
+
+button_browse = ttk.Button(frame, text=language.lang("gui.noeffect.check"), command=noEffect.get_list_effect)
+button_browse.grid(row=0, column=4, padx=5, pady=5, sticky="ew")
 frame.pack(fill="x")
 log_text = ScrolledText(level_conversion_frame, height=10, width=50)
 log_text.pack(fill="both", expand=True)
 button_convert = ttk.Button(level_conversion_frame, text=language.lang("gui.noeffect.convert"), command=noEffect.process_file)
 button_convert.pack(fill="x", padx=5, pady=5)
 notebook.add(level_conversion_frame, text=language.lang("gui.noeffect.name"))
+for i in range(len(array_StringVar)):
+    array_StringVar[i].set("T:"+adofai_const().effect[i])
+noEffect.insert(True)
 
 
 ################################################################
