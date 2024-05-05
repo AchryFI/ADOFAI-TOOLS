@@ -930,7 +930,7 @@ class search:
                     log_insert(self.log_text, language.repl(language.lang("gui.levelsearch.function(except).id_is_empty"), 1, id), mtl, 3)
                     return
                 
-                response = requests.get(f"https://be.t21c.kro.kr/levels/{id}", headers={"accept": "application/json"})
+                response = requests.get(f"https://be.tuforums.com/levels/{id}", headers={"accept": "application/json"})
                 info = response.json()
 
                 if 'statusCode' in info:
