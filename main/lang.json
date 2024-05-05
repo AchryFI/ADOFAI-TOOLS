@@ -81,18 +81,24 @@
           },
           "function(success)": "文件 ${1} 下载成功"
         },
-        "about": {
+        "menu": {
           "name": "关于",
           "producer": "主制作: ",
           "specialThanks": "特别感谢: ",
           "contact_us": "联系我们",
-          "email": "邮箱",
+          "email": "邮箱: ",
           "updateLog": "更新日志",
           "github": "Github链接"
         },
-        "log":{
-          "name":"日志",
-          "save":"保存",
+        "logV1":{
+          "name":"日志V1",
+          "open_log_dir":"打开日志目录",
+          "copy":"复制",
+          "function(copy_success)":"已复制"
+        },
+        "logV2":{
+          "name":"日志V2",
+          "open_log_dir":"打开日志目录",
           "copy":"复制",
           "function(copy_success)":"已复制"
         }

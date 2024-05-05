@@ -2,6 +2,23 @@ import os, _io, sys, time, re, json
 from tkinter import messagebox
 
 class log:
+  def new(fileNameV1:str, fileNameV2:str, encoding:str="UTF-8"):
+    if not os.path.exists("log"): 
+      os.system("mkdir log")
+      return (open("log\\%s.mt-log"%fileNameV1,"w", encoding=encoding), open("log\\%s.mt-log"%fileNameV2,"w", encoding=encoding));
+    else: 
+      return (open("log\\%s.mt-log"%fileNameV1,"a", encoding=encoding), open("log\\%s.mt-log"%fileNameV2,"a", encoding=encoding));
+  def inp(w:str, this:tuple, level:int=1):
+    if type(this) != tuple: print("this variables not is tuple")
+    logV1.inp(w, this[0], level)
+    logV2.inp(w, this[1], level)
+  def out(this:tuple, escaping=False):
+    if type(this) != tuple: print("this variables not is tuple")
+    V1 = logV1.out(this[0], escaping)
+    V2 = logV2.out(this[1], escaping)
+    return [V1, V2]
+  pass
+class logV1:
   def new(fileName:str, encoding:str="UTF-8"):
     if not os.path.exists("log"): 
       os.system("mkdir log")
@@ -18,7 +35,7 @@ class log:
     elif level == 6: level = "DEFINDED"
     else: raise(TypeError("Level Value UnDefind"))#bfnrt
     w = w.replace("\\", "\\\\").replace("\b", "\\b").replace("\f", "\\f").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
-    return this.write("[ModsTag/%s]: '%s'\n"%(level, w));
+    return this.write("[ModsTag/%s]: %s\n"%(level, w));
   def out(this:str, escaping=False):
     if type(this) != _io.TextIOWrapper: print("this variables not is _io.TextIOWrapper")
     r = open(this.name, "r", encoding=this.encoding).read()
@@ -29,28 +46,59 @@ class log:
       r = r.replace("\\n", "\n\t")
     return r
   pass
+class logV2:
+  def new(fileName:str, encoding:str="UTF-8"):
+    if not os.path.exists("log"): 
+      os.system("mkdir log")
+      return open("log\\%s.mt-log"%fileName,"w", encoding=encoding);
+    else: 
+      return open("log\\%s.mt-log"%fileName,"a", encoding=encoding);
+  def inp(w:str, this:str, level:int=1):
+    if type(this) != _io.TextIOWrapper: print("this variables not is _io.TextIOWrapper")
+    if   level == 1: level = "INFO"
+    elif level == 2: level = "WARN"
+    elif level == 3: level = "ERROR"
+    elif level == 4: level = "FAIL"
+    elif level == 5: level = "DEBUG"
+    elif level == 6: level = "DEFINDED"
+    else: raise(TypeError("Level Value UnDefind"))#bfnrt
+    w = w.replace("\\", "\\\\").replace("\b", "\\b").replace("\f", "\\f").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t").replace("\"", "\\\"")
+    return this.write("[ModsTag.%s(), %s, \"%s\"]\n"%(level, int(time.time()), w));
+  def out(this:str, escaping=False):
+    if type(this) != _io.TextIOWrapper: print("this variables not is _io.TextIOWrapper")
+    r = open(this.name, "r", encoding=this.encoding).read()
+    ### print(r)
+    if escaping:
+      r = r.replace("\\\\", "\\").replace("\\b", "\b").replace("\\f", "\f").replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t").replace("\\\"", "\"")
+    else:
+      r = r.replace("\\n", "\n\t")
+    return r
+  pass
 
 class language:
-  def repl(string:str, id:int, to:str):
+  def repls(data:str, repl:tuple, start:int=0):
+    for value in range(start, len(repl)+start):
+      data = language.repl(data, value, repl[value-start])
+    return data
+  def repl(data:str, value:int, to:str):
       to = str(to)
-      return string.replace("${%s}"%id, to)
-  def lang(string:str):
+      return data.replace("${%s}"%value, to)
+  def lang(data:str):
       if not os.path.exists("lang.json"):
           messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
           sys.exit();
-      array = string.split(".")
+      array = data.split(".")
       try:
           js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
       except Exception as e:
           messagebox.showerror("error", "file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__)
           mtlog.inp("file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__, mtl, 4)
-          return ""
+          return data
       try:
           for i in js["language"]:
               for key,val in i.items():
                   if js["getNowLanguage"] == key:
                       ret = val
-
       except:
           messagebox.showerror('error', traceback.print_exc())
 
@@ -103,15 +151,9 @@ class adofai_convert:
       result["success"] = False;
     return result;
   # main
-  def to_json(string_data, is_dict=False):
-    if (is_dict):
-      jsonDecode = string_data["result"];
-      typ = string_data["type"];
-      pass;
-    else: 
-      jsonDecode = adofai_convert.to_dict(string_data)["result"];
-      typ = adofai_convert.to_dict(string_data)["type"];
-      pass;
+  def dict_to_json(dict_data):
+    jsonDecode = dict_data["result"];
+    typ = dict_data["type"];
     output = ""
     data = {typ : jsonDecode[typ]};
     actions = {"actions": jsonDecode["actions"]};
@@ -130,7 +172,7 @@ class adofai_convert:
       pass;
     output = output[:-2]+"\n\t]\n}";
     return output;
-  def to_dict(string_data):
+  def strList_to_dict(string_data):
     is_angleData = False;
     is_pathData = False;
     is_setting = False;
