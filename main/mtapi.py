@@ -2,21 +2,20 @@ import os, _io, sys, time, re, json
 from tkinter import messagebox
 
 class log:
+  def __init__(self):
+    self.logV1 = None
+    self.logV2 = None
   def new(fileNameV1:str, fileNameV2:str, encoding:str="UTF-8"):
-    if not os.path.exists("log"): 
-      os.system("mkdir log")
-      return (open("log\\%s.mt-log"%fileNameV1,"w", encoding=encoding), open("log\\%s.mt-log"%fileNameV2,"w", encoding=encoding));
-    else: 
-      return (open("log\\%s.mt-log"%fileNameV1,"a", encoding=encoding), open("log\\%s.mt-log"%fileNameV2,"a", encoding=encoding));
-  def inp(w:str, this:tuple, level:int=1):
-    if type(this) != tuple: print("this variables not is tuple")
-    logV1.inp(w, this[0], level)
-    logV2.inp(w, this[1], level)
-  def out(this:tuple, escaping=False):
-    if type(this) != tuple: print("this variables not is tuple")
-    V1 = logV1.out(this[0], escaping)
-    V2 = logV2.out(this[1], escaping)
-    return [V1, V2]
+    new_log = log()
+    if not os.path.exists("log"): os.system("mkdir log")
+    new_log.logV1 = open("log\\%s.mt-log"%fileNameV1,"a", encoding=encoding)
+    new_log.logV2 = open("log\\%s.mt-log"%fileNameV2,"a", encoding=encoding)
+    return new_log
+  def inp(self, w:str, level:int=1):
+    logV1.inp(w, self.logV1, level)
+    logV2.inp(w, self.logV2, level)
+  def out(self, escaping=False):
+    return [logV1.out(self.logV1, escaping), logV2.out(self.logV2, escaping)]
   pass
 class logV1:
   def new(fileName:str, encoding:str="UTF-8"):
@@ -61,21 +60,25 @@ class logV2:
     elif level == 4: level = "FAIL"
     elif level == 5: level = "DEBUG"
     elif level == 6: level = "DEFINDED"
-    else: raise(TypeError("Level Value UnDefind"))#bfnrt
+    else: raise(TypeError("Level Value UnDefind"))
     w = w.replace("\\", "\\\\").replace("\b", "\\b").replace("\f", "\\f").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t").replace("\"", "\\\"")
     return this.write("[ModsTag.%s(), %s, \"%s\"]\n"%(level, int(time.time()), w));
   def out(this:str, escaping=False):
     if type(this) != _io.TextIOWrapper: print("this variables not is _io.TextIOWrapper")
     r = open(this.name, "r", encoding=this.encoding).read()
-    ### print(r)
     if escaping:
-      r = r.replace("\\\\", "\\").replace("\\b", "\b").replace("\\f", "\f").replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t").replace("\\\"", "\"")
+      return r.replace("\\\\", "\\").replace("\\b", "\b").replace("\\f", "\f").replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t").replace("\\\"", "\"")
     else:
-      r = r.replace("\\n", "\n\t")
-    return r
+      return r.replace("\\n", "\n\t")
   pass
 
 class language:
+  def __init__(self):
+    self.mtl = None
+    self.not_find_json = ""
+    self.lang = None;
+    self.locale = {"2052":"zh_cn", "1033":"en_us", "1042":"kr"}
+    pass
   def repls(data:str, repl:tuple, start:int=0):
     for value in range(start, len(repl)+start):
       data = language.repl(data, value, repl[value-start])
@@ -83,32 +86,23 @@ class language:
   def repl(data:str, value:int, to:str):
       to = str(to)
       return data.replace("${%s}"%value, to)
-  def lang(data:str):
+  def get(self, data:str):
+      from win32api import GetSystemDefaultLangID
+      if (self.lang == None): self.lang = self.locale[str(GetSystemDefaultLangID())]
       if not os.path.exists("lang.json"):
-          messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
-          sys.exit();
-      array = data.split(".")
-      try:
-          js = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
-      except Exception as e:
-          messagebox.showerror("error", "file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__)
-          mtlog.inp("file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__, mtl, 4)
-          return data
-      try:
-          for i in js["language"]:
-              for key,val in i.items():
-                  if js["getNowLanguage"] == key:
-                      ret = val
+        messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
+        return data
+      try: result = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
       except:
-          messagebox.showerror('error', traceback.print_exc())
-
+        self.mtl.inp("file data can't convert to json, please re-download lang.json and pause to \"%s\""%__file__, 4)
+        return data
+      array = [self.lang]+data.split(".")
       try: 
-          for i in array: ret = ret[i]
-      except Exception as e:
-          messagebox.showerror('error',"No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string)
-          mtlog.inp("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%string, mtl, 4)
-          return ""
-      return str(ret)
+        for i in array: result = result[i]
+      except:
+        self.mtl.inp("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%data, 4)
+        return data
+      return str(result)
 class string_convert:
   def match(patter, string): return {"success": re.match(patter, string) != None, "match": re.match(patter, string) if re.match(patter, string) != None else ""};
   def search(patter, string): return {"success": re.search(patter, string) != None, "match": re.search(patter, string) if re.search(patter, string) != None else ""};
@@ -124,31 +118,19 @@ class adofai_convert:
       result["match"] = [];
       if (tmp2 == ""): return result;
       for ii in tmp2.split(", "): 
-        if (string_convert.remove_quo(string_list[1])["success"]):
-          result["match"].append(string_convert.remove_quo(ii)["match"]);
-        elif (string_convert.search(r"false", string_list[1])["success"]):
-          result["match"].append(False);
-        elif (string_convert.search(r"true", string_list[1])["success"]):
-          result["match"].append(True);
-        elif (string_convert.search(r"null", string_list[1])["success"]):
-          result["match"].append(None);
-        elif (string_convert.match(r"(\-?)\d+\.\d+", ii)["success"]):
-          result["match"].append(float(ii));
-        elif (string_convert.match(r"(\-?)\d+", ii)["success"]):
-          result["match"].append(int(ii));
+        if   (string_convert.remove_quo(string_list[1])["success"]):       result["match"].append(string_convert.remove_quo(ii)["match"]);
+        elif (string_convert.search(r"false", string_list[1])["success"]): result["match"].append(False);
+        elif (string_convert.search(r"true", string_list[1])["success"]):  result["match"].append(True);
+        elif (string_convert.search(r"null", string_list[1])["success"]):  result["match"].append(None);
+        elif (string_convert.match(r"(\-?)\d+\.\d+", ii)["success"]):      result["match"].append(float(ii));
+        elif (string_convert.match(r"(\-?)\d+", ii)["success"]):           result["match"].append(int(ii));
       pass;
-    elif (string_convert.search(r"false", string_list[1])["success"]):
-      result["match"] = False;
-    elif (string_convert.search(r"true", string_list[1])["success"]):
-      result["match"] = True;
-    elif (string_convert.search(r"null", string_list[1])["success"]):
-      result["match"] = None;
-    elif (string_convert.search(r"(\-?)\d+\.\d+", string_list[1])["success"]):
-      result["match"] = float(string_list[1]);
-    elif (string_convert.search(r"(\-?)\d+", string_list[1])["success"]):
-      result["match"] = int(string_list[1]);
-    else:
-      result["success"] = False;
+    elif (string_convert.search(r"false", string_list[1])["success"]):         result["match"] = False;
+    elif (string_convert.search(r"true", string_list[1])["success"]):          result["match"] = True;
+    elif (string_convert.search(r"null", string_list[1])["success"]):          result["match"] = None;
+    elif (string_convert.search(r"(\-?)\d+\.\d+", string_list[1])["success"]): result["match"] = float(string_list[1]);
+    elif (string_convert.search(r"(\-?)\d+", string_list[1])["success"]):      result["match"] = int(string_list[1]);
+    else: result["success"] = False;
     return result;
   # main
   def dict_to_json(dict_data):
