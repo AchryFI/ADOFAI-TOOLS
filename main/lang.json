@@ -11,15 +11,15 @@
         "pop": "弹出",
         "file_path": "关卡路径:",
         "removed": "去除特效:",
-        "remove_success": "删除\"${1}\"成功",
-        "add_success": "加入\"${1}\"成功",
-        "get_list_effect": "当前去除特效: ${1}",
+        "remove_success": "删除\"${0}\"成功",
+        "add_success": "加入\"${0}\"成功",
+        "get_list_effect": "当前去除特效: ${0}",
         "function(except)": {
           "not_adofai_file": "选择的文件不是ADOFAI文件",
           "not_select_file": "未选择文件",
-          "error": "错误:\n${1}:${2}"
+          "error": "错误:\n${0}:${1}"
         },
-        "function(success)": "去特效成功， 文件已保存到  >>  ${1}/Non_effect.adofai,  耗时 ${2}s"
+        "function(success)": "去特效成功， 文件已保存到  >>  ${0}/Non_effect.adofai,  耗时 ${1}s"
       },
       "calc": {
         "name": "计算工具",
@@ -32,12 +32,12 @@
         "calcScore": "计算Score",
         "function(except)": {
           "error_level": "错误的等级",
-          "xacc_so_low": "机器人的源码没定义xacc小于95，所以这里也算不了",
+          "xacc_so_low": "未定义X精准度低于95%(可以通过配置文件定义)",
           "write_empty": "请填写空白部分",
           "write_rank": "请填写排名",
-          "error": "错误:\n${1}:${2}"
+          "error": "错误:\n${0}:${1}"
         },
-        "function(success)": "一般分数${1} | 排名分数${2}"
+        "function(success)": "一般分数${0} | 排名分数${1}"
       },
       "levelsearch": {
         "name": "获取关卡信息",
@@ -49,14 +49,14 @@
         "song": "音乐:",
         "author": "关卡作者:",
         "function(except)": {
-          "id_is_empty": "错误:id为空喵\n\n\n查询的id:${1}",
-          "status_error": "错误:${1}\n状态码:${2}\n\n\n查询的id:${3}",
-          "error": "错误:\n${1}:${2}"
+          "id_is_empty": "错误:id为空喵\n\n\n查询的id:${0}",
+          "status_error": "错误:${0}\n状态码:${1}\n\n\n查询的id:${2}",
+          "error": "错误:\n${0}:${1}"
         },
-        "function(TUF_success)": "关卡ID:${1}\n音乐:${2} - ${3}\n关卡作者:${4}\n难度:${5}(${6})\n视频链接:${7}\n下载链接:${8}\n创意工坊链接:${9}",
-        "function(ADOFAIGG_success)": "关卡ID:${1}\n音乐:${2} - ${3}\n关卡作者:${4}\n难度:${5}\n视频链接:${6}\n下载链接:${7}\n创意工坊链接:${8}\n物量:${9}\n标签:${10}",
-        "function(AQR_success)": "音乐:${1} - ${2}\n关卡作者:${3}\n难度/质量:${4}/${5}\n评估:${6}\n视频链接:${7}\n下载链接:${8}",
-        "function(find)": "发现了${1}个关卡\n\n--------\n\n"
+        "function(TUF_success)": "关卡ID:${0}\n音乐:${1} - ${2}\n关卡作者:${4}\n难度:${5}(${5})\n视频链接:${6}\n下载链接:${7}\n创意工坊链接:${8}",
+        "function(ADOFAIGG_success)": "关卡ID:${0}\n音乐:${1} - ${2}\n关卡作者:${4}\n难度:${5}\n视频链接:${5}\n下载链接:${6}\n创意工坊链接:${7}\n物量:${8}\n标签:${9}",
+        "function(AQR_success)": "音乐:${0} - ${1}\n关卡作者:${2}\n难度/质量:${4}/${5}\n评估:${5}\n视频链接:${6}\n下载链接:${7}",
+        "function(find)": "发现了${0}个关卡\n\n--------\n\n"
       },
       "filedownload": {
         "name": "外网文件下载",
@@ -66,18 +66,18 @@
         "status": "状态:",
         "function(except)": {
           "id_is_empty": "文件ID不能为空",
-          "id_not_find": "错误:指定的文件ID [${1}] 不存在",
+          "id_not_find": "错误:指定的文件ID [${0}] 不存在",
           "link_is_empty": "链接不能为空",
-          "link_not_find": "错误:url [${1}] 不存在",
-          "fail": "请求失败:${1}",
-          "error_dict": "无法访问指定目录:\n[${1}/${2}]\n${3}:${4}",
-          "error": "错误:\n${1}:${2}"
+          "link_not_find": "错误:url [${0}] 不存在",
+          "fail": "请求失败:${0}",
+          "error_dict": "无法访问指定目录:\n[${0}/${1}]\n${2}:${4}",
+          "error": "错误:\n${0}:${1}"
         },
         "function()": {
           "downloading": "状态:服务器下载文件中",
-          "downloadingprocess": "状态:已下载${1}MB / ${2}MB"
+          "downloadingprocess": "状态:已下载${0}MB / ${1}MB"
         },
-        "function(success)": "文件 ${1} 下载成功"
+        "function(success)": "文件 ${0} 下载成功"
       },
       "menu": {
         "name": "关于",

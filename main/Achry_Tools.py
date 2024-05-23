@@ -57,19 +57,6 @@ def log_insert(ins, content, lvl=1, failcustom=False):
 		else: ModsTagLog.inp(format_exc(), lvl)
 	else: ModsTagLog.inp(content, lvl)
 
-Tkinter_StartUI = tk.Tk()
-Tkinter_StartUI.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
-Tkinter_StartUI.geometry("480x540")
-# 创建Notebook
-notebook = ttk.Notebook(Tkinter_StartUI, bootstyle='info')
-
-open("config.json", "a", encoding="utf-8").close()
-if (open("config.json", "r", encoding="utf-8").read() == ""): open("config.json", "w", encoding="utf-8").write("{\"lang\": null}")
-ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
-LanguageData = language()
-LanguageData.lang = ConfigData["lang"]
-LanguageData.log = log
-LanguageData.mtl = ModsTagLog
 ################################################################
 # noEffect ui & function                                       # 去特效界面和函数
 ################################################################
@@ -119,7 +106,7 @@ class noEffect:
 
 	@staticmethod
 	def get_list_effect(self):
-		log_insert(self.log_text, language.repl(LanguageData.get("gui.noeffect.get_list_effect"), 1, self.insert_effect))
+		log_insert(self.log_text, LanguageData.get("gui.noeffect.get_list_effect", [str(self.insert_effect)]))
 
 	@staticmethod
 	def insert(self, no_log=False):
@@ -130,12 +117,12 @@ class noEffect:
 				if i == get_[2:]:
 					value = False
 					break;
-			if "T:" in get_ and value:
+			if get_[:2] == "T:" and value:
 					self.insert_effect.append(get_[2:])
-					if (not no_log): log_insert(self.log_text, language.repl(LanguageData.get("gui.noeffect.add_success"), 1, get_[2:]))
-			if "F:" in get_ and not value:
+					if (not no_log): log_insert(self.log_text, LanguageData.get("gui.noeffect.add_success", [get_[2:]]))
+			if get_[:2] == "F:" and not value:
 					self.insert_effect.remove(get_[2:])
-					if (not no_log): log_insert(self.log_text, language.repl(LanguageData.get("gui.noeffect.remove_success"), 1, get_[2:]))
+					if (not no_log): log_insert(self.log_text, LanguageData.get("gui.noeffect.remove_success", [get_[2:]]))
 
 	@staticmethod
 	def process_file(self):
@@ -178,10 +165,10 @@ class noEffect:
 			file_directory = path.dirname(filename)
 			open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(adofai_convert.dict_to_json(convert))
 			end_time = time_time()
-			log_insert(self.log_text, language.repl(language.repl(LanguageData.get("gui.noeffect.function(success)"), 1, file_directory), 2, round(end_time-start,3)))
+			log_insert(self.log_text, LanguageData.get("gui.noeffect.function(success)", [file_directory, round(end_time-start,3)]))
 		except Exception as e:
 			del start;
-			log_fail(language.repl(language.repl(LanguageData.get("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
+			log_fail(LanguageData.get("gui.noeffect.function(except).error", [e.__class__.__name__, e]))
    
 	@staticmethod
 	def setting(self):
@@ -234,7 +221,6 @@ class noEffect:
 			self.array_StringVar[i].set("T:"+adofai_const().effect[i])
 		self.insert(self, True)
 		return notebook
-
 ################################################################
 # calc ui & function                                           # 计算界面和函数
 ################################################################
@@ -317,62 +303,53 @@ class calc:
 				log_error(LanguageData.get("gui.calc.function(except).write_empty"))
 				return
 			
-			if self.world_rank_entry.get() == '':
-				ranked_position = 2147483647
-				log_error(LanguageData.get("gui.calc.function(except).write_rank"))
-			else:
+			if self.world_rank_entry.get() != '':
 				ranked_position = int(self.world_rank_entry.get())
+			else:
+				log_error(LanguageData.get("gui.calc.function(except).write_rank"))
+				return
 
-			no_early = (self.calc_empty_hit_combobox.get() == LanguageData.get('no') or xacc == 100)
+			no_early = self.calc_empty_hit_combobox.get() == LanguageData.get('no') or xacc == 100
 
 			world_first = calc_first_clear_combobox.get() == LanguageData.get('yes')
 
 			#计算关卡基础分 难度等会获取即diff
 			if float(difficult) < 1: return 0
+
+			#基础分
+			score_base = self.value.get(str(difficult), None)
+			#判断基础分是否正确（输入不正确的难度会返回None)看上面代码
+			if score_base == None:
+				log_error(LanguageData.get("gui.calc.function(except).error_level"))
+				return
+		
+			#xacc基础分计算
+			if xacc == 100: xacc_multi = 7
+			elif xacc >= 99.8: xacc_multi = (xacc - 99.73334) * 15 + 3
+			elif xacc >= 99: xacc_multi = (xacc - 97) ** 1.5484 - 0.9249
+			elif xacc >= 95: xacc_multi = ((xacc - 94) ** 1.6) / 12.1326 + 0.9176
 			else:
+				log_error(LanguageData.get("gui.calc.function(except).xacc_so_low"))
+				return
 
-				#基础分
-				### print(difficult)
-				score_base = self.value.get(str(difficult), None)
-				### print(score_base)
-				
-				#判断基础分是否正确（输入不正确的难度会返回None)看上面代码
-				if score_base == None:
-					log_error(LanguageData.get("gui.calc.function(except).error_level"))
-					return
-			
-				#xacc基础分计算
-				if xacc == 100: xacc_multi = 7
-				elif xacc >= 99.8: xacc_multi = (xacc - 99.73334) * 15 + 3
-				elif xacc >= 99: xacc_multi = (xacc - 97) ** 1.5484 - 0.9249
-				elif xacc >= 95: xacc_multi = ((xacc - 94) ** 1.6) / 12.1326 + 0.9176
-				else:
-					log_error(LanguageData.get("gui.calc.function(except).xacc_so_low"))
-					return
+		
+			#速度分
+			if speed < 1:       speed_multi = 0
+			elif speed < 1.1:   speed_multi = 25   * (speed - 1.1) ** 2 + 0.75
+			elif speed < 1.2:   speed_multi = 0.75
+			elif speed < 1.25:  speed_multi = 50   * (speed - 1.2) ** 2 + 0.75
+			elif speed < 1.3:   speed_multi = -50  * (speed - 1.3) ** 2 + 1
+			elif speed < 1.5:   speed_multi = 1
+			elif speed < 1.75:  speed_multi = 2    * (speed - 1.5) ** 2 + 1
+			elif speed < 2:     speed_multi = -2   * (speed - 2)   ** 2 + 1.25
+			else:               speed_multi = 1.25
 
-			
-				#速度分
-				if speed < 1:       speed_multi = 0
-				elif speed < 1.1:   speed_multi = 25   * (speed - 1.1) ** 2 + 0.75
-				elif speed < 1.2:   speed_multi = 0.75
-				elif speed < 1.25:  speed_multi = 50   * (speed - 1.2) ** 2 + 0.75
-				elif speed < 1.3:   speed_multi = -50  * (speed - 1.3) ** 2 + 1
-				elif speed < 1.5:   speed_multi = 1
-				elif speed < 1.75:  speed_multi = 2    * (speed - 1.5) ** 2 + 1
-				elif speed < 2:     speed_multi = -2   * (speed - 2)   ** 2 + 1.25
-				else:               speed_multi = 1.25
+			#无空敲
+			base_score = score_base * xacc_multi * speed_multi * (1.1 if no_early else 1)
 
-				#无空敲
-				base_score = score_base * xacc_multi * speed_multi * (1.1 if no_early else 1)
-
-				log_info(
-					language.repl(language.repl(LanguageData.get("gui.calc.function(success)")
-					, 1, (round(base_score * 1,2) if (not world_first) else round(base_score * 1.1,2)))
-					, 2, (round(base_score * ((0.9 ** (ranked_position - 1)) if ranked_position <= 20 else 0), 2)))
-					
-				)
+			log_info(LanguageData.get("gui.calc.function(success)", [round(base_score * (1.2 if not world_first else 1.1)), round(base_score * ((0.9 ** (ranked_position - 1)) if ranked_position <= 20 else 0))]))
 		except Exception as e:
-			log_fail(language.repl(language.repl(LanguageData.get("gui.noeffect.function(except).error"), 1, e.__class__.__name__), 2, e))
+			log_fail(LanguageData.get("gui.noeffect.function(except).error", [e.__class__.__name__, e]))
 
 	def main(self, notebook):
 		self.this = self
@@ -417,7 +394,6 @@ class calc:
 		ttk.Button(frame, text=LanguageData.get("gui.calc.calcScore"), command=lambda: self.action(self))\
 			.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 		return notebook
-
 ################################################################
 # search chart ui & function                                   # 搜索谱面界面和函数
 ################################################################
@@ -434,41 +410,31 @@ class search:
 	@staticmethod
 	def use_id(self):
 		try:
-			### print(combo_box.get())
+			id = self.entry_id.get()
+			if id == '':
+				self.log_text.delete(1.0, tk.END) 
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).id_is_empty", (id)), 3)
+				return
 			if self.combo_box.get() == 'TUF':
-				id = self.entry_id.get()
-				if id == '':
-					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, language.repl(LanguageData.get("gui.levelsearch.function(except).id_is_empty"), 1, id), 3)
-					return
-				
-				response = requests.get(f"https://be.tuforums.com/levels/{id}", headers={"accept": "application/json"})
-				info = response.json()
+				info = requests.get(f"https://be.tuforums.com/levels/{id}", headers={"accept": "application/json"}).json()
 
 				if 'statusCode' in info:
 					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, language.repl(language.repl(language.repl(LanguageData.get("gui.levelsearch.function(except).status_error"), 1, info["message"]), 2, info["statusCode"]), 3, id), 3)
+					log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", [info["message"], info["statusCode"], id]), 3)
 					return
 				
 				self.log_text.delete(1.0, tk.END) 
-				log_insert(self.log_text, language.repls(LanguageData.get("gui.levelsearch.function(TUF_success)"),
-					[info['id'], info['artist'] ,info['song'] ,info['creator'] ,info['diff'] ,info['pguDiff'] ,info['vidLink'] ,info['dlLink'] ,info['workshopLink']], 1
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
+				 	[info['id'], info['artist'], info['song'], info['creator'], info['diff'], info['pguDiff'], info['vidLink'], info['dlLink'], info['workshopLink']]
 				))
 
 			elif self.combo_box.get() == 'ADOFAI.GG':
-				id = self.entry_id.get()
-				if id == '':
-					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, language.repl(LanguageData.get("gui.levelsearch.function(except).id_is_empty"), 1, id), 3)
-					return
-				
-				response = requests.get(f"https://adofai.gg/api/v1/levels/{id}")
-				info = response.json()
+				info = requests.get(f"https://adofai.gg/api/v1/levels/{id}").json()
 
 				if 'errors' in info:
 					msg = info["errors"][0]
 					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, language.repl(language.repl(language.repl(LanguageData.get("gui.levelsearch.function(except).status_error"), 1, msg["message"]), 2, msg["code"]), 3, id), 3)
+					log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", (msg["message"], msg["code"], id)), 3)
 					return
 				try: info["artists"] = [artist['name'] for artist in info['music']['artists']]
 				except: 
@@ -484,27 +450,22 @@ class search:
 					info["tags"] = "-"
 				
 				self.log_text.delete(1.0, tk.END) 
-				log_insert(self.log_text, language.repls(LanguageData.get("gui.levelsearch.function(ADOFAIGG_success)"), 
-					[info['id'], info["artists"], info['title'], info["creators"], info['difficulty'], info['video'], info['download'], info['workshop'], info['tiles'], info["tags"]], 1
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(ADOFAIGG_success)",
+					[info['id'], info["artists"], info['title'], info["creators"], info['difficulty'], info['video'], info['download'], info['workshop'], info['tiles'], info["tags"]]
 				))
 			
-			else:
-				id = self.entry_id.get()
-
-				if id == '':
-					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, language.repl(LanguageData.get("gui.levelsearch.function(except).id_is_empty"), 1, id), 3)
-					return
-				aqr = requests.get('https://www.adofaiaqr.top/static/buttonsData.js').text[18:-3]
-				info = eval(aqr)[int(id)-1]
+			elif self.combo_box.get() == 'AQR':
+				info = eval(requests.get('https://www.adofaiaqr.top/static/buttonsData.js').text[18:-3])[int(id)-1]
 
 				self.log_text.delete(1.0, tk.END) 
-				log_insert(self.log_text, language.repls(LanguageData.get("gui.levelsearch.function(AQR_success)"), 
-					[info['artist'], info['song'], info['author'], info['difficulties'], info['level'], info['vluation'], info['video_herf'], info['href']], 1
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(AQR_success)", 
+					[info['artist'], info['song'], info['author'], info['difficulties'], info['level'], info['vluation'], info['video_herf'], info['href']]
 				))
+			else:
+				raise ValueError("combo_box not find")
 	  
 		except Exception as e:
-			log_fail(language.repl(language.repl(LanguageData.get("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e))
+			log_fail(LanguageData.get("gui.levelsearch.function(except).error", [e.__class__.__name__, e]))
 
 	@staticmethod
 	def query(self):
@@ -515,14 +476,14 @@ class search:
 			})
 			info = response.json()
 			self.log_text.delete(1.0, tk.END)
-			log_insert(self.log_text, language.repl(LanguageData.get("gui.levelsearch.function(find)"), 1, info['count']))
+			log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(find)", [info['count']]))
 			for infos in info['results']:
-				log_insert(self.log_text, language.repls(LanguageData.get("gui.levelsearch.function(TUF_success)"), 
-					[infos['id'], infos['artist'], infos['song'], infos['creator'], infos['diff'], infos['pguDiff'], infos['vidLink'], infos['dlLink'], infos['workshopLink']], 1
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
+					[infos['id'], infos['artist'], infos['song'], infos['creator'], infos['diff'], infos['pguDiff'], infos['vidLink'], infos['dlLink'], infos['workshopLink']]
 				) + '\n\n--------\n\n')
 
 		except Exception as e:
-			log_fail(language.repl(language.repl(LanguageData.get("gui.levelsearch.function(except).error"), 1, e.__class__.__name__), 2, e))
+			log_fail(LanguageData.get("gui.levelsearch.function(except).error", [e.__class__.__name__, e]))
 
 	def main(self, notebook):
 		self.this = self
@@ -562,7 +523,6 @@ class search:
 		self.log_text = ScrolledText(log_frame, height=10, width=50)
 		self.log_text.pack(fill="both", expand=True)
 		return notebook
-
 ################################################################
 # downloadFile ui & function                                   # 下载文件界面和函数
 ################################################################
@@ -595,7 +555,7 @@ class downloadFile:
 			# 发起 GET 请求
 			response = requests.get(f"https://hjtbrz.mcfuns.cn/application/test/gdrive.php?id={self.google_entry.get()}", stream=True)
 			if response.status_code != 200:
-				log_error(LanguageData.get("error"), language.repl(LanguageData.get("gui.filedownload.function(except).fail"), 1, response.status_code))
+				log_error(LanguageData.get("error"), LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
 
 			self.status.configure(text=LanguageData.get("gui.filedownload.function().downloading"))
@@ -618,20 +578,20 @@ class downloadFile:
 				if chunk:
 					open(self.path.get() + '/' + filename, "ab").write(chunk)
 					bytes_written += len(chunk)
-					self.status.configure(text=language.repls(LanguageData.get("gui.filedownload.function().downloadingprocess"), [round(bytes_written / 1048576,2), round(file_size / 1048576,2)], 1))
+					self.status.configure(text=LanguageData.get("gui.filedownload.function().downloadingprocess", [round(bytes_written / 1048576,2), round(file_size / 1048576,2)]))
 					self.progress['value'] = bytes_written / file_size * 100
 					Tkinter_StartUI.update_idletasks()
 				if 'Error 404'.encode(encoding='utf-8') in chunk:
-					log_error(language.repl(LanguageData.get("gui.filedownload.function(except).id_not_find"), 1, self.google_entry.get()))
+					log_error(LanguageData.get("gui.filedownload.function(except).id_not_find", [self.google_entry.get()]))
 					remove(self.path.get() + '/' + filename)
 					return
 
-			log_info(language.repl(LanguageData.get("gui.filedownload.function(success)"), 1, filename))
+			log_info(LanguageData.get("gui.filedownload.function(success)", [filename]))
 		except Exception as e:
 			if e.__class__.__name__ == 'PermissionError':
-				log_fail(language.repls(LanguageData.get("gui.filedownload.function(except).error_dict"), [self.path.get(), filename, e.__class__.__name__, e], 1))
+				log_fail(LanguageData.get("gui.filedownload.function(except).error_dict", [self.path.get(), filename, e.__class__.__name__, e]))
 			else:
-				log_fail(language.repl(language.repl(LanguageData.get("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e))
+				log_fail(LanguageData.get("gui.filedownload.function(except).error", [e.__class__.__name__, e]))
 
 	@staticmethod
 	def discord_action(self):
@@ -644,7 +604,7 @@ class downloadFile:
 			# 发起 GET 请求
 			response = requests.get(f'https://hjtbrz.mcfuns.cn/application/test/download.php?file_url={self.discord_entry.get()}', stream=True)
 			if response.status_code != 200:
-				log_error(language.repl(LanguageData.get("gui.filedownload.function(except).fail"), 1, response.status_code))
+				log_error(LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
 
 			self.status.configure(text=LanguageData.get("gui.filedownload.function().downloading"))
@@ -667,20 +627,20 @@ class downloadFile:
 				if chunk:
 					open(self.path.get() + '/' + filename, "ab").write(chunk)
 					bytes_written += len(chunk)
-					self.status.configure(text=language.repls(LanguageData.get("gui.filedownload.function().downloadingprocess"), [round(bytes_written / 1048576,2), round(file_size / 1048576,2)], 1))
+					self.status.configure(text=LanguageData.get("gui.filedownload.function().downloadingprocess", [round(bytes_written / 1048576,2), round(file_size / 1048576,2)]))
 					self.progress['value'] = bytes_written / file_size * 100
 					Tkinter_StartUI.update_idletasks()
 				if 'Error 404'.encode(encoding='utf-8') in chunk or not chunk:
-					log_error(language.repl(LanguageData.get("gui.filedownload.function(except).link_not_find"), 1, self.discord_entry.get()))
+					log_error(LanguageData.get("gui.filedownload.function(except).link_not_find", [self.discord_entry.get()]))
 					remove(self.path.get() + '/' + filename)
 					return
 
-			log_info(language.repl(LanguageData.get("gui.filedownload.function(success)"), 1, filename))
+			log_info(LanguageData.get("gui.filedownload.function(success)", [filename]))
 		except Exception as e:
 			if e.__class__.__name__ == 'PermissionError':
-				log_fail(language.repls(LanguageData.get("gui.filedownload.function(except).error_dict"), [self.path.get(), filename, e.__class__.__name__, e], 1))
+				log_fail(LanguageData.get("gui.filedownload.function(except).error_dict", [self.path.get(), filename, e.__class__.__name__, e]))
 			else:
-				log_fail(language.repl(language.repl(LanguageData.get("gui.filedownload.function(except).error"), 1, e.__class__.__name__), 2, e))
+				log_fail(LanguageData.get("gui.filedownload.function(except).error", [e.__class__.__name__, e]))
 
 	def main(self, notebook):
 		# Google Drive Section
@@ -721,7 +681,6 @@ class downloadFile:
 		self.progress.grid(row=3, column=0, padx=5, pady=5, sticky="ew", columnspan=1)
 
 		return notebook
-
 ################################################################
 # menu function                                                # 菜单函数
 ################################################################
@@ -730,7 +689,7 @@ class menu:
 		self.this = None
 		self.main_frame = None
 		self.changelog = [
-			"版本 1.0.1:\n- 更删除了欢迎页面，添加了关于页面\n- 将f-string外层单引号改为双引号",
+			"版本 1.0.1:\n- 删除了欢迎页面，添加了关于页面\n- 将f-string外层单引号改为双引号",
 			"版本 1.0.2:\n- 允许选择不需要删除的特效类型 并且允许它保存在Non-Effect里\n- 在文件下载中添加了进度栏\n- 添加了logging 库\n- 添加了日志功能",
 			"版本 1.0.3:\n- 删除了logging库 转用log 这使得允许自动保存日志(更方便调试)\n- 更新了日志颜色区分",
 			"版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释\n- 优化代码排版",
@@ -738,7 +697,7 @@ class menu:
 		]
 	@staticmethod
 	def show_log_ui_V1():
-		global mtl
+		global ModsTagLog
  
 		# 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
 		log_window = tk.Toplevel(Tkinter_StartUI)
@@ -757,10 +716,9 @@ class menu:
 		log_text_debug.tag_configure("FAIL", foreground="#FFFFFF", background="#BF0000")
 		log_text_debug.tag_configure("DEBUG", foreground="#BFBFBF", background="#303841")
 
-		mtl[0].close()
-		mtl[1].close()
-		mtl = log.new(Start_Time, "log")
-		logs = log.out(mtl)
+		ModsTagLog.reload()
+		ModsTagLog = log.new(Start_Time, "log")
+		logs = log.out(ModsTagLog)
 		this_endLog = "INFO"
 		logs_lines = re_sub(r"\n\n", "\n", logs[0]).split('\n')  # Assuming logs is a string with newline-separated entries
 		for line in logs_lines:
@@ -860,10 +818,24 @@ class menu:
 
 		Tkinter_StartUI.config(menu=menu_menu)
 		return notebook
-
 ################################################################
 # start function                                               # 启动函数
 ################################################################
+
+Tkinter_StartUI = tk.Tk()
+Tkinter_StartUI.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
+Tkinter_StartUI.geometry("480x540")
+# 创建Notebook
+notebook = ttk.Notebook(Tkinter_StartUI, bootstyle='info')
+
+open("config.json", "a", encoding="utf-8").close()
+if (open("config.json", "r", encoding="utf-8").read() == ""): open("config.json", "w", encoding="utf-8").write("{\"lang\": null}")
+ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
+LanguageData = language()
+LanguageData.lang = ConfigData["lang"]
+LanguageData.log = log
+LanguageData.mtl = ModsTagLog
+
 # 固定的函数
 NewSelf = {
 	"noEffect": noEffect(),

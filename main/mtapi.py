@@ -5,6 +5,11 @@ class log:
   def __init__(self):
     self.logV1 = None
     self.logV2 = None
+    pass
+  def reload(self):
+    self.logV1.flush()
+    self.logV2.flush()
+    pass
   def new(fileNameV1:str, fileNameV2:str, encoding:str="UTF-8"):
     new_log = log()
     if not os.path.exists("log"): os.system("mkdir log")
@@ -14,16 +19,12 @@ class log:
   def inp(self, w:str, level:int=1):
     logV1.inp(w, self.logV1, level)
     logV2.inp(w, self.logV2, level)
+    self.reload()
+    pass
   def out(self, escaping=False):
     return [logV1.out(self.logV1, escaping), logV2.out(self.logV2, escaping)]
   pass
 class logV1:
-  def new(fileName:str, encoding:str="UTF-8"):
-    if not os.path.exists("log"): 
-      os.system("mkdir log")
-      return open("log\\%s.mt-log"%fileName,"w", encoding=encoding);
-    else: 
-      return open("log\\%s.mt-log"%fileName,"a", encoding=encoding);
   def inp(w:str, this:str, level:int=1):
     if type(this) != _io.TextIOWrapper: print("this variables not is _io.TextIOWrapper")
     if   level == 1: level = "INFO"
@@ -46,12 +47,6 @@ class logV1:
     return r
   pass
 class logV2:
-  def new(fileName:str, encoding:str="UTF-8"):
-    if not os.path.exists("log"): 
-      os.system("mkdir log")
-      return open("log\\%s.mt-log"%fileName,"w", encoding=encoding);
-    else: 
-      return open("log\\%s.mt-log"%fileName,"a", encoding=encoding);
   def inp(w:str, this:str, level:int=1):
     if type(this) != _io.TextIOWrapper: print("this variables not is _io.TextIOWrapper")
     if   level == 1: level = "INFO"
@@ -79,14 +74,7 @@ class language:
     self.lang = None;
     self.locale = {"2052":"zh_cn", "1033":"en_us", "1042":"kr"}
     pass
-  def repls(data:str, repl:tuple, start:int=0):
-    for value in range(start, len(repl)+start):
-      data = language.repl(data, value, repl[value-start])
-    return data
-  def repl(data:str, value:int, to:str):
-      to = str(to)
-      return data.replace("${%s}"%value, to)
-  def get(self, data:str):
+  def get(self, data:str, repl:object="", start:int=0):
       from win32api import GetSystemDefaultLangID
       if (self.lang == None): self.lang = self.locale[str(GetSystemDefaultLangID())]
       if not os.path.exists("lang.json"):
@@ -102,7 +90,12 @@ class language:
       except:
         self.mtl.inp("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%data, 4)
         return data
-      return str(result)
+      result = str(result)
+      if type(repl) != tuple or type(repl) != list: repl = [repl]
+      elif type(repl) == tuple: repl = list(repl)
+      for value in range(start, len(repl)+start):
+        result = result.replace("${%s}"%value, str(repl[value-start]))
+      return result
 class string_convert:
   def match(patter, string): return {"success": re.match(patter, string) != None, "match": re.match(patter, string) if re.match(patter, string) != None else ""};
   def search(patter, string): return {"success": re.search(patter, string) != None, "match": re.search(patter, string) if re.search(patter, string) != None else ""};
