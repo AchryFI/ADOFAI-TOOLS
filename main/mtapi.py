@@ -91,7 +91,7 @@ class language:
         self.mtl.inp("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%data, 4)
         return data
       result = str(result)
-      if type(repl) != tuple or type(repl) != list: repl = [repl]
+      if type(repl) != tuple and type(repl) != list: repl = [repl]
       elif type(repl) == tuple: repl = list(repl)
       for value in range(start, len(repl)+start):
         result = result.replace("${%s}"%value, str(repl[value-start]))
