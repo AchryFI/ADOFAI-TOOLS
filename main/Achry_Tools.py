@@ -824,11 +824,10 @@ class menu:
 ################################################################
 class ModDownload:
 	def __init__(self):
+		self.this = self
 		self.information = None
 
 	def get_info(self):
-		global requests
-
 		data = requests.get('https://bot.adofai.gg/api/mods/').json()
 
 		filtered_data = {}
@@ -860,10 +859,10 @@ class ModDownload:
 		print(final_list)
 	
 	def main(self, notebook):
-		self.get_info()
 		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.menu.name")
+		notebook, main_frame = new_note(self, notebook, "gui.filedownload.name")
 
+		#get_info(self)
 		columns = ['名字', '版本', '作者', '更新时间']
 		table = ttk.Treeview(
 				master=main_frame,  # 父容器
