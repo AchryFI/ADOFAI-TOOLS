@@ -88,18 +88,25 @@
         "updateLog": "更新日志",
         "github": "Github链接"
       },
-      "logV1":{
-        "name":"日志V1",
-        "open_log_dir":"打开日志目录",
-        "copy":"复制",
-        "function(copy_success)":"已复制"
-      },
-      "logV2":{
-        "name":"日志V2",
-        "open_log_dir":"打开日志目录",
-        "copy":"复制",
-        "function(copy_success)":"已复制"
+      "moddownload": {
+        "name": "mod下载",
+        "signName": "名字",
+        "version": "版本",
+        "author": "作者",
+        "updateTime": "更新时间"
       }
+    },
+    "logV1":{
+      "name":"日志V1",
+      "open_log_dir":"打开日志目录",
+      "copy":"复制",
+      "function(copy_success)":"已复制"
+    },
+    "logV2":{
+      "name":"日志V2",
+      "open_log_dir":"打开日志目录",
+      "copy":"复制",
+      "function(copy_success)":"已复制"
     },
     "info": "结果",
     "error": "错误",

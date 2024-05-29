@@ -4,7 +4,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
-from tkinter import messagebox
+###from tkinter import messagebox
 from mtapi import *
 from os import remove, system, path
 from re import sub as re_sub
@@ -14,6 +14,7 @@ from traceback import format_exc
 from json import loads, dumps
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 
+import multiprocessing
 import requests
 import webbrowser
 import sys
@@ -703,7 +704,7 @@ class menu:
  
 		# 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
 		log_window = tk.Toplevel(Tkinter_StartUI)
-		log_window.title(LanguageData.get("gui.logV1.name"))
+		log_window.title(LanguageData.get("logV1.name"))
 		log_window.geometry("480x540")
 		log_window.resizable(0, 0)
 		log_text_debug = ScrolledText(log_window, height=10, width=50, font=("Consolas", 8))
@@ -821,105 +822,85 @@ class menu:
 		Tkinter_StartUI.config(menu=menu_menu)
 		return notebook
 ################################################################
-# mod download function                                        #mod下载
+# mod download function                                        # mod下载
 ################################################################
-class ModDownload:
+class modDownload:
 	def __init__(self):
-		self.information = None
+		self.this = self
+		self.data = {}
+		self.info = []
 
+	# async?
 	def get_info(self):
-		global requests
+		self.data = {}
+		self.info = []
 
-		data = requests.get('https://bot.adofai.gg/api/mods/').json()
-
-		filtered_data = {}
-
-		for item in data:
-			if item['id'] not in filtered_data:
-				filtered_data[item['id']] = item
+		for item in requests.get('https://bot.adofai.gg/api/mods/').json():
+			if item['id'] not in self.data:
+				self.data[item['id']] = item
 			else:
-				current_version = filtered_data[item['id']]['version']
+				current_version = self.data[item['id']]['version']
 				new_version = item.get('version')
 				if new_version is None: continue
 
-
-				result = self.compare_versions(current_version, new_version)
-
 				# Compare version numbers
-				if result == new_version:
-					filtered_data[item['id']] = item
+				if new_version == self.compare_versions(current_version, new_version):
+					self.data[item['id']] = item
 
-		final_list = []
-
-		for item_id, item in filtered_data.items():
-			final_list.append((
+		for item in self.data.values():
+			self.info.append((
 				item['name'],
 				item.get('version'),
 				item['cachedUsername'],
-				
-    			strftime("%Y-%m-%d %H:%M:%S", localtime(round(item['uploadedTimestamp']/1000,0)))
-				
+				strftime("%Y-%m-%d %H:%M:%S", localtime(round(item['uploadedTimestamp']/1000,0)))
 			))
-
-		return [final_list, filtered_data]
+		pass
 
 	def compare_versions(version1, version2):
 		v1 = list(map(int, version1.split(".")))
 		v2 = list(map(int, version2.split(".")))
-		if v1 > v2:
-			return v1
-		elif v1 < v2:
-			return v2
-		else:
-			return 0
+		return v1 if v1 > v2 else v2 if v1 < v2 else 0
 	
-	def get_selecting(self,table):
+	def get_selecting(self, table):
 		selected_item = table.selection()[0]
 		return table.item(selected_item)
 
 	def download_mod(self, mod):
 		# mod = self.get_selecting()['values'][0]
-		ALL_INFO = self.get_info()[1]
-		for s,j in ALL_INFO.items():
+		for s,j in self.data.items():
 			if mod == j['name']:
 				link = j['parsedDownload']
 
 		webbrowser.open(link)
 
 	def main(self, notebook):
-		ALL_INFO = self.get_info()
-		info = ALL_INFO[0]
-		download = ALL_INFO[1]
 		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.menu.name")
+		notebook, main_frame = new_note(self, notebook, "gui.moddownload.name")
+		self.get_info()
 
-		columns = ['名字', '版本', '作者', '更新时间']
+		columns = [LanguageData.get("gui.moddownload.signName"), LanguageData.get("gui.moddownload.version"), LanguageData.get("gui.moddownload.author"), LanguageData.get("gui.moddownload.updateTime")]
 		table = ttk.Treeview(
 				master=main_frame,  # 父容器
 				height=20,  # 表格显示的行数,height行
 				columns=columns,  # 显示的列
 				show='headings',  # 隐藏首列
 				)
-		table.heading(column='名字', text='名字', anchor='w',
-                  command=lambda: print(self.get_selecting(table)))  # 定义表头
-		table.heading('版本', text='版本', )  # 定义表头
-		table.heading('作者', text='作者', )  # 定义表头
-		table.heading('更新时间', text='更新时间', )  # 定义表头
+		table.heading(columns[0], text=columns[0], anchor='w', command=lambda: self.get_selecting(table))  # 定义表头
+		table.heading(columns[1], text=columns[1])  # 定义表头
+		table.heading(columns[2], text=columns[2])  # 定义表头
+		table.heading(columns[3], text=columns[3])  # 定义表头
 
-		table.column('名字', width=200, minwidth=200, anchor=S, )  # 定义列
-		table.column('版本', width=50, minwidth=50, anchor=S)  # 定义列
-		table.column('作者', width=100, minwidth=100, anchor=S)  # 定义列
-		table.column('更新时间', width=200, minwidth=50, anchor=S)  # 定义列
+		table.column(columns[0], width=200, minwidth=200, anchor=S)  # 定义列
+		table.column(columns[1], width=50, minwidth=50, anchor=S)  # 定义列
+		table.column(columns[2], width=100, minwidth=100, anchor=S)  # 定义列
+		table.column(columns[3], width=200, minwidth=50, anchor=S)  # 定义列
 		table.pack(pady=10)
-		for s in info:
+		for s in self.info:
 			table.insert('','end',values=s)
 
 		download_button = ttk.Button(main_frame,text='下载',command=lambda: self.download_mod(self.get_selecting(table)['values'][0])).pack()
 
 		return notebook
-		
-
-
 ################################################################
 # start function                                               # 启动函数
 ################################################################
@@ -945,14 +926,14 @@ NewSelf = {
 	"search": search(),
 	"downloadFile": downloadFile(),
 	"menu": menu(),
-	"ModDownload": ModDownload()
+	"modDownload": modDownload()
 }
 notebook = noEffect.main(NewSelf["noEffect"], notebook)
 notebook = calc.main(NewSelf["calc"], notebook)
 notebook = search.main(NewSelf["search"], notebook)
 notebook = downloadFile.main(NewSelf["downloadFile"], notebook)
 notebook = menu.main(NewSelf["menu"], notebook)
-notebook = ModDownload.main(NewSelf["ModDownload"], notebook)
+notebook = modDownload.main(NewSelf["modDownload"], notebook)
 notebook.pack(fill=tk.BOTH, expand=True)
 ################################################################
 # pb content pls paste to this (if ok)                         # 如果要修改代码并且pb 在可行情况下放置在这里 谢谢
