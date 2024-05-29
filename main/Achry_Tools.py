@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk as tkinter
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
@@ -553,7 +554,7 @@ class downloadFile:
 
 		try:
 			# 发起 GET 请求
-			response = requests.get(f"https://hjtbrz.mcfuns.cn/application/test/gdrive.php?id={self.google_entry.get()}", stream=True)
+			response = requests.get(f"https://hjtbrz.mcfuns.cn/application/FileDownload/gdrive.php?id={self.google_entry.get()}", stream=True)
 			if response.status_code != 200:
 				log_error(LanguageData.get("error"), LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
@@ -602,7 +603,7 @@ class downloadFile:
 
 		try:
 			# 发起 GET 请求
-			response = requests.get(f'https://hjtbrz.mcfuns.cn/application/test/download.php?file_url={self.discord_entry.get()}', stream=True)
+			response = requests.get(f'https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url={self.discord_entry.get()}', stream=True)
 			if response.status_code != 200:
 				log_error(LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
@@ -819,6 +820,74 @@ class menu:
 		Tkinter_StartUI.config(menu=menu_menu)
 		return notebook
 ################################################################
+# mod download function                                        #mod下载
+################################################################
+class ModDownload:
+	def __init__(self):
+		self.information = None
+
+	def get_info(self):
+		global requests
+
+		data = requests.get('https://bot.adofai.gg/api/mods/').json()
+
+		filtered_data = {}
+
+		for item in data:
+			if item['id'] not in filtered_data:
+				filtered_data[item['id']] = item
+			else:
+				current_version = filtered_data[item['id']]['version']
+				new_version = item['version']
+
+				current_version_parts = [int(part) for part in current_version.split('.')]
+				new_version_parts = [int(part) for part in new_version.split('.')]
+
+				# Compare version numbers
+				if new_version_parts > current_version_parts:
+					filtered_data[item['id']] = item
+
+		final_list = []
+
+		for item_id, item in filtered_data.items():
+			final_list.append({
+				'cachedUsername': item['cachedUsername'],
+				'name': item['name'],
+				'uploadedTimestamp': item['uploadedTimestamp']
+				
+			})
+
+		print(final_list)
+	
+	def main(self, notebook):
+		self.get_info()
+		self.this = self
+		notebook, main_frame = new_note(self, notebook, "gui.menu.name")
+
+		columns = ['名字', '版本', '作者', '更新时间']
+		table = ttk.Treeview(
+				master=main_frame,  # 父容器
+				height=10,  # 表格显示的行数,height行
+				columns=columns,  # 显示的列
+				show='headings',  # 隐藏首列
+				)
+		table.heading(column='名字', text='名字', anchor='w',
+                  command=lambda: print('学号'))  # 定义表头
+		table.heading('版本', text='版本', )  # 定义表头
+		table.heading('作者', text='作者', )  # 定义表头
+		table.heading('更新时间', text='更新时间', )  # 定义表头
+
+		table.column('名字', width=100, minwidth=100, anchor=S, )  # 定义列
+		table.column('版本', width=150, minwidth=100, anchor=S)  # 定义列
+		table.column('作者', width=50, minwidth=50, anchor=S)  # 定义列
+		table.column('更新时间', width=150, minwidth=100, anchor=S)  # 定义列
+		table.pack(pady=20)
+
+		return notebook
+		
+
+
+################################################################
 # start function                                               # 启动函数
 ################################################################
 
@@ -843,12 +912,14 @@ NewSelf = {
 	"search": search(),
 	"downloadFile": downloadFile(),
 	"menu": menu(),
+	"ModDownload": ModDownload()
 }
 notebook = noEffect.main(NewSelf["noEffect"], notebook)
 notebook = calc.main(NewSelf["calc"], notebook)
 notebook = search.main(NewSelf["search"], notebook)
 notebook = downloadFile.main(NewSelf["downloadFile"], notebook)
 notebook = menu.main(NewSelf["menu"], notebook)
+notebook = ModDownload.main(NewSelf["ModDownload"], notebook)
 notebook.pack(fill=tk.BOTH, expand=True)
 ################################################################
 # pb content pls paste to this (if ok)                         # 如果要修改代码并且pb 在可行情况下放置在这里 谢谢
