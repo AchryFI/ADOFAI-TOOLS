@@ -9,6 +9,7 @@ from mtapi import *
 from os import remove, system, path
 from re import sub as re_sub
 from time import time as time_time
+from time import strftime,localtime
 from traceback import format_exc
 from json import loads, dumps
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
@@ -824,10 +825,11 @@ class menu:
 ################################################################
 class ModDownload:
 	def __init__(self):
-		self.this = self
 		self.information = None
 
 	def get_info(self):
+		global requests
+
 		data = requests.get('https://bot.adofai.gg/api/mods/').json()
 
 		filtered_data = {}
@@ -837,50 +839,82 @@ class ModDownload:
 				filtered_data[item['id']] = item
 			else:
 				current_version = filtered_data[item['id']]['version']
-				new_version = item['version']
+				new_version = item.get('version')
+				if new_version is None: continue
 
-				current_version_parts = [int(part) for part in current_version.split('.')]
-				new_version_parts = [int(part) for part in new_version.split('.')]
+
+				result = self.compare_versions(current_version, new_version)
 
 				# Compare version numbers
-				if new_version_parts > current_version_parts:
+				if result == new_version:
 					filtered_data[item['id']] = item
 
 		final_list = []
 
 		for item_id, item in filtered_data.items():
-			final_list.append({
-				'cachedUsername': item['cachedUsername'],
-				'name': item['name'],
-				'uploadedTimestamp': item['uploadedTimestamp']
+			final_list.append((
+				item['name'],
+				item.get('version'),
+				item['cachedUsername'],
 				
-			})
+    			strftime("%Y-%m-%d %H:%M:%S", localtime(round(item['uploadedTimestamp']/1000,0)))
+				
+			))
 
-		print(final_list)
+		return [final_list, filtered_data]
+
+	def compare_versions(version1, version2):
+		v1 = list(map(int, version1.split(".")))
+		v2 = list(map(int, version2.split(".")))
+		if v1 > v2:
+			return v1
+		elif v1 < v2:
+			return v2
+		else:
+			return 0
 	
-	def main(self, notebook):
-		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.filedownload.name")
+	def get_selecting(self,table):
+		selected_item = table.selection()[0]
+		return table.item(selected_item)
 
-		#get_info(self)
+	def download_mod(self, mod):
+		# mod = self.get_selecting()['values'][0]
+		ALL_INFO = self.get_info()[1]
+		for s,j in ALL_INFO.items():
+			if mod == j['name']:
+				link = j['parsedDownload']
+
+		webbrowser.open(link)
+
+	def main(self, notebook):
+		ALL_INFO = self.get_info()
+		info = ALL_INFO[0]
+		download = ALL_INFO[1]
+		self.this = self
+		notebook, main_frame = new_note(self, notebook, "gui.menu.name")
+
 		columns = ['名字', '版本', '作者', '更新时间']
 		table = ttk.Treeview(
 				master=main_frame,  # 父容器
-				height=10,  # 表格显示的行数,height行
+				height=20,  # 表格显示的行数,height行
 				columns=columns,  # 显示的列
 				show='headings',  # 隐藏首列
 				)
 		table.heading(column='名字', text='名字', anchor='w',
-                  command=lambda: print('学号'))  # 定义表头
+                  command=lambda: print(self.get_selecting(table)))  # 定义表头
 		table.heading('版本', text='版本', )  # 定义表头
 		table.heading('作者', text='作者', )  # 定义表头
 		table.heading('更新时间', text='更新时间', )  # 定义表头
 
-		table.column('名字', width=100, minwidth=100, anchor=S, )  # 定义列
-		table.column('版本', width=150, minwidth=100, anchor=S)  # 定义列
-		table.column('作者', width=50, minwidth=50, anchor=S)  # 定义列
-		table.column('更新时间', width=150, minwidth=100, anchor=S)  # 定义列
-		table.pack(pady=20)
+		table.column('名字', width=200, minwidth=200, anchor=S, )  # 定义列
+		table.column('版本', width=50, minwidth=50, anchor=S)  # 定义列
+		table.column('作者', width=100, minwidth=100, anchor=S)  # 定义列
+		table.column('更新时间', width=200, minwidth=50, anchor=S)  # 定义列
+		table.pack(pady=10)
+		for s in info:
+			table.insert('','end',values=s)
+
+		download_button = ttk.Button(main_frame,text='下载',command=lambda: self.download_mod(self.get_selecting(table)['values'][0])).pack()
 
 		return notebook
 		
@@ -892,7 +926,7 @@ class ModDownload:
 
 Tkinter_StartUI = tk.Tk()
 Tkinter_StartUI.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
-Tkinter_StartUI.geometry("480x540")
+Tkinter_StartUI.geometry("600x540")
 # 创建Notebook
 notebook = ttk.Notebook(Tkinter_StartUI, bootstyle='info')
 
