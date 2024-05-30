@@ -835,7 +835,7 @@ class modDownload:
 		self.data = {}
 		self.info = []
 
-		for item in requests.get('https://bot.adofai.gg/api/mods/').json():
+		for item in requests.get('https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/').json():
 			if item['id'] not in self.data:
 				self.data[item['id']] = item
 			else:
@@ -898,6 +898,10 @@ class modDownload:
 		for s in self.info:
 			table.insert('','end',values=s)
 
+		VScroll1 = tk.Scrollbar(main_frame, orient='vertical', command=table.yview)	
+		VScroll1.place(relx=0.971, rely=0.028, relwidth=0.024, relheight=0.658)
+		table.configure(yscrollcommand=VScroll1.set)
+
 		download_button = ttk.Button(main_frame,text='下载',command=lambda: self.download_mod(self.get_selecting(table)['values'][0])).pack()
 
 		return notebook
@@ -910,6 +914,10 @@ Tkinter_StartUI.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
 Tkinter_StartUI.geometry("600x540")
 # 创建Notebook
 notebook = ttk.Notebook(Tkinter_StartUI, bootstyle='info')
+
+r = requests.get('https://hjtbrz.mcfuns.cn/application/casting.txt')
+r.encoding = "utf-8"
+messagebox.showinfo('公告',r.text)
 
 open("config.json", "a", encoding="utf-8").close()
 if (open("config.json", "r", encoding="utf-8").read() == ""): open("config.json", "w", encoding="utf-8").write("{\"lang\": null}")
@@ -932,13 +940,12 @@ notebook = noEffect.main(NewSelf["noEffect"], notebook)
 notebook = calc.main(NewSelf["calc"], notebook)
 notebook = search.main(NewSelf["search"], notebook)
 notebook = downloadFile.main(NewSelf["downloadFile"], notebook)
-notebook = menu.main(NewSelf["menu"], notebook)
 notebook = modDownload.main(NewSelf["modDownload"], notebook)
+notebook = menu.main(NewSelf["menu"], notebook)
 notebook.pack(fill=tk.BOTH, expand=True)
 ################################################################
 # pb content pls paste to this (if ok)                         # 如果要修改代码并且pb 在可行情况下放置在这里 谢谢
 ################################################################
-
 
 # tkinter loop
 Tkinter_StartUI.mainloop()
