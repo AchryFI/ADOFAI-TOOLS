@@ -29,12 +29,24 @@ import win32con
 ################################################################
 # hotbar function                                              # 快捷栏函数
 ################################################################
-def new_note(self, notebook, lang):
-	# MainBuild
-	main_frame = ttk.Frame(notebook)
-	notebook.add(main_frame, text=LanguageData.get(lang))
-	self.main_frame = main_frame
-	return (notebook, main_frame)
+class _NoteBookClass:
+	def __init__(self, Tkinter_StartUI):
+		self.notebook = ttk.Notebook(Tkinter_StartUI, bootstyle='info')
+	def new_note(self, self_self, lang):
+		# MainBuild
+		main_frame = ttk.Frame(self.notebook)
+		self.notebook.add(main_frame, text=LanguageData.get(lang))
+		self_self.main_frame = main_frame
+		return main_frame
+def reload_config():
+	open("config.json","w",encoding="UTF-8").write(json.dumps(ConfigData))
+def show_update_info():
+	if (not ConfigData["skip_update_info"]):
+		r = requests.get('https://hjtbrz.mcfuns.cn/application/casting.txt')
+		r.encoding = "utf-8"
+		messagebox.showinfo('公告',r.text)
+		ConfigData["skip_update_info"] = True
+		reload_config()
 ################################################################
 # Log content function                                         # 日志内容功能
 ################################################################
@@ -65,7 +77,7 @@ def log_insert(ins, content, lvl=1, failcustom=False):
 ################################################################
 class noEffect:
 	def __init__(self):
-		self.this = None
+		self.this = self
 		self.main_frame = None
 		self.insert_effect = []
 		self.array_StringVar = [
@@ -199,10 +211,10 @@ class noEffect:
 			row += 1
 		setting_effect.grid(row=0, column=0)
 
-	def main(self, notebook):
+	def main(self, NOTEBOOK):
 		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.noeffect.name")
-		frame = ttk.Frame(main_frame)
+		self.main_frame = NOTEBOOK.new_note(self, "gui.noeffect.name")
+		frame = ttk.Frame(self.main_frame)
 		label_path = ttk.Label(frame, text=LanguageData.get("gui.noeffect.file_path"))
 		label_path.grid(row=0, column=0, padx=5, pady=5)
 		self.entry_path = ttk.Entry(frame, width=30)
@@ -216,20 +228,20 @@ class noEffect:
 		ttk.Button(frame, text=LanguageData.get("gui.noeffect.check"), command=lambda: self.get_list_effect(self))\
 			.grid(row=0, column=4, padx=5, pady=5, sticky="ew")
 		frame.pack(fill="x")
-		self.log_text = ScrolledText(main_frame, height=10, width=50)
+		self.log_text = ScrolledText(self.main_frame, height=10, width=50)
 		self.log_text.pack(fill="both", expand=True)
-		button_convert = ttk.Button(main_frame, text=LanguageData.get("gui.noeffect.convert"), command=lambda: self.process_file(self))
+		button_convert = ttk.Button(self.main_frame, text=LanguageData.get("gui.noeffect.convert"), command=lambda: self.process_file(self))
 		button_convert.pack(fill="x")
 		for i in range(len(self.array_StringVar)):
 			self.array_StringVar[i].set("T:"+adofai_const().effect[i])
 		self.insert(self, True)
-		return notebook
+		pass
 ################################################################
 # calc ui & function                                           # 计算界面和函数
 ################################################################
 class calc:
 	def __init__(self):
-		self.this = None
+		self.this = self
 		self.main_frame = None
 		self.calc_level_combobox = None
 		self.calc_speed_entry = None
@@ -287,7 +299,6 @@ class calc:
 			"21.25": 3000,
 			"21.3": 5000
 		}
-
 
 	@staticmethod
 	def action(self):
@@ -354,11 +365,11 @@ class calc:
 		except Exception as e:
 			log_fail(LanguageData.get("gui.noeffect.function(except).error", [e.__class__.__name__, e]))
 
-	def main(self, notebook):
+	def main(self, NOTEBOOK):
 		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.calc.name")
+		self.main_frame = NOTEBOOK.new_note(self, "gui.calc.name")
 		# 创建 LabelFrame
-		frame = ttk.LabelFrame(main_frame, text="PP")
+		frame = ttk.LabelFrame(self.main_frame, text="PP")
 		frame.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 		# 添加等级
 		ttk.Label(frame, text=LanguageData.get("gui.calc.level"))\
@@ -396,13 +407,13 @@ class calc:
 		#计算按钮
 		ttk.Button(frame, text=LanguageData.get("gui.calc.calcScore"), command=lambda: self.action(self))\
 			.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
-		return notebook
+		pass
 ################################################################
 # search chart ui & function                                   # 搜索谱面界面和函数
 ################################################################
 class search:
 	def __init__(self):
-		self.this = None
+		self.this = self
 		self.main_frame = None
 		self.combo_box = None
 		self.entry_id = None
@@ -488,11 +499,11 @@ class search:
 		except Exception as e:
 			log_fail(LanguageData.get("gui.levelsearch.function(except).error", [e.__class__.__name__, e]))
 
-	def main(self, notebook):
+	def main(self, NOTEBOOK):
 		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.levelsearch.name")
+		self.main_frame = NOTEBOOK.new_note(self, "gui.levelsearch.name")
 		# 通过ID查询部分
-		id_frame = ttk.Labelframe(main_frame, text=LanguageData.get("gui.levelsearch.search_id"))
+		id_frame = ttk.Labelframe(self.main_frame, text=LanguageData.get("gui.levelsearch.search_id"))
 		id_frame.pack(fill="x", padx=10, pady=5)
 		self.combo_box = ttk.Combobox(id_frame, values=["TUF", "ADOFAI.GG", "AQR"], state="readonly")
 		self.combo_box.current(0)  # 设置默认选择
@@ -504,7 +515,7 @@ class search:
 		ttk.Button(id_frame, text=LanguageData.get("gui.levelsearch.search"), command=lambda: self.use_id(self))\
 			.grid(row=0, column=2, padx=5, pady=5)
 		# 通过信息查询部分
-		info_frame = ttk.Labelframe(main_frame,text=LanguageData.get("gui.levelsearch.info_search"))
+		info_frame = ttk.Labelframe(self.main_frame,text=LanguageData.get("gui.levelsearch.info_search"))
 		info_frame.pack(fill="x", padx=10, pady=5)
 		ttk.Label(info_frame, text=LanguageData.get("gui.levelsearch.artist"))\
 			.grid(row=0, column=0, padx=5, pady=5)
@@ -521,17 +532,17 @@ class search:
 		ttk.Button(info_frame, text=LanguageData.get("gui.levelsearch.search"), command=lambda: self.query(self))\
 			.grid(row=3, columnspan=2, padx=5, pady=5, sticky="ew")
 		# 日志部分
-		log_frame = ttk.Frame(main_frame)
+		log_frame = ttk.Frame(self.main_frame)
 		log_frame.pack(fill="both", expand=True, padx=10, pady=5)
 		self.log_text = ScrolledText(log_frame, height=10, width=50)
 		self.log_text.pack(fill="both", expand=True)
-		return notebook
+		pass
 ################################################################
 # downloadFile ui & function                                   # 下载文件界面和函数
 ################################################################
 class downloadFile:
 	def __init__(self):
-		self.this = None
+		self.this = self
 		self.main_frame = None
 		self.google_entry = None
 		self.discord_entry = None
@@ -645,19 +656,19 @@ class downloadFile:
 			else:
 				log_fail(LanguageData.get("gui.filedownload.function(except).error", [e.__class__.__name__, e]))
 
-	def main(self, notebook):
+	def main(self, NOTEBOOK):
 		# Google Drive Section
 		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.filedownload.name")
+		self.main_frame = NOTEBOOK.new_note(self, "gui.filedownload.name")
 
-		google_frame = ttk.LabelFrame(main_frame, text="Google Drive[Use ID]")
+		google_frame = ttk.LabelFrame(self.main_frame, text="Google Drive[Use ID]")
 		google_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 		self.google_entry = ttk.Entry(google_frame, width=48)
 		self.google_entry.grid(row=0, column=0, padx=5, pady=5)
 		ttk.Button(google_frame, text=LanguageData.get("gui.filedownload.download"),command=lambda: downloadFile.google_action(self))\
 			.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
-		discord_frame = ttk.LabelFrame(main_frame, text="discord[Use Link]")
+		discord_frame = ttk.LabelFrame(self.main_frame, text="discord[Use Link]")
 		discord_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 		self.discord_entry = ttk.Entry(discord_frame, width=48)
 		self.discord_entry.grid(row=0, column=0, padx=5, pady=5)
@@ -665,7 +676,7 @@ class downloadFile:
 			.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
 		# Download Setting Section
-		setting_frame = ttk.Frame(main_frame)
+		setting_frame = ttk.Frame(self.main_frame)
 		setting_frame.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
 
 		ttk.Label(setting_frame, text=LanguageData.get("gui.filedownload.save_path"))\
@@ -680,16 +691,107 @@ class downloadFile:
 		self.status = ttk.Label(setting_frame, text=LanguageData.get("gui.filedownload.status"))
 		self.status.grid(row=2, column=0, padx=5, pady=5)
 
-		self.progress = ttk.Progressbar(main_frame, orient="horizontal", length=200, mode="determinate")
+		self.progress = ttk.Progressbar(self.main_frame, orient="horizontal", length=200, mode="determinate")
 		self.progress.grid(row=3, column=0, padx=5, pady=5, sticky="ew", columnspan=1)
+		pass
+################################################################
+# mod download function                                        # mod下载
+################################################################
+class modDownload:
+	def __init__(self):
+		self.this = self
+		self.main_frame = None
+		self.data = {}
+		self.info = []
 
-		return notebook
+	def get_info(self, skip_get_config_item = True):
+		self.data = {}
+		self.info = []
+
+		if skip_get_config_item:
+			try: self.data = ConfigData["modDownload_data"]
+			except: 
+				ConfigData["modDownload_data"] = self.get_info(False)
+				reload_config()
+		else:
+			for item in requests.get('https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/').json():
+				if item['id'] not in self.data:
+					self.data[item['id']] = item
+				else:
+					current_version = self.data[item['id']]['version']
+					new_version = item.get('version')
+					if new_version is None: continue
+
+					# Compare version numbers
+					if new_version == self.compare_versions(current_version, new_version):
+						self.data[item['id']] = item
+			ConfigData["modDownload_data"] = self.data
+			reload_config()
+			self.main(NOTEBOOK,)
+		for item in self.data.values():
+			self.info.append((
+				item['name'],
+				item.get('version'),
+				item['cachedUsername'],
+				strftime("%Y-%m-%d %H:%M:%S", localtime(round(item['uploadedTimestamp']/1000,0)))
+			))
+		pass
+
+	def compare_versions(version1, version2):
+		v1 = list(map(int, version1.split(".")))
+		v2 = list(map(int, version2.split(".")))
+		return v1 if v1 > v2 else v2 if v1 < v2 else 0
+	
+	def get_selecting(self, table):
+		selected_item = table.selection()[0]
+		return table.item(selected_item)
+
+	def download_mod(self, mod):
+		# mod = self.get_selecting()['values'][0]
+		for item in self.data.values():
+			if mod == item['name']:
+				link = item['parsedDownload']
+
+		webbrowser.open(link)
+
+	def main(self, NOTEBOOK, Patch_NOTEBOOK_To_mainframe = False):
+		self.this = self
+		self.main_frame = NOTEBOOK.new_note(self, "gui.moddownload.name")
+		self.get_info()
+
+		columns = [LanguageData.get("gui.moddownload.signName"), LanguageData.get("gui.moddownload.version"), LanguageData.get("gui.moddownload.author"), LanguageData.get("gui.moddownload.updateTime")]
+		table = ttk.Treeview(
+				master=self.main_frame,  # 父容器
+				height=20,  # 表格显示的行数,height行
+				columns=columns,  # 显示的列
+				show='headings',  # 隐藏首列	
+				)
+		table.heading(columns[0], text=columns[0], anchor='w', command=lambda: self.get_selecting(table))  # 定义表头
+		table.heading(columns[1], text=columns[1])  # 定义表头
+		table.heading(columns[2], text=columns[2])  # 定义表头
+		table.heading(columns[3], text=columns[3])  # 定义表头
+
+		table.column(columns[0], width=200, minwidth=200, anchor=S)  # 定义列
+		table.column(columns[1], width=50, minwidth=50, anchor=S)  # 定义列
+		table.column(columns[2], width=100, minwidth=100, anchor=S)  # 定义列
+		table.column(columns[3], width=200, minwidth=50, anchor=S)  # 定义列
+		table.pack(pady=10)
+		for s in self.info:
+			table.insert('','end',values=s)
+
+		VScroll1 = tk.Scrollbar(self.main_frame, orient='vertical', command=table.yview)	
+		VScroll1.place(relx=0.971, rely=0.028, relwidth=0.024, relheight=0.658)
+		table.configure(yscrollcommand=VScroll1.set)
+
+		ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.download"),command=lambda: self.download_mod(self.get_selecting(table)['values'][0])).pack()
+		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.reload"),command=lambda: self.get_info(False)).pack()
+		pass
 ################################################################
 # menu function                                                # 菜单函数
 ################################################################
 class menu:
 	def __init__(self):
-		self.this = None
+		self.this = self
 		self.main_frame = None
 		self.changelog = [
 			"版本 1.0.1:\n- 删除了欢迎页面，添加了关于页面\n- 将f-string外层单引号改为双引号",
@@ -763,45 +865,45 @@ class menu:
 		# Ask the user for a filename to save the content
 		system("explorer log")
 
-	def main(self, notebook):
+	def main(self, NOTEBOOK):
 		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.menu.name")
+		self.main_frame = NOTEBOOK.new_note(self, "gui.menu.name")
 
-		ttk.Label(main_frame, text=LanguageData.get("gui.menu.producer"))\
+		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.producer"))\
 			.grid(row=0, column=0, padx=10, pady=5, sticky="w")
-		link = ttk.Label(main_frame, text="_Achry_", foreground="blue", cursor="hand2")
+		link = ttk.Label(self.main_frame, text="_Achry_", foreground="blue", cursor="hand2")
 		link.grid(row=0, column=1, padx=10, pady=5, sticky="w")
 		link.bind("<Button-1>", lambda e: webbrowser.open("https://space.bilibili.com/1232092699"))
 
-		ttk.Label(main_frame, text=LanguageData.get("gui.menu.specialThanks"))\
+		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.specialThanks"))\
 			.grid(row=1, column=0, padx=10, pady=5, sticky="w")
-		link = ttk.Label(main_frame, text="ModsTag", foreground="blue", cursor="hand2")
+		link = ttk.Label(self.main_frame, text="ModsTag", foreground="blue", cursor="hand2")
 		link.grid(row=1, column=1, padx=10, pady=5, sticky="w")
 		link.bind("<Button-1>", lambda e: webbrowser.open("https://space.bilibili.com/496716004"))
 
-		ttk.Label(main_frame, text=LanguageData.get("gui.menu.github"))\
+		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.github"))\
 			.grid(row=2, column=0, padx=10, pady=5, sticky="w")
-		link = ttk.Label(main_frame, text="AchryFI/ADOFAI-TOOLS", foreground="blue", cursor="hand2")
+		link = ttk.Label(self.main_frame, text="AchryFI/ADOFAI-TOOLS", foreground="blue", cursor="hand2")
 		link.grid(row=2, column=1, padx=10, pady=5, sticky="w")
 		link.bind("<Button-1>", lambda e: webbrowser.open("https://github.com/AchryFI/ADOFAI-TOOLS/"))
 
 
-		ttk.Label(main_frame, text=LanguageData.get("gui.menu.contact_us"), font=('Helvetica', 16, 'bold'))\
+		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.contact_us"), font=('Helvetica', 16, 'bold'))\
 			.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="w")
 
-		ttk.Label(main_frame, text="QQ: 377504570")\
+		ttk.Label(self.main_frame, text="QQ: 377504570")\
 			.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
-		ttk.Label(main_frame, text="Bili/UID: 1232092699")\
+		ttk.Label(self.main_frame, text="Bili/UID: 1232092699")\
 			.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
-		ttk.Label(main_frame, text=LanguageData.get("gui.menu.email")+"achry@achry.space")\
+		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.email")+"achry@achry.space")\
 			.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="w")
 
-		ttk.Label(main_frame, text=LanguageData.get("gui.menu.updateLog"), font=('Helvetica', 16, 'bold'))\
+		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.updateLog"), font=('Helvetica', 16, 'bold'))\
 			.grid(row=7, column=0, columnspan=2, padx=10, pady=10, sticky="w")
 
-		changelog_text = tk.Text(main_frame, height=12, width=63)
+		changelog_text = tk.Text(self.main_frame, height=12, width=63)
 		changelog_text.grid(row=8, column=0, columnspan=3, padx=10, pady=5, sticky="ew")
 
 		# 插入默认更新日志
@@ -820,91 +922,7 @@ class menu:
 		menu_menu.add_cascade(label="调试", menu=editmenu)
 
 		Tkinter_StartUI.config(menu=menu_menu)
-		return notebook
-################################################################
-# mod download function                                        # mod下载
-################################################################
-class modDownload:
-	def __init__(self):
-		self.this = self
-		self.data = {}
-		self.info = []
-
-	# async?
-	def get_info(self):
-		self.data = {}
-		self.info = []
-
-		for item in requests.get('https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/').json():
-			if item['id'] not in self.data:
-				self.data[item['id']] = item
-			else:
-				current_version = self.data[item['id']]['version']
-				new_version = item.get('version')
-				if new_version is None: continue
-
-				# Compare version numbers
-				if new_version == self.compare_versions(current_version, new_version):
-					self.data[item['id']] = item
-
-		for item in self.data.values():
-			self.info.append((
-				item['name'],
-				item.get('version'),
-				item['cachedUsername'],
-				strftime("%Y-%m-%d %H:%M:%S", localtime(round(item['uploadedTimestamp']/1000,0)))
-			))
 		pass
-
-	def compare_versions(version1, version2):
-		v1 = list(map(int, version1.split(".")))
-		v2 = list(map(int, version2.split(".")))
-		return v1 if v1 > v2 else v2 if v1 < v2 else 0
-	
-	def get_selecting(self, table):
-		selected_item = table.selection()[0]
-		return table.item(selected_item)
-
-	def download_mod(self, mod):
-		# mod = self.get_selecting()['values'][0]
-		for s,j in self.data.items():
-			if mod == j['name']:
-				link = j['parsedDownload']
-
-		webbrowser.open(link)
-
-	def main(self, notebook):
-		self.this = self
-		notebook, main_frame = new_note(self, notebook, "gui.moddownload.name")
-		self.get_info()
-
-		columns = [LanguageData.get("gui.moddownload.signName"), LanguageData.get("gui.moddownload.version"), LanguageData.get("gui.moddownload.author"), LanguageData.get("gui.moddownload.updateTime")]
-		table = ttk.Treeview(
-				master=main_frame,  # 父容器
-				height=20,  # 表格显示的行数,height行
-				columns=columns,  # 显示的列
-				show='headings',  # 隐藏首列
-				)
-		table.heading(columns[0], text=columns[0], anchor='w', command=lambda: self.get_selecting(table))  # 定义表头
-		table.heading(columns[1], text=columns[1])  # 定义表头
-		table.heading(columns[2], text=columns[2])  # 定义表头
-		table.heading(columns[3], text=columns[3])  # 定义表头
-
-		table.column(columns[0], width=200, minwidth=200, anchor=S)  # 定义列
-		table.column(columns[1], width=50, minwidth=50, anchor=S)  # 定义列
-		table.column(columns[2], width=100, minwidth=100, anchor=S)  # 定义列
-		table.column(columns[3], width=200, minwidth=50, anchor=S)  # 定义列
-		table.pack(pady=10)
-		for s in self.info:
-			table.insert('','end',values=s)
-
-		VScroll1 = tk.Scrollbar(main_frame, orient='vertical', command=table.yview)	
-		VScroll1.place(relx=0.971, rely=0.028, relwidth=0.024, relheight=0.658)
-		table.configure(yscrollcommand=VScroll1.set)
-
-		download_button = ttk.Button(main_frame,text='下载',command=lambda: self.download_mod(self.get_selecting(table)['values'][0])).pack()
-
-		return notebook
 ################################################################
 # start function                                               # 启动函数
 ################################################################
@@ -913,15 +931,21 @@ Tkinter_StartUI = tk.Tk()
 Tkinter_StartUI.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
 Tkinter_StartUI.geometry("600x540")
 # 创建Notebook
-notebook = ttk.Notebook(Tkinter_StartUI, bootstyle='info')
+NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
 
-r = requests.get('https://hjtbrz.mcfuns.cn/application/casting.txt')
-r.encoding = "utf-8"
-messagebox.showinfo('公告',r.text)
 
 open("config.json", "a", encoding="utf-8").close()
-if (open("config.json", "r", encoding="utf-8").read() == ""): open("config.json", "w", encoding="utf-8").write("{\"lang\": null}")
+if (open("config.json", "r", encoding="utf-8").read() == ""): 
+	open("config.json", "w", encoding="utf-8").write("{\"lang\": null, \"skip_update_info\": false}")
 ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
+
+try:
+	show_update_info()
+except:
+	ConfigData["skip_update_info"] = False
+	show_update_info()
+
+
 LanguageData = language()
 LanguageData.lang = ConfigData["lang"]
 LanguageData.log = log
@@ -936,13 +960,13 @@ NewSelf = {
 	"menu": menu(),
 	"modDownload": modDownload()
 }
-notebook = noEffect.main(NewSelf["noEffect"], notebook)
-notebook = calc.main(NewSelf["calc"], notebook)
-notebook = search.main(NewSelf["search"], notebook)
-notebook = downloadFile.main(NewSelf["downloadFile"], notebook)
-notebook = modDownload.main(NewSelf["modDownload"], notebook)
-notebook = menu.main(NewSelf["menu"], notebook)
-notebook.pack(fill=tk.BOTH, expand=True)
+noEffect.main(NewSelf["noEffect"], NOTEBOOK)
+calc.main(NewSelf["calc"], NOTEBOOK)
+search.main(NewSelf["search"], NOTEBOOK)
+downloadFile.main(NewSelf["downloadFile"], NOTEBOOK)
+modDownload.main(NewSelf["modDownload"], NOTEBOOK)
+menu.main(NewSelf["menu"], NOTEBOOK)
+NOTEBOOK.notebook.pack(fill=tk.BOTH, expand=True)
 ################################################################
 # pb content pls paste to this (if ok)                         # 如果要修改代码并且pb 在可行情况下放置在这里 谢谢
 ################################################################

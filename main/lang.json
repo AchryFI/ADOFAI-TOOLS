@@ -79,6 +79,15 @@
         },
         "function(success)": "文件 ${0} 下载成功"
       },
+      "moddownload": {
+        "name": "mod下载",
+        "download": "下载",
+        "reload": "刷新",
+        "signName": "名字",
+        "version": "版本",
+        "author": "作者",
+        "updateTime": "更新时间"
+      },
       "menu": {
         "name": "关于",
         "producer": "主制作: ",
@@ -87,13 +96,6 @@
         "email": "邮箱: ",
         "updateLog": "更新日志",
         "github": "Github链接"
-      },
-      "moddownload": {
-        "name": "mod下载",
-        "signName": "名字",
-        "version": "版本",
-        "author": "作者",
-        "updateTime": "更新时间"
       }
     },
     "logV1":{
