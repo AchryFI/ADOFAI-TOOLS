@@ -38,7 +38,7 @@ class _NoteBookClass:
 		self.notebook.add(main_frame, text=LanguageData.get(lang))
 		self_self.main_frame = main_frame
 		return main_frame
-def reload_config():
+def update_config():
 	open("config.json","w",encoding="UTF-8").write(json.dumps(ConfigData))
 def show_update_info():
 	if (not ConfigData["skip_update_info"]):
@@ -46,7 +46,7 @@ def show_update_info():
 		r.encoding = "utf-8"
 		messagebox.showinfo('公告',r.text)
 		ConfigData["skip_update_info"] = True
-		reload_config()
+		update_config()
 ################################################################
 # Log content function                                         # 日志内容功能
 ################################################################
@@ -469,7 +469,7 @@ class search:
 				))
 			
 			elif self.combo_box.get() == 'AQR':
-				info = eval(requests.get('https://www.adofaiaqr.top/static/buttonsData.js').text[18:-3])[int(id)-1]
+				info = json.loads(requests.get('https://kdocs.adofaiaqr.top').text)[int(id)-1]
 
 				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(AQR_success)", 
@@ -484,10 +484,8 @@ class search:
 	@staticmethod
 	def query(self):
 		try:
-			url = f"https://be.t21c.kro.kr/levels?artistQuery={self.entry_artist.get()}&songQuery={self.entry_music.get()}&creatorQuery={self.entry_author.get()}&random=false"
-			response = requests.get(url, headers={
-				"accept": "application/json"
-			})
+			url = f"https://be.tuforums.com/levels?query=&artistQuery={self.entry_artist.get()}&songQuery={self.entry_music.get()}&creatorQuery={self.entry_author.get()}&offset=10&random=false&lim"
+			response = requests.get(url, headers={"accept": "application/json"})
 			info = response.json()
 			self.log_text.delete(1.0, tk.END)
 			log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(find)", [info['count']]))
@@ -709,10 +707,14 @@ class modDownload:
 		self.info = []
 
 		if skip_get_config_item:
-			try: self.data = ConfigData["modDownload_data"]
+			try: 
+				if (type(ConfigData["modDownload_data"]) == dict):
+					self.data = ConfigData["modDownload_data"]
+				else:
+					raise ValueError("")
 			except: 
 				ConfigData["modDownload_data"] = self.get_info(False)
-				reload_config()
+				update_config()
 		else:
 			for item in requests.get('https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/').json():
 				if item['id'] not in self.data:
@@ -726,8 +728,8 @@ class modDownload:
 					if new_version == self.compare_versions(current_version, new_version):
 						self.data[item['id']] = item
 			ConfigData["modDownload_data"] = self.data
-			reload_config()
-			self.main(NOTEBOOK,)
+			update_config()
+			###self.main(NOTEBOOK,)
 		for item in self.data.values():
 			self.info.append((
 				item['name'],
@@ -798,7 +800,7 @@ class menu:
 			"版本 1.0.2:\n- 允许选择不需要删除的特效类型 并且允许它保存在Non-Effect里\n- 在文件下载中添加了进度栏\n- 添加了logging 库\n- 添加了日志功能",
 			"版本 1.0.3:\n- 删除了logging库 转用log 这使得允许自动保存日志(更方便调试)\n- 更新了日志颜色区分",
 			"版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释\n- 优化代码排版",
-			"版本 1.1.0:\n- 添加了模组下载\n- 修复代码bug\n- 修复无法正常选择语言问题",
+			"版本 1.1.0:\n- 添加了模组下载\n- 修复代码bug\n- 修复无法正常选择语言问题\n- 修复url错误问题",
 		]
 	@staticmethod
 	def show_log_ui_V1():
