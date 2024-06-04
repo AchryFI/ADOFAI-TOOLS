@@ -40,6 +40,8 @@ class _NoteBookClass:
 		return main_frame
 def update_config():
 	open("config.json","w",encoding="UTF-8").write(json.dumps(ConfigData))
+def update_cache():
+	open("cache.json","w",encoding="UTF-8").write(json.dumps(CacheData))
 def show_update_info():
 	if (not ConfigData["skip_update_info"]):
 		r = requests.get('https://hjtbrz.mcfuns.cn/application/casting.txt')
@@ -421,6 +423,43 @@ class search:
 		self.entry_music = None
 		self.entry_author = None
 		self.log_text = None
+	def cache_data(self, skip_get_config_item = True):
+		try:
+			CacheData["search"]["TUF"]
+		except:
+			try: CacheData["search"]
+			except: CacheData["search"] = {}
+			CacheData["search"]["TUF"] = requests.get(f"https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://be.tuforums.com/levels").json()["results"]
+			if 'statusCode' in CacheData["search"]["TUF"]:
+				self.log_text.delete(1.0, tk.END) 
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", [info["message"], info["statusCode"]]), 3)
+				CacheData["search"]["TUF"] = []
+		try:
+			CacheData["search"]["ADOFAI.GG"]
+		except:
+			try: CacheData["search"]
+			except: CacheData["search"] = {}
+			CacheData["search"]["ADOFAI.GG"] = requests.get(f"https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://adofai.gg/api/v1/levels").json()["results"]
+			if 'errors' in CacheData["search"]["ADOFAI.GG"]:
+				msg = info["errors"][0]
+				self.log_text.delete(1.0, tk.END) 
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", (msg["message"], msg["code"])), 3)
+				CacheData["search"]["ADOFAI.GG"] = []
+		try:
+			CacheData["search"]["AQR"]
+		except:
+			try: CacheData["search"]
+			except: CacheData["search"] = {}
+			CacheData["search"]["AQR"] = requests.get(f"https://kdocs.adofaiaqr.top").json()
+			update_cache()
+	def get_info(self, result, ref_id:int):
+		result = CacheData["search"][self.combo_box.get()]
+		ref_id = int(ref_id)
+		for array in result:
+			if (int(array["id"]) == ref_id):
+				return array
+		return None
+
 	@staticmethod
 	def use_id(self):
 		try:
@@ -429,49 +468,27 @@ class search:
 				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).id_is_empty", (id)), 3)
 				return
+			self.log_text.delete(1.0, tk.END) 
 			if self.combo_box.get() == 'TUF':
-				info = requests.get(f"https://be.tuforums.com/levels/{id}", headers={"accept": "application/json"}).json()
-
-				if 'statusCode' in info:
-					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", [info["message"], info["statusCode"], id]), 3)
-					return
-				
-				self.log_text.delete(1.0, tk.END) 
+				info = self.get_info(id)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
 				 	[info['id'], info['artist'], info['song'], info['creator'], info['diff'], info['pguDiff'], info['vidLink'], info['dlLink'], info['workshopLink']]
 				))
-
 			elif self.combo_box.get() == 'ADOFAI.GG':
-				info = requests.get(f"https://adofai.gg/api/v1/levels/{id}").json()
+				info = self.get_info(CacheData["search"]["ADOFAI.GG"], id)
 
-				if 'errors' in info:
-					msg = info["errors"][0]
-					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", (msg["message"], msg["code"], id)), 3)
-					return
 				try: info["artists"] = [artist['name'] for artist in info['music']['artists']]
-				except: 
-					log.inp("not artist in info[\"artist\"]", 3)
-					info["artists"] = "-"
+				except:  info["artists"] = "-"
 				try: info["creators"] = [creator['name'] for creator in info['creators']]
-				except: 
-					log.inp("not creators in info[\"creators\"]", 3)
-					info["creators"] = "-"
+				except: info["creators"] = "-"
 				try: info["tags"] = [tag['name'] for tag in info['tags']]
-				except: 
-					log.inp("not tags in info[\"tags\"]", 3)
-					info["tags"] = "-"
+				except: info["tags"] = "-"
 				
-				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(ADOFAIGG_success)",
 					[info['id'], info["artists"], info['title'], info["creators"], info['difficulty'], info['video'], info['download'], info['workshop'], info['tiles'], info["tags"]]
 				))
-			
 			elif self.combo_box.get() == 'AQR':
-				info = json.loads(requests.get('https://kdocs.adofaiaqr.top').text)[int(id)-1]
-
-				self.log_text.delete(1.0, tk.END) 
+				info = self.get_info(int(id)+10000)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(AQR_success)", 
 					[info['artist'], info['song'], info['author'], info['difficulties'], info['level'], info['vluation'], info['video_herf'], info['href']]
 				))
@@ -500,6 +517,8 @@ class search:
 	def main(self, NOTEBOOK):
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.levelsearch.name")
+		self.cache_data()
+
 		# 通过ID查询部分
 		id_frame = ttk.Labelframe(self.main_frame, text=LanguageData.get("gui.levelsearch.search_id"))
 		id_frame.pack(fill="x", padx=10, pady=5)
@@ -534,7 +553,6 @@ class search:
 		log_frame.pack(fill="both", expand=True, padx=10, pady=5)
 		self.log_text = ScrolledText(log_frame, height=10, width=50)
 		self.log_text.pack(fill="both", expand=True)
-		pass
 ################################################################
 # downloadFile ui & function                                   # 下载文件界面和函数
 ################################################################
@@ -702,21 +720,20 @@ class modDownload:
 		self.data = {}
 		self.info = []
 
-	def get_info(self, skip_get_config_item = True):
+	def cache_data(self, skip_get_config_item = True):
 		self.data = {}
 		self.info = []
 
 		if skip_get_config_item:
 			try: 
-				if (type(ConfigData["modDownload_data"]) == dict):
-					self.data = ConfigData["modDownload_data"]
+				if (type(CacheData["modDownload"]["data"]) == dict):
+					self.data = CacheData["modDownload"]["data"]
 				else:
 					raise ValueError("")
 			except: 
-				ConfigData["modDownload_data"] = self.get_info(False)
-				update_config()
+				self.cache_data(False)
 		else:
-			for item in requests.get('https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/').json():
+			for item in requests.get("https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/").json():
 				if item['id'] not in self.data:
 					self.data[item['id']] = item
 				else:
@@ -727,9 +744,10 @@ class modDownload:
 					# Compare version numbers
 					if new_version == self.compare_versions(current_version, new_version):
 						self.data[item['id']] = item
-			ConfigData["modDownload_data"] = self.data
-			update_config()
-			###self.main(NOTEBOOK,)
+			try: CacheData["modDownload"]["data"]
+			except: CacheData["modDownload"] = {}
+			CacheData["modDownload"]["data"] = self.data
+			update_cache()
 		for item in self.data.values():
 			self.info.append((
 				item['name'],
@@ -745,8 +763,7 @@ class modDownload:
 		return v1 if v1 > v2 else v2 if v1 < v2 else 0
 	
 	def get_selecting(self, table):
-		selected_item = table.selection()[0]
-		return table.item(selected_item)
+		return table.item(table.selection()[0])
 
 	def download_mod(self, mod):
 		# mod = self.get_selecting()['values'][0]
@@ -759,7 +776,7 @@ class modDownload:
 	def main(self, NOTEBOOK, Patch_NOTEBOOK_To_mainframe = False):
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.moddownload.name")
-		self.get_info()
+		self.cache_data()
 
 		columns = [LanguageData.get("gui.moddownload.signName"), LanguageData.get("gui.moddownload.version"), LanguageData.get("gui.moddownload.author"), LanguageData.get("gui.moddownload.updateTime")]
 		table = ttk.Treeview(
@@ -786,7 +803,7 @@ class modDownload:
 		table.configure(yscrollcommand=VScroll1.set)
 
 		ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.download"),command=lambda: self.download_mod(self.get_selecting(table)['values'][0])).pack()
-		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.reload"),command=lambda: self.get_info(False)).pack()
+		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.reload"),command=lambda: self.cache_data(False)).pack()
 		pass
 ################################################################
 # menu function                                                # 菜单函数
@@ -848,9 +865,9 @@ class menu:
 				log_text_debug.insert("end", line + '\n', this_endLog)
 			
 		log_text_debug.text.config(state=tk.DISABLED)
-		button_save = tk.Button(log_window, text=LanguageData.get("gui.logV1.open_log_dir"), command=menu.open_log)
+		button_save = tk.Button(log_window, text=LanguageData.get("logV1.open_log_dir"), command=menu.open_log)
 		button_save.pack(fill="x")
-		button_copy = tk.Button(log_window, text=LanguageData.get("gui.logV1.copy"), command=lambda: menu.write_clipboard(logs))
+		button_copy = tk.Button(log_window, text=LanguageData.get("logV1.copy"), command=lambda: menu.write_clipboard(logs))
 		button_copy.pack(fill="x")
 
 		log_window.mainloop()
@@ -860,7 +877,7 @@ class menu:
 		OpenClipboard()
 		SetClipboardData(win32con.CF_UNICODETEXT, text)
 		CloseClipboard()
-		messagebox.showinfo(LanguageData.get("gui.logV1.function(copy_success)"), LanguageData.get("gui.logV1.function(copy_success)"))
+		messagebox.showinfo(LanguageData.get("logV1.function(copy_success)"), LanguageData.get("logV1.function(copy_success)"))
 
 	@staticmethod
 	def open_log():        
@@ -920,7 +937,7 @@ class menu:
 		menu_menu.add_cascade(label="文件", menu=filemenu)
 
 		editmenu = ttk.Menu(menu_menu, tearoff=False)
-		editmenu.add_command(label=LanguageData.get("gui.logV1.name"),command=menu.show_log_ui_V1)
+		editmenu.add_command(label=LanguageData.get("logV1.name"),command=menu.show_log_ui_V1)
 		menu_menu.add_cascade(label="调试", menu=editmenu)
 
 		Tkinter_StartUI.config(menu=menu_menu)
@@ -931,14 +948,18 @@ class menu:
 
 Tkinter_StartUI = tk.Tk()
 Tkinter_StartUI.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
-Tkinter_StartUI.geometry("600x540")
+Tkinter_StartUI.geometry("640x560")
 # 创建Notebook
 NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
 
+open("cache.json", "a", encoding="utf-8").close()
+if (open("cache.json", "r", encoding="utf-8").read() == ""): 
+	open("cache.json", "w", encoding="utf-8").write("{}")
+CacheData = json.loads(open("cache.json", "r", encoding="utf-8").read())
 
 open("config.json", "a", encoding="utf-8").close()
 if (open("config.json", "r", encoding="utf-8").read() == ""): 
-	open("config.json", "w", encoding="utf-8").write("{\"lang\": null, \"skip_update_info\": false}")
+	open("config.json", "w", encoding="utf-8").write("{\n\t\"version\": [1,1,1],\n\t\"lang\": null,\n\t\"skip_update_info\": false,\n\t\"Acceleration\": false\n}")
 ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
 
 try:
@@ -947,6 +968,8 @@ except:
 	ConfigData["skip_update_info"] = False
 	show_update_info()
 
+if (ConfigData["Acceleration"]): Acceleration = "https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url="
+else: Acceleration = ""
 
 LanguageData = language()
 LanguageData.lang = ConfigData["lang"]
