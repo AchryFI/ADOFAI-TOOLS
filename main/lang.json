@@ -86,7 +86,8 @@
         "signName": "名字",
         "version": "版本",
         "author": "作者",
-        "updateTime": "更新时间"
+        "modID": "标识码",
+        "select_mod_version": "选择版本"
       },
       "menu": {
         "name": "关于",

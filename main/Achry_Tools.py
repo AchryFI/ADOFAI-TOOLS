@@ -4,7 +4,6 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
-###from tkinter import messagebox
 from mtapi import *
 from os import remove, system, path
 from re import sub as re_sub
@@ -563,8 +562,7 @@ class downloadFile:
 	def __init__(self):
 		self.this = self
 		self.main_frame = None
-		self.google_entry = None
-		self.discord_entry = None
+		self.action_entry = None
 		self.status = None
 		self.path = None
 		self.progress = None
@@ -578,70 +576,22 @@ class downloadFile:
 			self.path.insert(tk.END, filename)
 
 	@staticmethod
-	def google_action(self):
-		# 构建请求的 URL，将 ID 作为参数传递
-		if self.google_entry.get() == '':
-			log_error(LanguageData.get("gui.filedownload.function(except).id_is_empty"))
-			return
-
-		try:
-			# 发起 GET 请求
-			response = requests.get(f"https://hjtbrz.mcfuns.cn/application/FileDownload/gdrive.php?id={self.google_entry.get()}", stream=True)
-			if response.status_code != 200:
-				log_error(LanguageData.get("error"), LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
-				return
-
-			self.status.configure(text=LanguageData.get("gui.filedownload.function().downloading"))
-			file_size = float('nan') if not response.headers.get('Content-Length') else int(file_size)
-
-			content_disposition = response.headers.get('Content-Disposition')
-			if content_disposition:
-				filename_index = content_disposition.find('filename=')
-				if filename_index != -1:
-					filename = content_disposition[filename_index + len('filename='):]
-					filename = filename.strip('"')
-				else:
-					filename = 'downloaded_file'
-			else:
-				filename = 'downloaded_file'
-
-			bytes_written = 0
-			# total_size = int(response.headers.get('content-length', 0))
-			for chunk in response.iter_content(chunk_size=1024):
-				if chunk:
-					open(self.path.get() + '/' + filename, "ab").write(chunk)
-					bytes_written += len(chunk)
-					self.status.configure(text=LanguageData.get("gui.filedownload.function().downloadingprocess", [round(bytes_written / 1048576,2), round(file_size / 1048576,2)]))
-					self.progress['value'] = bytes_written / file_size * 100
-					Tkinter_StartUI.update_idletasks()
-				if 'Error 404'.encode(encoding='utf-8') in chunk:
-					log_error(LanguageData.get("gui.filedownload.function(except).id_not_find", [self.google_entry.get()]))
-					remove(self.path.get() + '/' + filename)
-					return
-
-			log_info(LanguageData.get("gui.filedownload.function(success)", [filename]))
-		except Exception as e:
-			if e.__class__.__name__ == 'PermissionError':
-				log_fail(LanguageData.get("gui.filedownload.function(except).error_dict", [self.path.get(), filename, e.__class__.__name__, e]))
-			else:
-				log_fail(LanguageData.get("gui.filedownload.function(except).error", [e.__class__.__name__, e]))
-
-	@staticmethod
-	def discord_action(self):
+	def action(self):
 		# 构建请求的 URL
-		if self.discord_entry.get() == '':
+		if self.action_entry.get() == '':
 			log_error(LanguageData.get("gui.filedownload.function(except).link_is_empty"))
 			return
 
 		try:
 			# 发起 GET 请求
-			response = requests.get(f'https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url={self.discord_entry.get()}', stream=True)
+			response = requests.get(f'https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url={self.action_entry.get()}', stream=True)
 			if response.status_code != 200:
 				log_error(LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
 
 			self.status.configure(text=LanguageData.get("gui.filedownload.function().downloading"))
-			file_size = float('nan') if not response.headers.get('Content-Length') else int(file_size)
+			file_size = response.headers.get('Content-Length')
+			file_size = float('nan') if not file_size else int(file_size)
 
 			content_disposition = response.headers.get('Content-Disposition')
 			if content_disposition:
@@ -664,7 +614,7 @@ class downloadFile:
 					self.progress['value'] = bytes_written / file_size * 100
 					Tkinter_StartUI.update_idletasks()
 				if 'Error 404'.encode(encoding='utf-8') in chunk or not chunk:
-					log_error(LanguageData.get("gui.filedownload.function(except).link_not_find", [self.discord_entry.get()]))
+					log_error(LanguageData.get("gui.filedownload.function(except).link_not_find", [self.action_entry.get()]))
 					remove(self.path.get() + '/' + filename)
 					return
 
@@ -680,18 +630,11 @@ class downloadFile:
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.filedownload.name")
 
-		google_frame = ttk.LabelFrame(self.main_frame, text="Google Drive[Use ID]")
-		google_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-		self.google_entry = ttk.Entry(google_frame, width=48)
-		self.google_entry.grid(row=0, column=0, padx=5, pady=5)
-		ttk.Button(google_frame, text=LanguageData.get("gui.filedownload.download"),command=lambda: downloadFile.google_action(self))\
-			.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-
-		discord_frame = ttk.LabelFrame(self.main_frame, text="discord[Use Link]")
-		discord_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
-		self.discord_entry = ttk.Entry(discord_frame, width=48)
-		self.discord_entry.grid(row=0, column=0, padx=5, pady=5)
-		ttk.Button(discord_frame, text=LanguageData.get("gui.filedownload.download"), command=lambda: downloadFile.discord_action(self))\
+		action_frame = ttk.LabelFrame(self.main_frame, text="download link")
+		action_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+		self.action_entry = ttk.Entry(action_frame, width=48)
+		self.action_entry.grid(row=0, column=0, padx=5, pady=5)
+		ttk.Button(action_frame, text=LanguageData.get("gui.filedownload.download"), command=lambda: downloadFile.action(self))\
 			.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
 		# Download Setting Section
@@ -720,44 +663,34 @@ class modDownload:
 	def __init__(self):
 		self.this = self
 		self.main_frame = None
-		self.data = {}
-		self.info = []
+		self.data = []
+		self.shadow_data = []
 
 	def cache_data(self, skip_get_config_item = True):
-		self.data = {}
-		self.info = []
+		self.data = []
+		self.shadow_data = []
 
 		if skip_get_config_item:
 			try: 
-				if (type(CacheData["modDownload"]["data"]) == dict):
+				if (type(CacheData["modDownload"]["data"]) == list):
 					self.data = CacheData["modDownload"]["data"]
 				else:
 					raise ValueError("")
 			except: 
 				self.cache_data(False)
 		else:
-			for item in requests.get("https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/").json():
-				if item['id'] not in self.data:
-					self.data[item['id']] = item
-				else:
-					current_version = self.data[item['id']]['version']
-					new_version = item.get('version')
-					if new_version is None: continue
-
-					# Compare version numbers
-					if new_version == self.compare_versions(current_version, new_version):
-						self.data[item['id']] = item
+			self.data = requests.get("https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/").json()
 			try: CacheData["modDownload"]["data"]
 			except: CacheData["modDownload"] = {}
 			CacheData["modDownload"]["data"] = self.data
 			update_cache()
-		for item in self.data.values():
-			self.info.append((
-				item['name'],
-				item.get('version'),
-				item['cachedUsername'],
-				strftime("%Y-%m-%d %H:%M:%S", localtime(round(item['uploadedTimestamp']/1000,0)))
-			))
+		for item in self.data:
+			if item['id'] not in self.shadow_data:
+				self.shadow_data.append((
+					item['name'],
+					item['cachedUsername'],
+					item['id'],
+				))
 		pass
 
 	def compare_versions(version1, version2):
@@ -765,14 +698,19 @@ class modDownload:
 		v2 = list(map(int, version2.split(".")))
 		return v1 if v1 > v2 else v2 if v1 < v2 else 0
 	
+	def select_mod_version(self, ):
+		pass
+
 	def get_selecting(self, table):
 		return table.item(table.selection()[0])
 
 	def download_mod(self, mod):
 		# mod = self.get_selecting()['values'][0]
-		for item in self.data.values():
-			if mod == item['name']:
+		for item in self.data:
+			if mod == item['id']:
+				print(item)
 				link = item['parsedDownload']
+		print(link)
 
 		webbrowser.open(link)
 
@@ -781,31 +719,30 @@ class modDownload:
 		self.main_frame = NOTEBOOK.new_note(self, "gui.moddownload.name")
 		self.cache_data()
 
-		columns = [LanguageData.get("gui.moddownload.signName"), LanguageData.get("gui.moddownload.version"), LanguageData.get("gui.moddownload.author"), LanguageData.get("gui.moddownload.updateTime")]
+		columns = [LanguageData.get("gui.moddownload.signName"), LanguageData.get("gui.moddownload.author"), LanguageData.get("gui.moddownload.modID")]
 		table = ttk.Treeview(
 				master=self.main_frame,  # 父容器
 				height=20,  # 表格显示的行数,height行
 				columns=columns,  # 显示的列
 				show='headings',  # 隐藏首列	
 				)
-		table.heading(columns[0], text=columns[0], anchor='w', command=lambda: self.get_selecting(table))  # 定义表头
+		table.heading(columns[0], text=columns[0], command=lambda: self.get_selecting(table))  # 定义表头
 		table.heading(columns[1], text=columns[1])  # 定义表头
 		table.heading(columns[2], text=columns[2])  # 定义表头
-		table.heading(columns[3], text=columns[3])  # 定义表头
 
 		table.column(columns[0], width=200, minwidth=200, anchor=S)  # 定义列
-		table.column(columns[1], width=50, minwidth=50, anchor=S)  # 定义列
-		table.column(columns[2], width=100, minwidth=100, anchor=S)  # 定义列
-		table.column(columns[3], width=200, minwidth=50, anchor=S)  # 定义列
+		table.column(columns[1], width=100, minwidth=100, anchor=S)  # 定义列
+		table.column(columns[2], width=240, minwidth=240, anchor=S)  # 定义列
 		table.pack(pady=10)
-		for s in self.info:
+		for s in self.shadow_data:
 			table.insert('','end',values=s)
 
 		VScroll1 = tk.Scrollbar(self.main_frame, orient='vertical', command=table.yview)	
 		VScroll1.place(relx=0.971, rely=0.028, relwidth=0.024, relheight=0.658)
 		table.configure(yscrollcommand=VScroll1.set)
 
-		ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.download"),command=lambda: self.download_mod(self.get_selecting(table)['values'][0])).pack()
+		ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.download"),command=lambda: self.download_mod(self.get_selecting(table)['values'][2])).pack()
+		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.select_mod_version"),command=lambda: self.select_mod_version(self.get_selecting(table)['values'][0])).pack()
 		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.reload"),command=lambda: self.cache_data(False)).pack()
 		pass
 ################################################################
