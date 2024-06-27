@@ -106,6 +106,9 @@ class noEffect:
 			tk.StringVar(),
 			tk.StringVar(),
 			tk.StringVar(),
+			tk.StringVar(),
+			tk.StringVar(),
+			tk.StringVar(),
 			tk.StringVar()
 		]
 		self.log_text = None
@@ -115,7 +118,7 @@ class noEffect:
 	def select_file(self):
 		filename = askopenfilename()
 		if filename:
-			if not filename.lower().endswith('.adofai') or not filename.lower().endswith('.json'):
+			if not filename.lower().endswith('.adofai') and not filename.lower().endswith('.json'):
 				log_error(LanguageData.get("gui.noeffect.function(except).not_adofai_file"))
 				return
 			self.entry_path.delete(0, tk.END)
@@ -159,24 +162,24 @@ class noEffect:
 			effect = self.insert_effect
 
 			if len(effect) > 0 :
-				log.inp("get remove effect", 1)
+				ModsTagLog.inp("get remove effect", 1)
 				for i in effect:
 					now_file_contenes = []
 					for ii in range(len(file_contents["actions"])):
 						if file_contents["actions"][ii]["eventType"] != i:
 							now_file_contenes.append(file_contents["actions"][ii])
 						else:
-							log.inp("removed effect(%s) in %s"%(i, ii), 1)
+							ModsTagLog.inp("removed effect(%s) in %s"%(i, ii), 1)
 					file_contents["actions"] = now_file_contenes
 					now_file_contenes = []
 					for ii in range(len(file_contents["decorations"])):
 						if file_contents["decorations"][ii]["eventType"] != i:
 							now_file_contenes.append(file_contents["decorations"][ii])
 						else:
-							log.inp("removed effect(%s) in %s"%(i, ii), 1)
+							ModsTagLog.inp("removed effect(%s) in %s"%(i, ii), 1)
 					file_contents["decorations"] = now_file_contenes
 			else:
-				log.inp("not get remove effect", 1)
+				ModsTagLog.inp("not get remove effect", 1)
 
 			convert["result"] = file_contents
 			file_directory = path.dirname(filename)

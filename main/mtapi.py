@@ -235,14 +235,18 @@ class adofai_const:
   def __init__(self):
     self.Rad2Deg = 57.295780181884766
     self.effect = [
+      "AddDecoration",
+      "MoveDecorations",
+      "AddText",
+      "SetText",
       "SetObject",
       "AddObject",
+      "SetDefaultText",
+      "SetFrameRate",
       "SetFilterAdvanced",
       "SetFloorIcon",
       "AnimateTrack",
       "MoveTrack",
-      "MoveDecorations",
-      "SetText",
       "PositionTrack",
       "RecolorTrack",
       "ColorTrack",
@@ -253,12 +257,11 @@ class adofai_const:
       "HallOfMirrors",
       "ShakeScreen",
       "Bloom",
+      "ScalePlanets",
       "ScreenTile",
       "ScreenScroll",
       "RepeatEvents",
-      "SetConditionalEvents",
-      "AddDecoration",
-      "AddText"
+      "SetConditionalEvents"
     ]
     # self.action = []
     # self.decorations = []
