@@ -1,0 +1,13 @@
+on: push
+
+jobs:
+    test1:
+        runs-on: windows-latest
+        steps:
+        - run: pwd
+    test2:
+        runs-on: windows-latest
+        steps:
+        - run: python --version
+        
+  
