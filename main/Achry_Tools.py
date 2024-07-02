@@ -47,6 +47,7 @@ def show_update_info():
 		r.encoding = "utf-8"
 		messagebox.showinfo('公告',r.text)
 		ConfigData["skip_update_info"] = True
+		ConfigData["Acceleration"] = False
 		update_config()
 ################################################################
 # Log content function                                         # 日志内容功能
@@ -426,39 +427,35 @@ class search:
 		self.entry_author = None
 		self.log_text = None
 	def cache_data(self, skip_get_config_item = True):
-		try:
-			CacheData["search"]["TUF"]
+		try: CacheData["search"]
+		except: CacheData["search"] = {}
+		try: CacheData["search"]["TUF"]
 		except:
-			try: CacheData["search"]
-			except: CacheData["search"] = {}
-			CacheData["search"]["TUF"] = requests.get(f"https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://be.tuforums.com/levels").json()["results"]
+			try: CacheData["search"]["TUF"] = requests.get(Acceleration + "https://be.tuforums.com/levels").json()["results"]
+			except: CacheData["search"]["TUF"] = []
 			if 'statusCode' in CacheData["search"]["TUF"]:
 				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", [info["message"], info["statusCode"]]), 3)
 				CacheData["search"]["TUF"] = []
-		try:
-			CacheData["search"]["ADOFAI.GG"]
+		try: CacheData["search"]["ADOFAI.GG"]
 		except:
-			try: CacheData["search"]
-			except: CacheData["search"] = {}
-			CacheData["search"]["ADOFAI.GG"] = requests.get(f"https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://adofai.gg/api/v1/levels").json()["results"]
+			try: CacheData["search"]["ADOFAI.GG"] = requests.get(Acceleration + "https://adofai.gg/api/v1/levels").json()["results"]
+			except: CacheData["search"]["ADOFAI.GG"] = []
 			if 'errors' in CacheData["search"]["ADOFAI.GG"]:
 				msg = info["errors"][0]
 				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", (msg["message"], msg["code"])), 3)
 				CacheData["search"]["ADOFAI.GG"] = []
-		try:
-			CacheData["search"]["AQR"]
+		try: CacheData["search"]["AQR"]
 		except:
-			try: CacheData["search"]
-			except: CacheData["search"] = {}
-			CacheData["search"]["AQR"] = requests.get(f"https://kdocs.adofaiaqr.top").json()
-			update_cache()
-	def get_info(self, result, ref_id:int):
+			try: CacheData["search"]["AQR"] = requests.get(Acceleration + "https://kdocs.adofaiaqr.top").json()
+			except: CacheData["search"]["AQR"] = []
+		update_cache()
+	def get_info(self, result, ref_id:str):
 		result = CacheData["search"][self.combo_box.get()]
-		ref_id = int(ref_id)
+		ref_id = str(ref_id)
 		for array in result:
-			if (int(array["id"]) == ref_id):
+			if (array["id"] == ref_id):
 				return array
 		return None
 
@@ -503,7 +500,7 @@ class search:
 	@staticmethod
 	def query(self):
 		try:
-			url = f"https://be.tuforums.com/levels?query=&artistQuery={self.entry_artist.get()}&songQuery={self.entry_music.get()}&creatorQuery={self.entry_author.get()}&offset=10&random=false&lim"
+			url = Acceleration + f"https://be.tuforums.com/levels?query=&artistQuery={self.entry_artist.get()}&songQuery={self.entry_music.get()}&creatorQuery={self.entry_author.get()}&offset=10&random=false&lim"
 			response = requests.get(url, headers={"accept": "application/json"})
 			info = response.json()
 			self.log_text.delete(1.0, tk.END)
@@ -584,7 +581,7 @@ class downloadFile:
 
 		try:
 			# 发起 GET 请求
-			response = requests.get(f'https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url={self.action_entry.get()}', stream=True)
+			response = requests.get(Acceleration + self.action_entry.get(), stream=True)
 			if response.status_code != 200:
 				log_error(LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
@@ -679,7 +676,7 @@ class modDownload:
 			except: 
 				self.cache_data(False)
 		else:
-			self.data = requests.get("https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/").json()
+			self.data = requests.get(Acceleration + "https://bot.adofai.gg/api/mods/").json()
 			try: CacheData["modDownload"]["data"]
 			except: CacheData["modDownload"] = {}
 			CacheData["modDownload"]["data"] = self.data
@@ -709,7 +706,7 @@ class modDownload:
 		for item in self.data:
 			if mod == item['id']:
 				print(item)
-				link = item['parsedDownload']
+				link = Acceleration + item['parsedDownload']
 		print(link)
 
 		webbrowser.open(link)
@@ -887,7 +884,7 @@ class menu:
 ################################################################
 
 Tkinter_StartUI = tk.Tk()
-Tkinter_StartUI.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
+Tkinter_StartUI.title("ADOFAI Tools _ v1.I.1 _ _Achry_")
 Tkinter_StartUI.geometry("640x560")
 # 创建Notebook
 NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
@@ -899,14 +896,8 @@ CacheData = json.loads(open("cache.json", "r", encoding="utf-8").read())
 
 open("config.json", "a", encoding="utf-8").close()
 if (open("config.json", "r", encoding="utf-8").read() == ""): 
-	open("config.json", "w", encoding="utf-8").write("{\n\t\"version\": [1,1,1],\n\t\"lang\": null,\n\t\"skip_update_info\": false,\n\t\"Acceleration\": false\n}")
+	open("config.json", "w", encoding="utf-8").write("{\n\t\"version\": [1,1,1],\n\t\"lang\": null,\n\t\"skip_update_info\": false,\n\t\"Acceleration\": true\n}")
 ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
-
-try:
-	show_update_info()
-except:
-	ConfigData["skip_update_info"] = False
-	show_update_info()
 
 if (ConfigData["Acceleration"]): Acceleration = "https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url="
 else: Acceleration = ""
@@ -931,6 +922,13 @@ search.main(NewSelf["search"], NOTEBOOK)
 downloadFile.main(NewSelf["downloadFile"], NOTEBOOK)
 modDownload.main(NewSelf["modDownload"], NOTEBOOK)
 menu.main(NewSelf["menu"], NOTEBOOK)
+
+try:
+	show_update_info()
+except:
+	ConfigData["skip_update_info"] = False
+	show_update_info()
+
 NOTEBOOK.notebook.pack(fill=tk.BOTH, expand=True)
 ################################################################
 # pb content pls paste to this (if ok)                         # 如果要修改代码并且pb 在可行情况下放置在这里 谢谢

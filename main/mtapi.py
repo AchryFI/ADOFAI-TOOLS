@@ -78,7 +78,7 @@ class language:
       from win32api import GetSystemDefaultLangID
       if (self.lang == None): self.lang = self.locale[str(GetSystemDefaultLangID())]
       if not os.path.exists("lang.json"):
-        messagebox.showerror("error", "Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
+        self.mtl.inp("Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
         return data
       try: result = json.loads(open("lang.json", 'r', encoding="UTF-8").read())
       except:
