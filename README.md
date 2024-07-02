@@ -2,6 +2,8 @@
 
 ![ADOFAI Tools](https://github.com/AchryFI/ADOFAI-TOOLS/blob/master/res/draw.php.jpg?raw=true)
 
+[网站](hjtbrz.mcfuns.cn)
+
 ---
 
 # User Manual / 使用文档
@@ -53,8 +55,31 @@ You can raise issues on Github to us, and we will do our best to fix them.
 
 按上面说的规则,那么文件ID就是 `1t5e1ftVECIQuf4dheSbNgzRX8AE4x8Tt` ！
 
+> 注:由于服务器配置原因,最新版本暂时无法使用下载功能,我们考虑使用cloudflare Workers,[尝试一下](https://download.377504570.workers.dev/)
+
 
 ## Help us translate ADOFAI Tools into your language!
 
 You can go to the `lang.json` file in the `main` folder and translate these texts into your language according to the format we provided, and then send the translated `lang.json` file via email to [our emails](mailto:achry@achry.space)
+
+# Change log / 更新日志
+
+## Version 1.1.0 / 1.1.0版
+
+|更新日志|Change Log|
+|----|----|
+| 添加了模组下载 | Added mod download | 
+| 修复无法正常选择语言问题 | Fix language can't be selected properly |
+| 修复url错误问题 | Fix URL error |
+| 修复代码bug | Fixed bug |
+
+## Version 1.0.4 / 1.0.4版
+
+|更新日志|Change Log|
+|----|----|
+| 优化noeffect逻辑 | Optimized noeffect logic | 
+| 添加中英注释 | Add Chinese and English comments |
+| 优化代码排版 | Optimized code layout |
+
+
         
