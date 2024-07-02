@@ -55,7 +55,7 @@ You can raise issues on Github to us, and we will do our best to fix them.
 
 按上面说的规则,那么文件ID就是 `1t5e1ftVECIQuf4dheSbNgzRX8AE4x8Tt` ！
 
-> 注:由于服务器配置原因,最新版本暂时无法使用下载功能,我们考虑使用cloudflare Workers,[尝试一下](https://download.377504570.workers.dev/)
+> 注:由于服务器配置原因,最新版本暂时无法使用下载功能,我们考虑使用cloudflare Workers,[尝试一下](https://achry.space/)
 
 
 ## Help us translate ADOFAI Tools into your language!
