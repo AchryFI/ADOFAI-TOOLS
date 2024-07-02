@@ -43,18 +43,11 @@ You can raise issues on Github to us, and we will do our best to fix them.
 
 ## 中文区特供!中文区必看!!!!
 
-外网文件下载的谷歌云盘下载不是 **给你直接输入链接的!!!** 你要输入 **文件ID!!!**
+外网文件下载的谷歌云盘下载是 **给你直接输入链接的!!!** 并不是输入 **文件ID!!!**
 
-### 什么是文件ID???
+### 想要通过文件ID下载???
 
-这里以我的铺面下载链接为例
-
-```https://drive.google.com/file/d/1t5e1ftVECIQuf4dheSbNgzRX8AE4x8Tt/view```
-
-如上面的链接,前面的域名后面的`/file/d/`后面的内容到`/view`之间的内容是文件ID！**下载时请使用文件ID! 使用链接将显示 `404 Not Found`!**
-
-按上面说的规则,那么文件ID就是 `1t5e1ftVECIQuf4dheSbNgzRX8AE4x8Tt` ！
-
+请通过 **https://hjtbrz.mcfuns.cn/application/FileDownload/gdrive.php?file_id=** + 文件id
 > 注:由于服务器配置原因,最新版本暂时无法使用下载功能,我们考虑使用cloudflare Workers,[尝试一下](https://achry.space/)
 
 
