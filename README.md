@@ -48,12 +48,14 @@ You can raise issues on Github to us, and we will do our best to fix them.
 ### 想要通过文件ID下载???
 
 请通过 **https://hjtbrz.mcfuns.cn/application/FileDownload/gdrive.php?file_id=** + 文件id
-> 注:由于服务器配置原因,最新版本暂时无法使用下载功能,我们考虑使用cloudflare Workers,[尝试一下](https://achry.space/)
+> 注:由于服务器配置原因,最新版本暂时无法使用下载功能,我们考虑使用cloudflare Workers,[尝试一下](https://achry.space/) (参数:link,文件链接,目前仅支持谷歌文件下载)
 > ![ADOFAI Tools](https://github.com/AchryFI/ADOFAI-TOOLS/blob/master/res/9715c3c5daff3a4af5fc4641e3839f95.png?raw=true)
+> 当你使用POST方法请求，服务器收到请求时......
+> ![what is this!](https://github.com/AchryFI/ADOFAI-TOOLS/blob/master/res/server_what_is_this_.jpeg?raw=true)
 
 ## Help us translate ADOFAI Tools into your language!
 
-You can go to the `lang.json` file in the `main` folder and translate these texts into your language according to the format we provided, and then send the translated `lang.json` file via email to [our emails](mailto:achry@achry.space)
+You can go to the `lang.json` file in the `main` folder and translate these texts into your language according to the format we provided, and then send the translated `lang.json` file via email to [our emails](mailto:achry@achry.space) or use this [link](https://crowdin.com/project/adofai-tools)
 
 # Change log / 更新日志
 
