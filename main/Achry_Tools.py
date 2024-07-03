@@ -762,7 +762,7 @@ class menu:
  
 		# 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
 		log_window = tk.Toplevel(Tkinter_StartUI)
-		log_window.title(LanguageData.get("logV1.name"))
+		log_window.title(LanguageData.get("log.name_v1"))
 		log_window.geometry("480x540")
 		log_window.resizable(0, 0)
 		log_text_debug = ScrolledText(log_window, height=10, width=50, font=("Consolas", 8))
@@ -802,9 +802,9 @@ class menu:
 				log_text_debug.insert("end", line + '\n', this_endLog)
 			
 		log_text_debug.text.config(state=tk.DISABLED)
-		button_save = tk.Button(log_window, text=LanguageData.get("logV1.open_log_dir"), command=menu.open_log)
+		button_save = tk.Button(log_window, text=LanguageData.get("log.open_log_dir"), command=menu.open_log)
 		button_save.pack(fill="x")
-		button_copy = tk.Button(log_window, text=LanguageData.get("logV1.copy"), command=lambda: menu.write_clipboard(logs))
+		button_copy = tk.Button(log_window, text=LanguageData.get("log.copy"), command=lambda: menu.write_clipboard(logs))
 		button_copy.pack(fill="x")
 
 		log_window.mainloop()
@@ -814,7 +814,7 @@ class menu:
 		OpenClipboard()
 		SetClipboardData(win32con.CF_UNICODETEXT, text)
 		CloseClipboard()
-		messagebox.showinfo(LanguageData.get("logV1.function(copy_success)"), LanguageData.get("logV1.function(copy_success)"))
+		messagebox.showinfo(LanguageData.get("log.function(copy_success)"), LanguageData.get("log.function(copy_success)"))
 
 	@staticmethod
 	def open_log():        
@@ -874,7 +874,7 @@ class menu:
 		menu_menu.add_cascade(label="文件", menu=filemenu)
 
 		editmenu = ttk.Menu(menu_menu, tearoff=False)
-		editmenu.add_command(label=LanguageData.get("logV1.name"),command=menu.show_log_ui_V1)
+		editmenu.add_command(label=LanguageData.get("log.name_v1"),command=menu.show_log_ui_V1)
 		menu_menu.add_cascade(label="调试", menu=editmenu)
 
 		Tkinter_StartUI.config(menu=menu_menu)

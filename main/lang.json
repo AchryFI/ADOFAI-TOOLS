@@ -1,6 +1,6 @@
 {
   "zh_cn": {
-    "gui" : {
+    "gui": {
       "noeffect": {
         "name": "去特效",
         "convert": "转换",
@@ -99,22 +99,130 @@
         "github": "Github链接"
       }
     },
-    "logV1":{
-      "name":"日志V1",
-      "open_log_dir":"打开日志目录",
-      "copy":"复制",
-      "function(copy_success)":"已复制"
-    },
-    "logV2":{
-      "name":"日志V2",
-      "open_log_dir":"打开日志目录",
-      "copy":"复制",
-      "function(copy_success)":"已复制"
+    "log":{
+      "name_v1": "日志V1",
+      "name_v2": "日志V2",
+      "open_log_dir": "打开日志目录",
+      "copy": "复制",
+      "function(copy_success)": "已复制"
     },
     "info": "结果",
     "error": "错误",
     "fail": "失败",
-    "yes":"是",
-    "no":"否"
+    "yes": "是",
+    "no": "否"
+  },
+  "en_us": {
+    "gui": {
+      "noeffect": {
+        "name": "Effects Remove",
+        "convert": "Convert",
+        "browse": "Browse",
+        "setting": "settings",
+        "insert": "insert",
+        "check": "check",
+        "pop": "pop",
+        "file_path": "Enter Your File Path:",
+        "removed": "Effects removed:",
+        "remove_success": "Remove\"${0}\"Successfully",
+        "add_success": "Add\"${0}\"Successfully",
+        "get_list_effect": "These effects will be removed: ${0}",
+        "function(except)": {
+          "not_adofai_file": "File isn't an adofai file!",
+          "not_select_file": "File Can't Be Null",
+          "error": "ERROR:\n${0}:${1}"
+        },
+        "function(success)": "Remove Effects Successfully, file saved to >>  ${0}/Non_effect.adofai, spent ${1}s"
+      },
+      "calc": {
+        "name": "Playpoint Calculator",
+        "level": "Level(Not PGU):",
+        "speed": "Speed:",
+        "xacc": "X-Accuracy:",
+        "is_tooEarly": "with Tooearly?:",
+        "is_firstClear": "Worlds first?:",
+        "is_rank": "World's Rank:",
+        "calcScore": "Calculate Playpoint",
+        "function(except)": {
+          "error_level": "Invalid Level",
+          "xacc_so_low": "Your X-Accuracy is so low lol",
+          "write_empty": "Please fill in the blanks",
+          "write_rank": "Please fill in the rank",
+          "error": "ERROR:\n${0}:${1}"
+        },
+        "function(success)": "Score${0} | Ranked Score${1}"
+      },
+      "levelsearch": {
+        "name": "GetLevelInfo",
+        "id": "ID:",
+        "search_id": "ID Search",
+        "search": "Search",
+        "info_search": "Search Information(TUF only)",
+        "artist": "Artist:",
+        "song": "Song:",
+        "author": "Author:",
+        "function(except)": {
+          "id_is_empty": "Error: ID can't be Null\n\n\nSearched id: ${0}",
+          "status_error": "Error: ${0}\nCode: ${1}\n\n\nSearched id: ${2}",
+          "error": "ERROR:\n${0}:${1}"
+        },
+        "function(TUF_success)": "TUR ID: ${0}\nSong: ${1} - ${2}\nAuthor: ${4}\nDifficulty: ${5}(${5})\nVideo Link: ${6}\nDownload Link: ${7}\nSteam Workshop Link: ${8}",
+        "function(ADOFAIGG_success)": "AdofaiGG ID: ${0}\nSong: ${1} - ${2}\nAuthor: ${4}\nDifficulty: ${5}\nVideo Link: ${5}\nDownload Link: ${6}\nSteam Workshop Link: ${7}\nTiles: ${8}\nTag: ${9}",
+        "function(AQR_success)": "Song: ${0} - ${1}\nAuthor: ${2}\nDifficulty/Quality: ${3}/${4}\nVluation: ${5}\nVideo Link: ${6}\nDownload Link: ${7}",
+        "function(find)": "Found ${0} Levels\n\n--------\n\n"
+      },
+      "filedownload": {
+        "name": "File Download(Non-Chinese players don't need)",
+        "download": "Download",
+        "save_path": "Save Path:",
+        "browse": "Browse",
+        "status": "Status:",
+        "function(except)": {
+          "id_is_empty": "File ID Can't Be Null!",
+          "id_not_find": "Error: The current file ID [${0}] does not exist",
+          "link_is_empty": "Link Can't Be Null!",
+          "link_not_find": "Error: url [${0}] isn't Found",
+          "fail": "Request FAILED: ${0}",
+          "error_dict": "The specified directory cannot be accessed:\n[${0}/${1}]\n${2}:${4}",
+          "error": "ERROR:\n${0}:${1}"
+        },
+        "function()": {
+          "downloading": "Status: Downloading...",
+          "downloadingprocess": "Status: Downloading Progress: ${0}MB / ${1}MB"
+        },
+        "function(success)": "File Downloaded Successfully ${0}"
+      },
+      "moddownload": {
+        "name": "mod Download",
+        "download": "Download",
+        "reload": "Reload",
+        "signName": "Modname",
+        "version": "Version",
+        "author": "Author",
+        "modID": "updateTime",
+        "select_mod_version": "选择版本"
+      },
+      "menu": {
+        "name": "关于",
+        "producer": "主制作: ",
+        "specialThanks": "特别感谢: ",
+        "contact_us": "联系我们",
+        "email": "邮箱: ",
+        "updateLog": "更新日志",
+        "github": "Github链接"
+      }
+    },
+    "log":{
+      "name_v1": "日志V1",
+      "name_v2": "日志V2",
+      "open_log_dir": "打开日志目录",
+      "copy": "复制",
+      "function(copy_success)": "已复制"
+    },
+    "info": "结果",
+    "error": "错误",
+    "fail": "失败",
+    "yes": "是",
+    "no": "否"
   }
 }
