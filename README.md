@@ -49,7 +49,7 @@ You can raise issues on Github to us, and we will do our best to fix them.
 
 请通过 **https://hjtbrz.mcfuns.cn/application/FileDownload/gdrive.php?file_id=** + 文件id
 > 注:由于服务器配置原因,最新版本暂时无法使用下载功能,我们考虑使用cloudflare Workers,[尝试一下](https://achry.space/)
-
+> ![ADOFAI Tools](https://github.com/AchryFI/ADOFAI-TOOLS/blob/master/res/9715c3c5daff3a4af5fc4641e3839f95.png?raw=true)
 
 ## Help us translate ADOFAI Tools into your language!
 
