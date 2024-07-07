@@ -459,9 +459,8 @@ class search:
 		update_cache()
 	def get_info(self, result, ref_id:str):
 		result = CacheData["search"][self.combo_box.get()]
-		ref_id = str(ref_id)
 		for array in result:
-			if (array["id"] == ref_id):
+			if (array["id"] == str(ref_id)):
 				return array
 		return None
 
@@ -499,7 +498,7 @@ class search:
 				))
 			else:
 				raise ValueError("combo_box not find")
-	  
+
 		except Exception as e:
 			log_fail(LanguageData.get("gui.levelsearch.function(except).error", [e.__class__.__name__, e]))
 
@@ -765,7 +764,7 @@ class menu:
 	@staticmethod
 	def show_log_ui_V1():
 		global ModsTagLog
- 
+
 		# 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
 		log_window = tk.Toplevel(Tkinter_StartUI)
 		log_window.title(LanguageData.get("log.name_v1"))
