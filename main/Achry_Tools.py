@@ -475,7 +475,7 @@ class search:
 				return
 			self.log_text.delete(1.0, tk.END) 
 			if self.combo_box.get() == 'TUF':
-				info = self.get_info(id)
+				info = self.get_info(CacheData["search"]["TUF"], id)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
 				 	[info['id'], info['artist'], info['song'], info['creator'], info['diff'], info['pguDiff'], info['vidLink'], info['dlLink'], info['workshopLink']]
 				))
@@ -493,7 +493,7 @@ class search:
 					[info['id'], info["artists"], info['title'], info["creators"], info['difficulty'], info['video'], info['download'], info['workshop'], info['tiles'], info["tags"]]
 				))
 			elif self.combo_box.get() == 'AQR':
-				info = self.get_info(int(id)+10000)
+				info = self.get_info(CacheData["search"]["AQR"], int(id)+10000)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(AQR_success)", 
 					[info['artist'], info['song'], info['author'], info['difficulties'], info['level'], info['vluation'], info['video_herf'], info['href']]
 				))
