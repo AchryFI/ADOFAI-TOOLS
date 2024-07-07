@@ -297,11 +297,17 @@ class calc:
 			"20.9": 350,
 			"20.95": 400,
 			"21": 500,
+			"21.025": 600,
 			"21.05": 700,
+			"21.075": 850,
 			"21.1": 1000,
+			"21.125": 1300,
 			"21.15": 1600,
+			"21.175": 1800,
 			"21.2": 2000,
+			"21.225": 2500,
 			"21.25": 3000,
+			"21.275": 4000,
 			"21.3": 5000
 		}
 
@@ -900,7 +906,7 @@ if (open("config.json", "r", encoding="utf-8").read() == ""):
 ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
 
 if (ConfigData["Acceleration"]): Acceleration = "https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url="
-else: Acceleration = ""
+else: Acceleration = "https://achry.space?link="
 
 LanguageData = language()
 LanguageData.lang = ConfigData["lang"]
