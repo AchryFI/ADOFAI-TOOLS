@@ -56,13 +56,13 @@ Start_Time = "log%s"%int(time_time()*1000);
 ModsTagLog = log.new(Start_Time, "log")
 def log_fail(content):
 	messagebox.showerror(LanguageData.get("fail"), content)
-	ModsTagLog.inp(format_exc(), 4)
+	ModsTagLog.write(format_exc(), 4)
 def log_error(content):
 	messagebox.showerror(LanguageData.get("error"), content)
-	ModsTagLog.inp(content, 3)
+	ModsTagLog.write(content, 3)
 def log_info(content):
 	messagebox.showinfo(LanguageData.get("info"), content)
-	ModsTagLog.inp(content, 1)
+	ModsTagLog.write(content, 1)
 def log_insert(ins, content, lvl=1, failcustom=False):
 	"""
 	ins : insert id
@@ -70,9 +70,9 @@ def log_insert(ins, content, lvl=1, failcustom=False):
 	"""
 	ins.insert(tk.END, content+"\n")
 	if lvl == 4: 
-		if failcustom:  ModsTagLog.inp(content, lvl)
-		else: ModsTagLog.inp(format_exc(), lvl)
-	else: ModsTagLog.inp(content, lvl)
+		if failcustom:  ModsTagLog.write(content, lvl)
+		else: ModsTagLog.write(format_exc(), lvl)
+	else: ModsTagLog.write(content, lvl)
 
 ################################################################
 # noEffect ui & function                                       # 去特效界面和函数
@@ -162,24 +162,24 @@ class noEffect:
 			effect = self.insert_effect
 
 			if len(effect) > 0 :
-				ModsTagLog.inp("get remove effect", 1)
+				ModsTagLog.write("get remove effect", 1)
 				for i in effect:
 					now_file_contenes = []
 					for ii in range(len(file_contents["actions"])):
 						if file_contents["actions"][ii]["eventType"] != i:
 							now_file_contenes.append(file_contents["actions"][ii])
 						else:
-							ModsTagLog.inp("removed effect(%s) in %s"%(i, ii), 1)
+							ModsTagLog.write("removed effect(%s) in %s"%(i, ii), 1)
 					file_contents["actions"] = now_file_contenes
 					now_file_contenes = []
 					for ii in range(len(file_contents["decorations"])):
 						if file_contents["decorations"][ii]["eventType"] != i:
 							now_file_contenes.append(file_contents["decorations"][ii])
 						else:
-							ModsTagLog.inp("removed effect(%s) in %s"%(i, ii), 1)
+							ModsTagLog.write("removed effect(%s) in %s"%(i, ii), 1)
 					file_contents["decorations"] = now_file_contenes
 			else:
-				ModsTagLog.inp("not get remove effect", 1)
+				ModsTagLog.write("not get remove effect", 1)
 
 			convert["result"] = file_contents
 			file_directory = path.dirname(filename)
@@ -432,19 +432,24 @@ class search:
 		self.entry_music = None
 		self.entry_author = None
 		self.log_text = None
-	def cache_data(self, skip_get_config_item = True):
-		try: CacheData["search"]
-		except: CacheData["search"] = {}
-		try: CacheData["search"]["TUF"]
-		except:
+	def cache_data(self, try_get_cache_item = True):
+		if try_get_cache_item:
+			try:
+				CacheData["search"]
+				CacheData["search"]["TUF"]
+				CacheData["search"]["ADOFAI.GG"]
+				CacheData["search"]["AQR"]
+			except:
+				self.cache_data(False)
+				return
+		else:
+			CacheData["search"] = {}
 			try: CacheData["search"]["TUF"] = requests.get(Acceleration + "https://be.tuforums.com/levels").json()["results"]
 			except: CacheData["search"]["TUF"] = []
 			if 'statusCode' in CacheData["search"]["TUF"]:
 				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", [info["message"], info["statusCode"]]), 3)
 				CacheData["search"]["TUF"] = []
-		try: CacheData["search"]["ADOFAI.GG"]
-		except:
 			try: CacheData["search"]["ADOFAI.GG"] = requests.get(Acceleration + "https://adofai.gg/api/v1/levels").json()["results"]
 			except: CacheData["search"]["ADOFAI.GG"] = []
 			if 'errors' in CacheData["search"]["ADOFAI.GG"]:
@@ -452,11 +457,9 @@ class search:
 				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", (msg["message"], msg["code"])), 3)
 				CacheData["search"]["ADOFAI.GG"] = []
-		try: CacheData["search"]["AQR"]
-		except:
 			try: CacheData["search"]["AQR"] = requests.get(Acceleration + "https://kdocs.adofaiaqr.top").json()
 			except: CacheData["search"]["AQR"] = []
-		update_cache()
+			update_cache()
 	def get_info(self, result, ref_id:str):
 		result = CacheData["search"][self.combo_box.get()]
 		for array in result:
@@ -668,11 +671,11 @@ class modDownload:
 		self.data = []
 		self.shadow_data = []
 
-	def cache_data(self, skip_get_config_item = True):
+	def cache_data(self, try_get_cache_item = True):
 		self.data = []
 		self.shadow_data = []
 
-		if skip_get_config_item:
+		if try_get_cache_item:
 			try: 
 				if (type(CacheData["modDownload"]["data"]) == list):
 					self.data = CacheData["modDownload"]["data"]
@@ -680,6 +683,7 @@ class modDownload:
 					raise ValueError("")
 			except: 
 				self.cache_data(False)
+				return
 		else:
 			self.data = requests.get(Acceleration + "https://bot.adofai.gg/api/mods/").json()
 			try: CacheData["modDownload"]["data"]
@@ -784,7 +788,7 @@ class menu:
 
 		ModsTagLog.reload()
 		ModsTagLog = log.new(Start_Time, "log")
-		logs = log.out(ModsTagLog)
+		logs = ModsTagLog.read()
 		this_endLog = "INFO"
 		logs_lines = re_sub(r"\n\n", "\n", logs[0]).split('\n')  # Assuming logs is a string with newline-separated entries
 		for line in logs_lines:
