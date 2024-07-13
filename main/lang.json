@@ -99,12 +99,16 @@
         "github": "Github链接"
       }
     },
-    "log":{
-      "name_v1": "日志V1",
-      "name_v2": "日志V2",
-      "open_log_dir": "打开日志目录",
-      "copy": "复制",
-      "function(copy_success)": "已复制"
+    "menu":{
+      "debug":{
+        "log":{
+          "name_v1": "日志V1",
+          "name_v2": "日志V2",
+          "open_log_dir": "打开日志目录",
+          "copy": "复制",
+          "function(copy_success)": "已复制"
+        }
+      }
     },
     "info": "结果",
     "error": "错误",
@@ -212,12 +216,16 @@
         "github": "Github链接"
       }
     },
-    "log":{
-      "name_v1": "日志V1",
-      "name_v2": "日志V2",
-      "open_log_dir": "打开日志目录",
-      "copy": "复制",
-      "function(copy_success)": "已复制"
+    "menu":{
+      "debug":{
+        "log":{
+          "name_v1": "日志V1",
+          "name_v2": "日志V2",
+          "open_log_dir": "打开日志目录",
+          "copy": "复制",
+          "function(copy_success)": "已复制"
+        }
+      }
     },
     "info": "结果",
     "error": "错误",

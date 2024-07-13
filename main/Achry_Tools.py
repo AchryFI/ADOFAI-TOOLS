@@ -460,10 +460,9 @@ class search:
 			try: CacheData["search"]["AQR"] = requests.get(Acceleration + "https://kdocs.adofaiaqr.top").json()
 			except: CacheData["search"]["AQR"] = []
 			update_cache()
-	def get_info(self, result, ref_id:str):
-		result = CacheData["search"][self.combo_box.get()]
-		for array in result:
-			if (array["id"] == str(ref_id)):
+	def get_info(self, ref_id:str):
+		for array in CacheData["search"][self.combo_box.get()]:
+			if (array["id"] == str(ref_id) or array["id"] == int(ref_id)):
 				return array
 		return None
 
@@ -477,12 +476,12 @@ class search:
 				return
 			self.log_text.delete(1.0, tk.END) 
 			if self.combo_box.get() == 'TUF':
-				info = self.get_info(CacheData["search"]["TUF"], id)
+				info = self.get_info(id)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
 				 	[info['id'], info['artist'], info['song'], info['creator'], info['diff'], info['pguDiff'], info['vidLink'], info['dlLink'], info['workshopLink']]
 				))
 			elif self.combo_box.get() == 'ADOFAI.GG':
-				info = self.get_info(CacheData["search"]["ADOFAI.GG"], id)
+				info = self.get_info(id)
 
 				try: info["artists"] = [artist['name'] for artist in info['music']['artists']]
 				except:  info["artists"] = "-"
@@ -495,7 +494,7 @@ class search:
 					[info['id'], info["artists"], info['title'], info["creators"], info['difficulty'], info['video'], info['download'], info['workshop'], info['tiles'], info["tags"]]
 				))
 			elif self.combo_box.get() == 'AQR':
-				info = self.get_info(CacheData["search"]["AQR"], int(id)+10000)
+				info = self.get_info(int(id)+10000)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(AQR_success)", 
 					[info['artist'], info['song'], info['author'], info['difficulties'], info['level'], info['vluation'], info['video_herf'], info['href']]
 				))
@@ -764,14 +763,15 @@ class menu:
 			"版本 1.0.3:\n- 删除了logging库 转用log 这使得允许自动保存日志(更方便调试)\n- 更新了日志颜色区分",
 			"版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释\n- 优化代码排版",
 			"版本 1.1.0:\n- 添加了模组下载\n- 修复代码bug\n- 修复无法正常选择语言问题\n- 修复url错误问题",
+			"版本 1.1.1:\n- 使用了缓存化以防止每次ModDownload或Search的时候出现等待过久的情况\n- 为缓存添加了清除功能\n- 可手动选择外网url()",
 		]
 	@staticmethod
-	def show_log_ui_V1():
+	def log_showUIWithV1():
 		global ModsTagLog
 
 		# 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
 		log_window = tk.Toplevel(Tkinter_StartUI)
-		log_window.title(LanguageData.get("log.name_v1"))
+		log_window.title(LanguageData.get("menu.debug.log.name_v1"))
 		log_window.geometry("480x540")
 		log_window.resizable(0, 0)
 		log_text_debug = ScrolledText(log_window, height=10, width=50, font=("Consolas", 8))
@@ -811,9 +811,9 @@ class menu:
 				log_text_debug.insert("end", line + '\n', this_endLog)
 			
 		log_text_debug.text.config(state=tk.DISABLED)
-		button_save = tk.Button(log_window, text=LanguageData.get("log.open_log_dir"), command=menu.open_log)
+		button_save = tk.Button(log_window, text=LanguageData.get("menu.debug.log.open_log_dir"), command=menu.open_log)
 		button_save.pack(fill="x")
-		button_copy = tk.Button(log_window, text=LanguageData.get("log.copy"), command=lambda: menu.write_clipboard(logs))
+		button_copy = tk.Button(log_window, text=LanguageData.get("menu.debug.log.copy"), command=lambda: menu.write_clipboard(logs))
 		button_copy.pack(fill="x")
 
 		log_window.mainloop()
@@ -823,7 +823,15 @@ class menu:
 		OpenClipboard()
 		SetClipboardData(win32con.CF_UNICODETEXT, text)
 		CloseClipboard()
-		messagebox.showinfo(LanguageData.get("log.function(copy_success)"), LanguageData.get("log.function(copy_success)"))
+		messagebox.showinfo(LanguageData.get("menu.debug.log.function(copy_success)"), LanguageData.get("menu.debug.log.function(copy_success)"))
+
+	@staticmethod
+	def cache_clear():
+		pass
+
+	@staticmethod
+	def cache_reload():
+		pass
 
 	@staticmethod
 	def open_log():        
@@ -883,7 +891,9 @@ class menu:
 		menu_menu.add_cascade(label="文件", menu=filemenu)
 
 		editmenu = ttk.Menu(menu_menu, tearoff=False)
-		editmenu.add_command(label=LanguageData.get("log.name_v1"),command=menu.show_log_ui_V1)
+		editmenu.add_command(label=LanguageData.get("menu.debug.log.name_v1"),command=menu.log_showUIWithV1)
+		editmenu.add_command(label=LanguageData.get("menu.debug.cache.clear"),command=menu.cache_clear)
+		editmenu.add_command(label=LanguageData.get("menu.debug.cache.reload"),command=menu.cache_reload)
 		menu_menu.add_cascade(label="调试", menu=editmenu)
 
 		Tkinter_StartUI.config(menu=menu_menu)
@@ -909,7 +919,7 @@ if (open("config.json", "r", encoding="utf-8").read() == ""):
 ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
 
 if (ConfigData["Acceleration"]): Acceleration = "https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url="
-else: Acceleration = "https://achry.space?link="
+else: Acceleration = "" # pls empty!
 
 LanguageData = language()
 LanguageData.lang = ConfigData["lang"]
