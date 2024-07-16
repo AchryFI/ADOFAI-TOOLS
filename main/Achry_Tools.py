@@ -4,7 +4,8 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
-from mtapi import *
+from ModsTagLib import *
+from ADOFAICore import *
 from os import remove, system, path
 from re import sub as re_sub
 from time import time as time_time
@@ -55,7 +56,7 @@ def show_update_info():
 Start_Time = "log%s"%int(time_time()*1000);
 ModsTagLog = log.new(Start_Time, "log")
 def log_fail(content):
-	messagebox.showerror(LanguageData.get("fail"), content)
+	messagebox.showerror(LanguageData.get("fail"), content+"\n\n"+format_exc())
 	ModsTagLog.write(format_exc(), 4)
 def log_error(content):
 	messagebox.showerror(LanguageData.get("error"), content)
@@ -834,6 +835,16 @@ class menu:
 		pass
 
 	@staticmethod
+	def download_video(a):
+		a = bilibiliDownload.download(bilibiliDownload.select(bilibiliDownload.get(a),[0,0]))
+		open("data.mp4","wb").write(a[0])
+		open("data.aac","wb").write(a[1])
+		system("del download.mp4")
+		system("ffmpeg.exe -i data.mp4 -i data.aac download.mp4")
+		system("download.mp4")
+		pass
+
+	@staticmethod
 	def open_log():        
 		# Ask the user for a filename to save the content
 		system("explorer log")
@@ -842,8 +853,7 @@ class menu:
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.menu.name")
 
-		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.producer"))\
-			.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.producer")).grid(row=0, column=0, padx=10, pady=5, sticky="w") 
 		link = ttk.Label(self.main_frame, text="_Achry_", foreground="blue", cursor="hand2")
 		link.grid(row=0, column=1, padx=10, pady=5, sticky="w")
 		link.bind("<Button-1>", lambda e: webbrowser.open("https://space.bilibili.com/1232092699"))
@@ -888,6 +898,8 @@ class menu:
 
 		filemenu = ttk.Menu(menu_menu, tearoff=False)
 		filemenu.add_command(label="退出", command=lambda: exit())
+		#filemenu.add_command(label="下载大雪花", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1FS4y1a7DS/"))
+		#filemenu.add_command(label="下载ADOFAI游戏", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1BR4y1A7pM/"))
 		menu_menu.add_cascade(label="文件", menu=filemenu)
 
 		editmenu = ttk.Menu(menu_menu, tearoff=False)
@@ -903,7 +915,7 @@ class menu:
 ################################################################
 
 Tkinter_StartUI = tk.Tk()
-Tkinter_StartUI.title("ADOFAI Tools _ v1.I.1 _ _Achry_")
+Tkinter_StartUI.title("ADOFAI Tools _ v1.1.1 _ _Achry_")
 Tkinter_StartUI.geometry("640x560")
 # 创建Notebook
 NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
@@ -923,7 +935,6 @@ else: Acceleration = "" # pls empty!
 
 LanguageData = language()
 LanguageData.lang = ConfigData["lang"]
-LanguageData.log = log
 LanguageData.mtl = ModsTagLog
 
 # 固定的函数
