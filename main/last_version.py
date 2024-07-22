@@ -4,8 +4,8 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
-###from tkinter import messagebox
-from mtapi import *
+from ModsTagLib import *
+from ADOFAICore import *
 from os import remove, system, path
 from re import sub as re_sub
 from time import time as time_time
@@ -40,12 +40,15 @@ class _NoteBookClass:
 		return main_frame
 def update_config():
 	open("config.json","w",encoding="UTF-8").write(json.dumps(ConfigData))
+def update_cache():
+	open("cache.json","w",encoding="UTF-8").write(json.dumps(CacheData))
 def show_update_info():
 	if (not ConfigData["skip_update_info"]):
 		r = requests.get('https://hjtbrz.mcfuns.cn/application/casting.txt')
 		r.encoding = "utf-8"
 		messagebox.showinfo('公告',r.text)
 		ConfigData["skip_update_info"] = True
+		ConfigData["Acceleration"] = False
 		update_config()
 ################################################################
 # Log content function                                         # 日志内容功能
@@ -53,14 +56,14 @@ def show_update_info():
 Start_Time = "log%s"%int(time_time()*1000);
 ModsTagLog = log.new(Start_Time, "log")
 def log_fail(content):
-	messagebox.showerror(LanguageData.get("fail"), content)
-	ModsTagLog.inp(format_exc(), 4)
+	messagebox.showerror(LanguageData.get("fail"), content+"\n\n"+format_exc())
+	ModsTagLog.write(format_exc(), 4)
 def log_error(content):
 	messagebox.showerror(LanguageData.get("error"), content)
-	ModsTagLog.inp(content, 3)
+	ModsTagLog.write(content, 3)
 def log_info(content):
 	messagebox.showinfo(LanguageData.get("info"), content)
-	ModsTagLog.inp(content, 1)
+	ModsTagLog.write(content, 1)
 def log_insert(ins, content, lvl=1, failcustom=False):
 	"""
 	ins : insert id
@@ -68,9 +71,9 @@ def log_insert(ins, content, lvl=1, failcustom=False):
 	"""
 	ins.insert(tk.END, content+"\n")
 	if lvl == 4: 
-		if failcustom:  ModsTagLog.inp(content, lvl)
-		else: ModsTagLog.inp(format_exc(), lvl)
-	else: ModsTagLog.inp(content, lvl)
+		if failcustom:  ModsTagLog.write(content, lvl)
+		else: ModsTagLog.write(format_exc(), lvl)
+	else: ModsTagLog.write(content, lvl)
 
 ################################################################
 # noEffect ui & function                                       # 去特效界面和函数
@@ -104,6 +107,9 @@ class noEffect:
 			tk.StringVar(),
 			tk.StringVar(),
 			tk.StringVar(),
+			tk.StringVar(),
+			tk.StringVar(),
+			tk.StringVar(),
 			tk.StringVar()
 		]
 		self.log_text = None
@@ -113,7 +119,7 @@ class noEffect:
 	def select_file(self):
 		filename = askopenfilename()
 		if filename:
-			if not filename.lower().endswith('.adofai') or not filename.lower().endswith('.json'):
+			if not filename.lower().endswith('.adofai') and not filename.lower().endswith('.json'):
 				log_error(LanguageData.get("gui.noeffect.function(except).not_adofai_file"))
 				return
 			self.entry_path.delete(0, tk.END)
@@ -157,24 +163,24 @@ class noEffect:
 			effect = self.insert_effect
 
 			if len(effect) > 0 :
-				log.inp("get remove effect", 1)
+				ModsTagLog.write("get remove effect", 1)
 				for i in effect:
 					now_file_contenes = []
 					for ii in range(len(file_contents["actions"])):
 						if file_contents["actions"][ii]["eventType"] != i:
 							now_file_contenes.append(file_contents["actions"][ii])
 						else:
-							log.inp("removed effect(%s) in %s"%(i, ii), 1)
+							ModsTagLog.write("removed effect(%s) in %s"%(i, ii), 1)
 					file_contents["actions"] = now_file_contenes
 					now_file_contenes = []
 					for ii in range(len(file_contents["decorations"])):
 						if file_contents["decorations"][ii]["eventType"] != i:
 							now_file_contenes.append(file_contents["decorations"][ii])
 						else:
-							log.inp("removed effect(%s) in %s"%(i, ii), 1)
+							ModsTagLog.write("removed effect(%s) in %s"%(i, ii), 1)
 					file_contents["decorations"] = now_file_contenes
 			else:
-				log.inp("not get remove effect", 1)
+				ModsTagLog.write("not get remove effect", 1)
 
 			convert["result"] = file_contents
 			file_directory = path.dirname(filename)
@@ -292,11 +298,17 @@ class calc:
 			"20.9": 350,
 			"20.95": 400,
 			"21": 500,
+			"21.025": 600,
 			"21.05": 700,
+			"21.075": 850,
 			"21.1": 1000,
+			"21.125": 1300,
 			"21.15": 1600,
+			"21.175": 1800,
 			"21.2": 2000,
+			"21.225": 2500,
 			"21.25": 3000,
+			"21.275": 4000,
 			"21.3": 5000
 		}
 
@@ -421,6 +433,40 @@ class search:
 		self.entry_music = None
 		self.entry_author = None
 		self.log_text = None
+	def cache_data(self, try_get_cache_item = True):
+		if try_get_cache_item:
+			try:
+				CacheData["search"]
+				CacheData["search"]["TUF"]
+				CacheData["search"]["ADOFAI.GG"]
+				CacheData["search"]["AQR"]
+			except:
+				self.cache_data(False)
+				return
+		else:
+			CacheData["search"] = {}
+			try: CacheData["search"]["TUF"] = requests.get(Acceleration + "https://be.tuforums.com/levels").json()["results"]
+			except: CacheData["search"]["TUF"] = []
+			if 'statusCode' in CacheData["search"]["TUF"]:
+				self.log_text.delete(1.0, tk.END) 
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", [info["message"], info["statusCode"]]), 3)
+				CacheData["search"]["TUF"] = []
+			try: CacheData["search"]["ADOFAI.GG"] = requests.get(Acceleration + "https://adofai.gg/api/v1/levels").json()["results"]
+			except: CacheData["search"]["ADOFAI.GG"] = []
+			if 'errors' in CacheData["search"]["ADOFAI.GG"]:
+				msg = info["errors"][0]
+				self.log_text.delete(1.0, tk.END) 
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", (msg["message"], msg["code"])), 3)
+				CacheData["search"]["ADOFAI.GG"] = []
+			try: CacheData["search"]["AQR"] = requests.get(Acceleration + "https://kdocs.adofaiaqr.top").json()
+			except: CacheData["search"]["AQR"] = []
+			update_cache()
+	def get_info(self, ref_id:str):
+		for array in CacheData["search"][self.combo_box.get()]:
+			if (array["id"] == str(ref_id) or array["id"] == int(ref_id)):
+				return array
+		return None
+
 	@staticmethod
 	def use_id(self):
 		try:
@@ -429,62 +475,40 @@ class search:
 				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).id_is_empty", (id)), 3)
 				return
+			self.log_text.delete(1.0, tk.END) 
 			if self.combo_box.get() == 'TUF':
-				info = requests.get(f"https://be.tuforums.com/levels/{id}", headers={"accept": "application/json"}).json()
-
-				if 'statusCode' in info:
-					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", [info["message"], info["statusCode"], id]), 3)
-					return
-				
-				self.log_text.delete(1.0, tk.END) 
+				info = self.get_info(id)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
 				 	[info['id'], info['artist'], info['song'], info['creator'], info['diff'], info['pguDiff'], info['vidLink'], info['dlLink'], info['workshopLink']]
 				))
-
 			elif self.combo_box.get() == 'ADOFAI.GG':
-				info = requests.get(f"https://adofai.gg/api/v1/levels/{id}").json()
+				info = self.get_info(id)
 
-				if 'errors' in info:
-					msg = info["errors"][0]
-					self.log_text.delete(1.0, tk.END) 
-					log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", (msg["message"], msg["code"], id)), 3)
-					return
 				try: info["artists"] = [artist['name'] for artist in info['music']['artists']]
-				except: 
-					log.inp("not artist in info[\"artist\"]", 3)
-					info["artists"] = "-"
+				except:  info["artists"] = "-"
 				try: info["creators"] = [creator['name'] for creator in info['creators']]
-				except: 
-					log.inp("not creators in info[\"creators\"]", 3)
-					info["creators"] = "-"
+				except: info["creators"] = "-"
 				try: info["tags"] = [tag['name'] for tag in info['tags']]
-				except: 
-					log.inp("not tags in info[\"tags\"]", 3)
-					info["tags"] = "-"
+				except: info["tags"] = "-"
 				
-				self.log_text.delete(1.0, tk.END) 
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(ADOFAIGG_success)",
 					[info['id'], info["artists"], info['title'], info["creators"], info['difficulty'], info['video'], info['download'], info['workshop'], info['tiles'], info["tags"]]
 				))
-			
 			elif self.combo_box.get() == 'AQR':
-				info = json.loads(requests.get('https://kdocs.adofaiaqr.top').text)[int(id)-1]
-
-				self.log_text.delete(1.0, tk.END) 
+				info = self.get_info(int(id)+10000)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(AQR_success)", 
 					[info['artist'], info['song'], info['author'], info['difficulties'], info['level'], info['vluation'], info['video_herf'], info['href']]
 				))
 			else:
 				raise ValueError("combo_box not find")
-	  
+
 		except Exception as e:
 			log_fail(LanguageData.get("gui.levelsearch.function(except).error", [e.__class__.__name__, e]))
 
 	@staticmethod
 	def query(self):
 		try:
-			url = f"https://be.tuforums.com/levels?query=&artistQuery={self.entry_artist.get()}&songQuery={self.entry_music.get()}&creatorQuery={self.entry_author.get()}&offset=10&random=false&lim"
+			url = Acceleration + f"https://be.tuforums.com/levels?query=&artistQuery={self.entry_artist.get()}&songQuery={self.entry_music.get()}&creatorQuery={self.entry_author.get()}&offset=10&random=false&lim"
 			response = requests.get(url, headers={"accept": "application/json"})
 			info = response.json()
 			self.log_text.delete(1.0, tk.END)
@@ -500,6 +524,8 @@ class search:
 	def main(self, NOTEBOOK):
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.levelsearch.name")
+		self.cache_data()
+
 		# 通过ID查询部分
 		id_frame = ttk.Labelframe(self.main_frame, text=LanguageData.get("gui.levelsearch.search_id"))
 		id_frame.pack(fill="x", padx=10, pady=5)
@@ -534,7 +560,6 @@ class search:
 		log_frame.pack(fill="both", expand=True, padx=10, pady=5)
 		self.log_text = ScrolledText(log_frame, height=10, width=50)
 		self.log_text.pack(fill="both", expand=True)
-		pass
 ################################################################
 # downloadFile ui & function                                   # 下载文件界面和函数
 ################################################################
@@ -542,8 +567,7 @@ class downloadFile:
 	def __init__(self):
 		self.this = self
 		self.main_frame = None
-		self.google_entry = None
-		self.discord_entry = None
+		self.action_entry = None
 		self.status = None
 		self.path = None
 		self.progress = None
@@ -557,70 +581,22 @@ class downloadFile:
 			self.path.insert(tk.END, filename)
 
 	@staticmethod
-	def google_action(self):
-		# 构建请求的 URL，将 ID 作为参数传递
-		if self.google_entry.get() == '':
-			log_error(LanguageData.get("gui.filedownload.function(except).id_is_empty"))
-			return
-
-		try:
-			# 发起 GET 请求
-			response = requests.get(f"https://hjtbrz.mcfuns.cn/application/FileDownload/gdrive.php?id={self.google_entry.get()}", stream=True)
-			if response.status_code != 200:
-				log_error(LanguageData.get("error"), LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
-				return
-
-			self.status.configure(text=LanguageData.get("gui.filedownload.function().downloading"))
-			file_size = float('nan') if not response.headers.get('Content-Length') else int(file_size)
-
-			content_disposition = response.headers.get('Content-Disposition')
-			if content_disposition:
-				filename_index = content_disposition.find('filename=')
-				if filename_index != -1:
-					filename = content_disposition[filename_index + len('filename='):]
-					filename = filename.strip('"')
-				else:
-					filename = 'downloaded_file'
-			else:
-				filename = 'downloaded_file'
-
-			bytes_written = 0
-			# total_size = int(response.headers.get('content-length', 0))
-			for chunk in response.iter_content(chunk_size=1024):
-				if chunk:
-					open(self.path.get() + '/' + filename, "ab").write(chunk)
-					bytes_written += len(chunk)
-					self.status.configure(text=LanguageData.get("gui.filedownload.function().downloadingprocess", [round(bytes_written / 1048576,2), round(file_size / 1048576,2)]))
-					self.progress['value'] = bytes_written / file_size * 100
-					Tkinter_StartUI.update_idletasks()
-				if 'Error 404'.encode(encoding='utf-8') in chunk:
-					log_error(LanguageData.get("gui.filedownload.function(except).id_not_find", [self.google_entry.get()]))
-					remove(self.path.get() + '/' + filename)
-					return
-
-			log_info(LanguageData.get("gui.filedownload.function(success)", [filename]))
-		except Exception as e:
-			if e.__class__.__name__ == 'PermissionError':
-				log_fail(LanguageData.get("gui.filedownload.function(except).error_dict", [self.path.get(), filename, e.__class__.__name__, e]))
-			else:
-				log_fail(LanguageData.get("gui.filedownload.function(except).error", [e.__class__.__name__, e]))
-
-	@staticmethod
-	def discord_action(self):
+	def action(self):
 		# 构建请求的 URL
-		if self.discord_entry.get() == '':
+		if self.action_entry.get() == '':
 			log_error(LanguageData.get("gui.filedownload.function(except).link_is_empty"))
 			return
 
 		try:
 			# 发起 GET 请求
-			response = requests.get(f'https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url={self.discord_entry.get()}', stream=True)
+			response = requests.get(Acceleration + self.action_entry.get(), stream=True)
 			if response.status_code != 200:
 				log_error(LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
 
 			self.status.configure(text=LanguageData.get("gui.filedownload.function().downloading"))
-			file_size = float('nan') if not response.headers.get('Content-Length') else int(file_size)
+			file_size = response.headers.get('Content-Length')
+			file_size = float('nan') if not file_size else int(file_size)
 
 			content_disposition = response.headers.get('Content-Disposition')
 			if content_disposition:
@@ -643,7 +619,7 @@ class downloadFile:
 					self.progress['value'] = bytes_written / file_size * 100
 					Tkinter_StartUI.update_idletasks()
 				if 'Error 404'.encode(encoding='utf-8') in chunk or not chunk:
-					log_error(LanguageData.get("gui.filedownload.function(except).link_not_find", [self.discord_entry.get()]))
+					log_error(LanguageData.get("gui.filedownload.function(except).link_not_find", [self.action_entry.get()]))
 					remove(self.path.get() + '/' + filename)
 					return
 
@@ -659,18 +635,11 @@ class downloadFile:
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.filedownload.name")
 
-		google_frame = ttk.LabelFrame(self.main_frame, text="Google Drive[Use ID]")
-		google_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-		self.google_entry = ttk.Entry(google_frame, width=48)
-		self.google_entry.grid(row=0, column=0, padx=5, pady=5)
-		ttk.Button(google_frame, text=LanguageData.get("gui.filedownload.download"),command=lambda: downloadFile.google_action(self))\
-			.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-
-		discord_frame = ttk.LabelFrame(self.main_frame, text="discord[Use Link]")
-		discord_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
-		self.discord_entry = ttk.Entry(discord_frame, width=48)
-		self.discord_entry.grid(row=0, column=0, padx=5, pady=5)
-		ttk.Button(discord_frame, text=LanguageData.get("gui.filedownload.download"), command=lambda: downloadFile.discord_action(self))\
+		action_frame = ttk.LabelFrame(self.main_frame, text="download link")
+		action_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+		self.action_entry = ttk.Entry(action_frame, width=48)
+		self.action_entry.grid(row=0, column=0, padx=5, pady=5)
+		ttk.Button(action_frame, text=LanguageData.get("gui.filedownload.download"), command=lambda: downloadFile.action(self))\
 			.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
 		# Download Setting Section
@@ -699,44 +668,35 @@ class modDownload:
 	def __init__(self):
 		self.this = self
 		self.main_frame = None
-		self.data = {}
-		self.info = []
+		self.data = []
+		self.shadow_data = []
 
-	def get_info(self, skip_get_config_item = True):
-		self.data = {}
-		self.info = []
+	def cache_data(self, try_get_cache_item = True):
+		self.data = []
+		self.shadow_data = []
 
-		if skip_get_config_item:
+		if try_get_cache_item:
 			try: 
-				if (type(ConfigData["modDownload_data"]) == dict):
-					self.data = ConfigData["modDownload_data"]
+				if (type(CacheData["modDownload"]["data"]) == list):
+					self.data = CacheData["modDownload"]["data"]
 				else:
 					raise ValueError("")
 			except: 
-				ConfigData["modDownload_data"] = self.get_info(False)
-				update_config()
+				self.cache_data(False)
+				return
 		else:
-			for item in requests.get('https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url=https://bot.adofai.gg/api/mods/').json():
-				if item['id'] not in self.data:
-					self.data[item['id']] = item
-				else:
-					current_version = self.data[item['id']]['version']
-					new_version = item.get('version')
-					if new_version is None: continue
-
-					# Compare version numbers
-					if new_version == self.compare_versions(current_version, new_version):
-						self.data[item['id']] = item
-			ConfigData["modDownload_data"] = self.data
-			update_config()
-			###self.main(NOTEBOOK,)
-		for item in self.data.values():
-			self.info.append((
-				item['name'],
-				item.get('version'),
-				item['cachedUsername'],
-				strftime("%Y-%m-%d %H:%M:%S", localtime(round(item['uploadedTimestamp']/1000,0)))
-			))
+			self.data = requests.get(Acceleration + "https://bot.adofai.gg/api/mods/").json()
+			try: CacheData["modDownload"]["data"]
+			except: CacheData["modDownload"] = {}
+			CacheData["modDownload"]["data"] = self.data
+			update_cache()
+		for item in self.data:
+			if item['id'] not in self.shadow_data:
+				self.shadow_data.append((
+					item['name'],
+					item['cachedUsername'],
+					item['id'],
+				))
 		pass
 
 	def compare_versions(version1, version2):
@@ -744,49 +704,52 @@ class modDownload:
 		v2 = list(map(int, version2.split(".")))
 		return v1 if v1 > v2 else v2 if v1 < v2 else 0
 	
+	def select_mod_version(self, ):
+		pass
+
 	def get_selecting(self, table):
-		selected_item = table.selection()[0]
-		return table.item(selected_item)
+		return table.item(table.selection()[0])
 
 	def download_mod(self, mod):
 		# mod = self.get_selecting()['values'][0]
-		for item in self.data.values():
-			if mod == item['name']:
-				link = item['parsedDownload']
+		for item in self.data:
+			if mod == item['id']:
+				print(item)
+				link = Acceleration + item['parsedDownload']
+		print(link)
 
 		webbrowser.open(link)
 
 	def main(self, NOTEBOOK, Patch_NOTEBOOK_To_mainframe = False):
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.moddownload.name")
-		self.get_info()
+		self.cache_data()
 
-		columns = [LanguageData.get("gui.moddownload.signName"), LanguageData.get("gui.moddownload.version"), LanguageData.get("gui.moddownload.author"), LanguageData.get("gui.moddownload.updateTime")]
+		columns = [LanguageData.get("gui.moddownload.signName"), LanguageData.get("gui.moddownload.author"), LanguageData.get("gui.moddownload.modID")]
 		table = ttk.Treeview(
 				master=self.main_frame,  # 父容器
 				height=20,  # 表格显示的行数,height行
 				columns=columns,  # 显示的列
 				show='headings',  # 隐藏首列	
 				)
-		table.heading(columns[0], text=columns[0], anchor='w', command=lambda: self.get_selecting(table))  # 定义表头
+		table.heading(columns[0], text=columns[0], command=lambda: self.get_selecting(table))  # 定义表头
 		table.heading(columns[1], text=columns[1])  # 定义表头
 		table.heading(columns[2], text=columns[2])  # 定义表头
-		table.heading(columns[3], text=columns[3])  # 定义表头
 
 		table.column(columns[0], width=200, minwidth=200, anchor=S)  # 定义列
-		table.column(columns[1], width=50, minwidth=50, anchor=S)  # 定义列
-		table.column(columns[2], width=100, minwidth=100, anchor=S)  # 定义列
-		table.column(columns[3], width=200, minwidth=50, anchor=S)  # 定义列
+		table.column(columns[1], width=100, minwidth=100, anchor=S)  # 定义列
+		table.column(columns[2], width=240, minwidth=240, anchor=S)  # 定义列
 		table.pack(pady=10)
-		for s in self.info:
+		for s in self.shadow_data:
 			table.insert('','end',values=s)
 
 		VScroll1 = tk.Scrollbar(self.main_frame, orient='vertical', command=table.yview)	
 		VScroll1.place(relx=0.971, rely=0.028, relwidth=0.024, relheight=0.658)
 		table.configure(yscrollcommand=VScroll1.set)
 
-		ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.download"),command=lambda: self.download_mod(self.get_selecting(table)['values'][0])).pack()
-		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.reload"),command=lambda: self.get_info(False)).pack()
+		ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.download"),command=lambda: self.download_mod(self.get_selecting(table)['values'][2])).pack()
+		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.select_mod_version"),command=lambda: self.select_mod_version(self.get_selecting(table)['values'][0])).pack()
+		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.reload"),command=lambda: self.cache_data(False)).pack()
 		pass
 ################################################################
 # menu function                                                # 菜单函数
@@ -801,14 +764,15 @@ class menu:
 			"版本 1.0.3:\n- 删除了logging库 转用log 这使得允许自动保存日志(更方便调试)\n- 更新了日志颜色区分",
 			"版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释\n- 优化代码排版",
 			"版本 1.1.0:\n- 添加了模组下载\n- 修复代码bug\n- 修复无法正常选择语言问题\n- 修复url错误问题",
+			"版本 1.1.1:\n- 使用了缓存化以防止每次ModDownload或Search的时候出现等待过久的情况\n- 为缓存添加了清除功能\n- 可手动选择外网url()",
 		]
 	@staticmethod
-	def show_log_ui_V1():
+	def log_showUIWithV1():
 		global ModsTagLog
- 
+
 		# 新开一个窗口 一个日志界面，有一个框，可以保存日志和复制日志
 		log_window = tk.Toplevel(Tkinter_StartUI)
-		log_window.title(LanguageData.get("logV1.name"))
+		log_window.title(LanguageData.get("menu.debug.log.name_v1"))
 		log_window.geometry("480x540")
 		log_window.resizable(0, 0)
 		log_text_debug = ScrolledText(log_window, height=10, width=50, font=("Consolas", 8))
@@ -825,7 +789,7 @@ class menu:
 
 		ModsTagLog.reload()
 		ModsTagLog = log.new(Start_Time, "log")
-		logs = log.out(ModsTagLog)
+		logs = ModsTagLog.read()
 		this_endLog = "INFO"
 		logs_lines = re_sub(r"\n\n", "\n", logs[0]).split('\n')  # Assuming logs is a string with newline-separated entries
 		for line in logs_lines:
@@ -848,9 +812,9 @@ class menu:
 				log_text_debug.insert("end", line + '\n', this_endLog)
 			
 		log_text_debug.text.config(state=tk.DISABLED)
-		button_save = tk.Button(log_window, text=LanguageData.get("gui.logV1.open_log_dir"), command=menu.open_log)
+		button_save = tk.Button(log_window, text=LanguageData.get("menu.debug.log.open_log_dir"), command=menu.open_log)
 		button_save.pack(fill="x")
-		button_copy = tk.Button(log_window, text=LanguageData.get("gui.logV1.copy"), command=lambda: menu.write_clipboard(logs))
+		button_copy = tk.Button(log_window, text=LanguageData.get("menu.debug.log.copy"), command=lambda: menu.write_clipboard(logs))
 		button_copy.pack(fill="x")
 
 		log_window.mainloop()
@@ -860,7 +824,25 @@ class menu:
 		OpenClipboard()
 		SetClipboardData(win32con.CF_UNICODETEXT, text)
 		CloseClipboard()
-		messagebox.showinfo(LanguageData.get("gui.logV1.function(copy_success)"), LanguageData.get("gui.logV1.function(copy_success)"))
+		messagebox.showinfo(LanguageData.get("menu.debug.log.function(copy_success)"), LanguageData.get("menu.debug.log.function(copy_success)"))
+
+	@staticmethod
+	def cache_clear():
+		pass
+
+	@staticmethod
+	def cache_reload():
+		pass
+
+	@staticmethod
+	def download_video(a):
+		a = bilibiliDownload.download(bilibiliDownload.select(bilibiliDownload.get(a),[0,0]))
+		open("data.mp4","wb").write(a[0])
+		open("data.aac","wb").write(a[1])
+		system("del download.mp4")
+		system("ffmpeg.exe -i data.mp4 -i data.aac download.mp4")
+		system("download.mp4")
+		pass
 
 	@staticmethod
 	def open_log():        
@@ -871,8 +853,7 @@ class menu:
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.menu.name")
 
-		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.producer"))\
-			.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.producer")).grid(row=0, column=0, padx=10, pady=5, sticky="w") 
 		link = ttk.Label(self.main_frame, text="_Achry_", foreground="blue", cursor="hand2")
 		link.grid(row=0, column=1, padx=10, pady=5, sticky="w")
 		link.bind("<Button-1>", lambda e: webbrowser.open("https://space.bilibili.com/1232092699"))
@@ -917,10 +898,14 @@ class menu:
 
 		filemenu = ttk.Menu(menu_menu, tearoff=False)
 		filemenu.add_command(label="退出", command=lambda: exit())
+		#filemenu.add_command(label="下载大雪花", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1FS4y1a7DS/"))
+		#filemenu.add_command(label="下载ADOFAI游戏", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1BR4y1A7pM/"))
 		menu_menu.add_cascade(label="文件", menu=filemenu)
 
 		editmenu = ttk.Menu(menu_menu, tearoff=False)
-		editmenu.add_command(label=LanguageData.get("gui.logV1.name"),command=menu.show_log_ui_V1)
+		editmenu.add_command(label=LanguageData.get("menu.debug.log.name_v1"),command=menu.log_showUIWithV1)
+		editmenu.add_command(label=LanguageData.get("menu.debug.cache.clear"),command=menu.cache_clear)
+		editmenu.add_command(label=LanguageData.get("menu.debug.cache.reload"),command=menu.cache_reload)
 		menu_menu.add_cascade(label="调试", menu=editmenu)
 
 		Tkinter_StartUI.config(menu=menu_menu)
@@ -930,27 +915,26 @@ class menu:
 ################################################################
 
 Tkinter_StartUI = tk.Tk()
-Tkinter_StartUI.title("ADOFAI Tools _ v1.O.3 _ _Achry_")
-Tkinter_StartUI.geometry("600x540")
+Tkinter_StartUI.title("ADOFAI Tools _ v1.1.1 _ _Achry_")
+Tkinter_StartUI.geometry("640x560")
 # 创建Notebook
 NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
 
+open("cache.json", "a", encoding="utf-8").close()
+if (open("cache.json", "r", encoding="utf-8").read() == ""): 
+	open("cache.json", "w", encoding="utf-8").write("{}")
+CacheData = json.loads(open("cache.json", "r", encoding="utf-8").read())
 
 open("config.json", "a", encoding="utf-8").close()
 if (open("config.json", "r", encoding="utf-8").read() == ""): 
-	open("config.json", "w", encoding="utf-8").write("{\"lang\": null, \"skip_update_info\": false}")
+	open("config.json", "w", encoding="utf-8").write("{\n\t\"version\": [1,1,1],\n\t\"lang\": null,\n\t\"skip_update_info\": false,\n\t\"Acceleration\": true\n}")
 ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
 
-try:
-	show_update_info()
-except:
-	ConfigData["skip_update_info"] = False
-	show_update_info()
-
+if (ConfigData["Acceleration"]): Acceleration = "https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url="
+else: Acceleration = "" # pls empty!
 
 LanguageData = language()
 LanguageData.lang = ConfigData["lang"]
-LanguageData.log = log
 LanguageData.mtl = ModsTagLog
 
 # 固定的函数
@@ -968,6 +952,13 @@ search.main(NewSelf["search"], NOTEBOOK)
 downloadFile.main(NewSelf["downloadFile"], NOTEBOOK)
 modDownload.main(NewSelf["modDownload"], NOTEBOOK)
 menu.main(NewSelf["menu"], NOTEBOOK)
+
+try:
+	show_update_info()
+except:
+	ConfigData["skip_update_info"] = False
+	show_update_info()
+
 NOTEBOOK.notebook.pack(fill=tk.BOTH, expand=True)
 ################################################################
 # pb content pls paste to this (if ok)                         # 如果要修改代码并且pb 在可行情况下放置在这里 谢谢
