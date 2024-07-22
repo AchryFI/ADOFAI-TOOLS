@@ -1,44 +1,22 @@
 import os, _io, sys, time, re, json
 from tkinter import messagebox
 
-class string_convert:
-  """
-    private content!
-  """
-  def match(patter, string): return {"success": re.match(patter, string) != None, "match": re.match(patter, string) if re.match(patter, string) != None else ""};
-  def search(patter, string): return {"success": re.search(patter, string) != None, "match": re.search(patter, string) if re.search(patter, string) != None else ""};
-  def fix_comma(string): return re.sub(r",+\s*$", "", string);
-  def remove_quo(string): return {"success": ("\"" in string), "match": re.sub(r"\t+", "", string, count=1).lstrip("\"").rstrip("\"")};
-class adofai_convert:
-  def value_convert(string_list):
-    result = {"success": True, "match": ""}
-    if (string_convert.remove_quo(string_list)["success"]):
-      result["match"] = string_convert.remove_quo(string_list)["match"];
-    elif (string_convert.search(r"\[", string_list)["success"]):
-      tmp2 = re.sub(r"\[|\]", "", string_list);
-      result["match"] = [];
-      if (tmp2 == ""): return result;
-      for ii in tmp2.split(", "): 
-        if   (string_convert.remove_quo(string_list)["success"]):       result["match"].append(string_convert.remove_quo(ii)["match"]);
-        elif (string_convert.search(r"false", string_list)["success"]): result["match"].append(False);
-        elif (string_convert.search(r"true", string_list)["success"]):  result["match"].append(True);
-        elif (string_convert.search(r"null", string_list)["success"]):  result["match"].append(None);
-        elif (string_convert.match(r"(\-?)\d+\.\d+", ii)["success"]):      result["match"].append(float(ii));
-        elif (string_convert.match(r"(\-?)\d+", ii)["success"]):           result["match"].append(int(ii));
-      pass;
-    elif (string_convert.search(r"false", string_list)["success"]):         result["match"] = False;
-    elif (string_convert.search(r"true", string_list)["success"]):          result["match"] = True;
-    elif (string_convert.search(r"null", string_list)["success"]):          result["match"] = None;
-    elif (string_convert.search(r"(\-?)\d+\.\d+", string_list)["success"]): result["match"] = float(string_list);
-    elif (string_convert.search(r"(\-?)\d+", string_list)["success"]):      result["match"] = int(string_list);
-    else: result["success"] = False;
-    return result;
-  # main
-  def dict_to_json(dict_data):
-    jsonDecode = dict_data["result"];
-    typ = dict_data["type"];
+class adofai_level_data:
+  class exception(Exception):
+    def __init__(self, message):
+      super().__init__(message)
+
+  def __init__(self, data):
+    self.data = data
+    self.index = 0
+    self.max_index = len(data)-1
+    self.success = False
+    self.type = ""
+    self.result = {}
+  def encode(self) -> str:
+    jsonDecode = self.result;
     output = ""
-    output += "{\n\t"+json.dumps({typ : jsonDecode[typ]}, separators=[", ", ": "])[:-1][1:]+", ";
+    output += "{\n\t"+json.dumps({self.type : jsonDecode[self.type]}, separators=[", ", ": "])[:-1][1:]+", ";
     output += json.dumps({"settings": jsonDecode["settings"]}, indent="\t", separators=[", ", ": "])[:-2][1:]+", \n\t\"actions\": [ \n";
     for out in jsonDecode["actions"]:
       output += "\t\t";
@@ -51,104 +29,106 @@ class adofai_convert:
       pass;
     output = output[:-2]+"\n\t]\n}";
     return output;
-  def strList_to_dict(string_data):
-    is_angleData = False;
-    is_pathData = False;
-    is_setting = False;
-    is_actions = False;
-    is_decorations = False;
-    jsonDecode = {};
-    fixFuckYouWithNextLineBugFix = "";
-    string_data.append("");
-    tmp_string_data = string_data;
-    string_data = [];
-    for now_text in tmp_string_data:
-      now_text = now_text.replace("\n", "");
-      if (string_convert.match(r"\\n", now_text)["success"]):
-        fixFuckYouWithNextLineBugFix += now_text;
+  def new(file:str) -> object:
+    return adofai_level_data(open(file, "r", encoding="UTF-8-SIG").read())
+  def decode(self) -> None:
+    if self.data[0] != "{": raise adofai_level_data.exception("it not adofai syntax")
+    self.result = self.task_object()
+    if not "decorations" in self.result: self.result["decorations"] = []
+    if not "actions" in self.result: self.result["actions"] = []
+    if "pathData" in self.result: self.type = "pathData"
+    elif "angleData" in self.result: self.type = "angleData"
+    else: raise adofai_level_data.exception("can't find tile data type")
+    if self.index >= self.max_index: pass
+  def skip_space_and_tab(self) -> None:
+    while 1:
+      if self.data[self.index] == " " or self.data[self.index] == "\t": self.index += 1
+      else: break
+  def task_type(self) -> str:
+    return self.task_string()
+  def task_string(self) -> str:
+    self.index += 1
+    this_result = ""
+    while 1:
+      if self.index >= self.max_index: break;
+      if self.data[self.index] == "\\": 
+        this_result += self.data[self.index]
+        this_result += self.data[self.index+1]
+        self.index += 2
+      elif self.data[self.index] == "\n": 
+        this_result += "\\n"
+        self.index += 1
+      elif self.data[self.index] == "\t": 
+        this_result += "\\t"
+        self.index += 1
+      elif self.data[self.index] == "\"":
+        self.index += 1
+        break
       else:
-        string_data.append(fixFuckYouWithNextLineBugFix);
-        fixFuckYouWithNextLineBugFix = now_text;
-        pass;
-      pass;
-    last_result = ["",""]
-    for now_text in string_data:
-      # is type first
-      if (is_setting):
-        if (string_convert.match(r"\t+}", now_text)["success"]): 
-          is_setting = False;
-          continue;
-        if (string_convert.match(r"\t+{", now_text)["success"]): continue;
-        if (len(now_text.split(": ",2)) == 2):
-          tmp = string_convert.fix_comma(now_text.split(": ",2)[1]);
-          last_result[0] = string_convert.remove_quo(now_text.split(": ",2)[0])["match"];
-          last_result[1] = now_text.split(": ",2)[1];
-          if (adofai_convert.value_convert(tmp)["success"]):
-            jsonDecode["settings"][string_convert.remove_quo(now_text.split(": ",2)[0])["match"]] = adofai_convert.value_convert(tmp)["match"];
-          pass;
-        else:
-          jsonDecode["settings"][last_result[0]] = last_result[1] + string_convert.remove_quo(string_convert.fix_comma(now_text))["match"];
-        pass;
-      elif (is_actions):
-        if (string_convert.match(r"\t+\](,?)", now_text)["success"]):
-          is_actions = False;
-          continue;
-        if (now_text.endswith(",")): now_text = now_text[:-1];
-        now_text = now_text[:-1];
-        if (now_text.endswith(" ")): now_text = now_text[:-1];
-        if (now_text.endswith(",")): now_text = now_text[:-1];
-        now_text += "}";
-        now_text = now_text.lstrip("\t");
-        if (now_text != "}"): jsonDecode["actions"].append(json.loads(now_text));
-        pass;
-      elif (is_decorations):
-        if (string_convert.match(r"\t+\](,?)", now_text)["success"]):
-          is_decorations = False;
-          continue;
-        if (now_text.endswith(",")): now_text = now_text[:-1];
-        now_text = now_text[:-1];
-        if (now_text.endswith(" ")): now_text = now_text[:-1];
-        if (now_text.endswith(",")): now_text = now_text[:-1];
-        now_text += "}";
-        now_text = now_text.lstrip("\t");
-        if (now_text != "}"): jsonDecode["decorations"].append(json.loads(now_text));
-        pass;
-
-      elif (now_text == "\ufeff{" or now_text == "﻿{"):
-        jsonDecode = {};
-        jsonDecode["settings"] = {};
-        jsonDecode["actions"] = [];
-        jsonDecode["decorations"] = [];
-        pass;
-      elif (string_convert.match(r"\t+\"pathData\"", now_text)["success"]): 
-        jsonDecode["pathData"] = re.sub(r"\"pathData\"|\"|\s|\:|,", "", now_text);
-        is_pathData = True;
-        pass;
-      elif (string_convert.match(r"\t+\"angleData\"", now_text)["success"]):
-        jsonDecode["angleData"] = [];
-        is_angleData = True;
-        tmp = re.sub(r"\[|\]|\"angleData\"|\s|\:", "", now_text).split(",")
-        for ii in tmp:
-          if (ii == ""): continue;
-          try: jsonDecode["angleData"].append(int(ii))
-          except: 
-            try:jsonDecode["angleData"].append(float(ii));
-            except: print("convertError");
-            pass;
-          pass;
-        pass;
-      elif (string_convert.match(r"\t+\"settings\"", now_text)["success"]):
-        is_setting = True;
-        pass;
-      elif (string_convert.match(r"\t+\"actions\"", now_text)["success"]):
-        is_actions = True;
-        pass;
-      elif (string_convert.match(r"\t+\"decorations\"", now_text)["success"]):
-        is_decorations = True;
-        pass;
-      pass;
-    return {"result": jsonDecode, "type": "angleData" if is_angleData else "pathData" if is_pathData else "None"};
-  pass;
+        this_result += self.data[self.index]
+        self.index += 1
+    return this_result
+  def task_number(self) -> float|int:
+    this_result = ""
+    is_float = False;
+    while 1:
+      if self.data[self.index] in "-0123456789": 
+        this_result += self.data[self.index]
+        self.index += 1
+      elif self.data[self.index] == ".":
+        this_result += self.data[self.index]
+        is_float = True
+        self.index += 1
+      else: 
+        break
+    return float(this_result) if is_float else int(this_result)
+  def task_array(self) -> list:
+    self.index += 1
+    this_result = []
+    while 1:
+      self.skip_space_and_tab()
+      if self.data[self.index] == "\"": 
+        this_result.append(self.task_string())
+      elif self.data[self.index] in "-0123456789": 
+        this_result.append(self.task_number())
+      elif self.data[self.index] == "[": 
+        this_result.append(self.task_array())
+      elif self.data[self.index] == "{": 
+        this_result.append(self.task_object())
+      elif self.data[self.index] == "]":
+        self.index += 2
+        break
+      else:
+        self.index += 1
+    return this_result
+  def task_object(self) -> dict:
+    self.index += 1
+    t = None
+    this_result = {}
+    while 1:
+      self.skip_space_and_tab()
+      if self.data[self.index] == "\n": 
+        self.index += 1
+      elif self.data[self.index] == "\"" and t == None: 
+        t = self.task_type()
+      elif self.data[self.index] == "\"" and t != None:
+        this_result[t] = self.task_string()
+        t = None
+      elif self.data[self.index] in "-0123456789" and t != None:
+        this_result[t] = self.task_number()
+        t = None
+      elif self.data[self.index] == "[" and t != None:
+        this_result[t] = self.task_array()
+        t = None
+      elif self.data[self.index] == "{" and t != None:
+        this_result[t] = self.task_object()
+        t = None
+      elif self.data[self.index] == "}" and t == None:
+        self.index += 1
+        break
+      else: self.index += 1
+    return this_result
+  pass
 class adofai_const:
   def __init__(self):
     self.Rad2Deg = 57.295780181884766

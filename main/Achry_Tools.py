@@ -114,6 +114,7 @@ class noEffect:
 		]
 		self.log_text = None
 		self.entry_path = None
+		self.entry_convertName = None
 
 	@staticmethod
 	def select_file(self):
@@ -158,8 +159,9 @@ class noEffect:
 		
 		# 在这里处理文件  
 		try:
-			convert = adofai_convert.strList_to_dict(open(filename, 'r', encoding='utf8').readlines())
-			file_contents = convert["result"]
+			convert = adofai_level_data.new(filename)
+			convert.decode()
+			file_contents = convert.result
 			effect = self.insert_effect
 
 			if len(effect) > 0 :
@@ -182,9 +184,9 @@ class noEffect:
 			else:
 				ModsTagLog.write("not get remove effect", 1)
 
-			convert["result"] = file_contents
+			convert.result = file_contents
 			file_directory = path.dirname(filename)
-			open(file_directory+'/Non_effect.adofai','w',encoding="utf8").write(adofai_convert.dict_to_json(convert))
+			open(file_directory+'/'+self.entry_convertName.get() if self.entry_convertName.get() != "" else "Non-Effect.adofai",'w',encoding="utf8").write(convert.encode())
 			end_time = time_time()
 			log_insert(self.log_text, LanguageData.get("gui.noeffect.function(success)", [file_directory, round(end_time-start,3)]))
 		except Exception as e:
@@ -234,6 +236,14 @@ class noEffect:
 		ttk.Button(frame, text=LanguageData.get("gui.noeffect.check"), command=lambda: self.get_list_effect(self))\
 			.grid(row=0, column=4, padx=5, pady=5, sticky="ew")
 		frame.pack(fill="x")
+		frame2 = ttk.Frame(self.main_frame)
+		label_path = ttk.Label(frame2, text=LanguageData.get("gui.noeffect.convertName"))
+		label_path.grid(row=1, column=0, padx=5, pady=5)
+		self.entry_convertName = ttk.Entry(frame2, width=30)
+		self.entry_convertName.grid(row=1, column=1, padx=5, pady=5)
+		label_path = ttk.Label(frame2, text=LanguageData.get("gui.noeffect.convertName_empty"))
+		label_path.grid(row=1, column=2, padx=5, pady=5)
+		frame2.pack(fill="x")
 		self.log_text = ScrolledText(self.main_frame, height=10, width=50)
 		self.log_text.pack(fill="both", expand=True)
 		button_convert = ttk.Button(self.main_frame, text=LanguageData.get("gui.noeffect.convert"), command=lambda: self.process_file(self))
@@ -704,9 +714,6 @@ class modDownload:
 		v2 = list(map(int, version2.split(".")))
 		return v1 if v1 > v2 else v2 if v1 < v2 else 0
 	
-	def select_mod_version(self, ):
-		pass
-
 	def get_selecting(self, table):
 		return table.item(table.selection()[0])
 
@@ -748,7 +755,6 @@ class modDownload:
 		table.configure(yscrollcommand=VScroll1.set)
 
 		ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.download"),command=lambda: self.download_mod(self.get_selecting(table)['values'][2])).pack()
-		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.select_mod_version"),command=lambda: self.select_mod_version(self.get_selecting(table)['values'][0])).pack()
 		#ttk.Button(self.main_frame,text=LanguageData.get("gui.moddownload.reload"),command=lambda: self.cache_data(False)).pack()
 		pass
 ################################################################
@@ -764,7 +770,8 @@ class menu:
 			"版本 1.0.3:\n- 删除了logging库 转用log 这使得允许自动保存日志(更方便调试)\n- 更新了日志颜色区分",
 			"版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释\n- 优化代码排版",
 			"版本 1.1.0:\n- 添加了模组下载\n- 修复代码bug\n- 修复无法正常选择语言问题\n- 修复url错误问题",
-			"版本 1.1.1:\n- 使用了缓存化以防止每次ModDownload或Search的时候出现等待过久的情况\n- 为缓存添加了清除功能\n- 可手动选择外网url()",
+			"版本 1.1.1:\n- 使用了缓存化以防止每次ModDownload或Search的时候出现等待过久的情况\n- 可手动选择外网url()\n- 使用分离ADOFAICore并且修复大量来自ADOFAI屎山特性和优化逻辑\n- 去特效允许自行选择保存的文件名称",
+			#"版本 1.1.2:\n- 为缓存添加了清除功能",
 		]
 	@staticmethod
 	def log_showUIWithV1():

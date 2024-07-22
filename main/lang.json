@@ -3,6 +3,8 @@
     "gui": {
       "noeffect": {
         "name": "去特效",
+        "convertName": "转换后的文件名称",
+        "convertName_empty": "如果为空 则会自动填入\"Non-Effect.adofai\"",
         "convert": "转换",
         "browse": "浏览",
         "setting": "设置",
