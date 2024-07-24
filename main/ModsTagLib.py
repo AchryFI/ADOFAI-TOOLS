@@ -175,15 +175,22 @@ class language:
       result = result.replace("${%s}"%value, str(repl[value-start]))
     return result
 class bilibiliDownload:
-  def get(url:str, _try:int=1):
+  def __init__(self, url=""):
+    self.url = url
+    self.session = requests.session()
+    self.headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.37", "Referer": "https://www.bilibili.com"}
+    self.data = None
+    self.selected = None
+
+  def get(self, _try:int=1):
     result = []
     if _try <= 0: raise ValueError("_try(%s)"%_try)
     for i in range(_try):
-      session = requests.session()
-      headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.37",
-        "Referer": "https://www.bilibili.com"}
-      resp = session.get(url, headers=headers)
-      play_info = json.loads(re.findall(r"<script>window\.__playinfo__=(.*?)</script>",resp.text)[0])["data"]["dash"]
+      resp = self.session.get(self.url, headers=self.headers)
+      try:
+        play_info = json.loads(re.findall(r"<script>window\.__playinfo__=(.*?)</script>",resp.text)[0])["data"]["dash"]
+      except: 
+        play_info = json.loads(re.findall(r"playurlSSRData = (.*\n)",resp.text)[0])["result"]["video_info"]["dash"]
 
       a_data = {}
       a_result = []
@@ -210,42 +217,68 @@ class bilibiliDownload:
             v_len = v+1
         v_result.insert(v_len, v_data)
       result.append({"video":v_result,"audio":a_result})
-    return result
+    self.data = result
+    
+  def get_(self, _data):
+    play_info = json.loads(_data)["data"]["dash"]
 
-  def select(get:list, default:list=None):
+    a_data = {}
+    a_result = []
+    for audio_data in play_info["audio"]:
+      a_data = {}
+      a_data["dw_url"] = audio_data["baseUrl"]
+      a_data["bandwidth"] = audio_data["bandwidth"]
+      a_len = 0
+      for a in range(len(a_result)):
+        if a_result[a]["bandwidth"] > a_data["bandwidth"]:
+          a_len = a+1
+      a_result.insert(a_len, a_data)
+
+    v_data = {}
+    v_result = []
+    for video_data in play_info["video"]:
+      v_data = {}
+      v_data["bandwidth"] = video_data["bandwidth"]
+      v_data["dw_url"] = video_data["baseUrl"]
+      v_data["frame_data"] = [video_data["width"], video_data["height"], float(video_data["frameRate"])]
+      v_len = 0
+      for v in range(len(v_result)):
+        if v_result[v]["bandwidth"] > v_data["bandwidth"]:
+          v_len = v+1
+      v_result.insert(v_len, v_data)
+    self.data = [{"video":v_result,"audio":a_result}]
+
+  def select(self, default:list=None):
     if default == None:
-      for get_video in range(len(get[0]["video"])):
-        print("%s:\n  带宽: %s\n  视频数据: %s"%(get_video+1, get[0]["video"][get_video]["bandwidth"],get[0]["video"][get_video]["frame_data"]))
+      for get_video in range(len(self.data[0]["video"])):
+        print("%s:\n  带宽: %s\n  视频数据: %s"%(get_video+1, self.data[0]["video"][get_video]["bandwidth"],self.data[0]["video"][get_video]["frame_data"]))
       video_select = int(input("\n请选择视频id: "))
       print("\r")
-      for get_audio in range(len(get[0]["audio"])):
-        print("%s:\n  带宽: %s"%(get_audio+1, get[0]["audio"][get_audio]["bandwidth"]))
+      for get_audio in range(len(self.data[0]["audio"])):
+        print("%s:\n  带宽: %s"%(get_audio+1, self.data[0]["audio"][get_audio]["bandwidth"]))
       audio_select = int(input("\n请选择音频id: "))
     else:
      video_select = default[0]+1
      audio_select = default[1]+1
-    return {"select": [video_select-1, audio_select-1], "get":get}
+    self.selected = [video_select-1, audio_select-1]
 
-  def download(select:dict):
-    session = requests.session()
-    headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.37",
-      "Referer": "https://www.bilibili.com"}
+  def download(self):
     audio_content_result = ""
     video_content_result = ""
     audio_content_max = 0
     video_content_max = 0
-    print("尝试下载次数: %s"%len(select["get"]))
+    print("尝试下载次数: %s"%len(self.data))
     print("尝试下载中...")
-    for get in select["get"]:
+    for get in self.data:
       print("  audio: ",end="")
-      audio_content = session.get(get["audio"][select["select"][1]]["dw_url"],headers=headers).content
+      audio_content = self.session.get(get["audio"][self.selected[1]]["dw_url"],headers=self.headers).content
       if (len(audio_content) > audio_content_max and len(audio_content) > 4096):
         audio_content_result = audio_content
         audio_content_max = len(audio_content)
       print("success")
 
       print("  video: ",end="")
-      video_content = session.get(get["video"][select["select"][0]]["dw_url"],headers=headers).content
+      video_content = self.session.get(get["video"][self.selected[0]]["dw_url"],headers=self.headers).content
       if (len(video_content) > video_content_max and len(video_content) > 4096):
         video_content_result = video_content
         video_content_max = len(video_content)

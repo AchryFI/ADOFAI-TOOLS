@@ -647,7 +647,7 @@ class downloadFile:
 
 		action_frame = ttk.LabelFrame(self.main_frame, text="download link")
 		action_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
-		self.action_entry = ttk.Entry(action_frame, width=48)
+		self.action_entry = ttk.Entry(action_frame, width=64)
 		self.action_entry.grid(row=0, column=0, padx=5, pady=5)
 		ttk.Button(action_frame, text=LanguageData.get("gui.filedownload.download"), command=lambda: downloadFile.action(self))\
 			.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
@@ -659,7 +659,7 @@ class downloadFile:
 		ttk.Label(setting_frame, text=LanguageData.get("gui.filedownload.save_path"))\
 			.grid(row=1, column=0, padx=5, pady=5)
 
-		self.path = ttk.Entry(setting_frame)
+		self.path = ttk.Entry(setting_frame, width=32)
 		self.path.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
 		ttk.Button(setting_frame, text=LanguageData.get("gui.filedownload.browse"), command=lambda: downloadFile.select_file(self))\
@@ -842,8 +842,9 @@ class menu:
 		pass
 
 	@staticmethod
-	def download_video(a):
-		a = bilibiliDownload.download(bilibiliDownload.select(bilibiliDownload.get(a),[0,0]))
+	def download_video(url):
+		dw = bilibiliDownload(url)
+		a = dw.get().select([0,0]).download()
 		open("data.mp4","wb").write(a[0])
 		open("data.aac","wb").write(a[1])
 		system("del download.mp4")
