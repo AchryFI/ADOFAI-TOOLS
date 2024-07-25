@@ -1,5 +1,4 @@
 import os, _io, sys, time, re, json, requests
-from tkinter import messagebox
 
 __version__ = 0x010103FF
 
