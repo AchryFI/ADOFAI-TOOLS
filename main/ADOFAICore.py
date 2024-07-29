@@ -91,6 +91,10 @@ class adofai_level_data:
         this_result.append(self.task_string())
       elif self.data[self.index] in "-0123456789": 
         this_result.append(self.task_number())
+      elif self.data[self.index:self.index+5] == "false" and t != None:
+        this_result.append(False)
+      elif self.data[self.index:self.index+4] == "true" and t != None:
+        this_result.append(True)
       elif self.data[self.index] == "[": 
         this_result.append(self.task_array())
       elif self.data[self.index] == "{": 
@@ -116,6 +120,12 @@ class adofai_level_data:
         t = None
       elif self.data[self.index] in "-0123456789" and t != None:
         this_result[t] = self.task_number()
+        t = None
+      elif self.data[self.index:self.index+5] == "false" and t != None:
+        this_result[t] = False
+        t = None
+      elif self.data[self.index:self.index+4] == "true" and t != None:
+        this_result[t] = True
         t = None
       elif self.data[self.index] == "[" and t != None:
         this_result[t] = self.task_array()
