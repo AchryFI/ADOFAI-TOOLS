@@ -265,6 +265,8 @@ class calc:
 		self.world_rank_entry = None
 		self.calc_empty_hit_combobox = None
 		self.calc_first_clear_combobox = None
+		self.pp_type = None
+		self.final_score = None
 		self.value = {
 			"1": 0.05,
 			"2": 0.1,
@@ -323,7 +325,7 @@ class calc:
 		}
 
 	@staticmethod
-	def action(self):
+	def action(self, frame):
 		try:
 			#定义变量
 			base_score = None #关卡基础分
@@ -367,23 +369,34 @@ class calc:
 			else:
 				log_error(LanguageData.get("gui.calc.function(except).xacc_so_low"))
 				return
-
 		
 			#速度分
-			if speed < 1:       speed_multi = 0
-			elif speed < 1.1:   speed_multi = 25   * (speed - 1.1) ** 2 + 0.75
-			elif speed < 1.2:   speed_multi = 0.75
-			elif speed < 1.25:  speed_multi = 50   * (speed - 1.2) ** 2 + 0.75
-			elif speed < 1.3:   speed_multi = -50  * (speed - 1.3) ** 2 + 1
-			elif speed < 1.5:   speed_multi = 1
-			elif speed < 1.75:  speed_multi = 2    * (speed - 1.5) ** 2 + 1
-			elif speed < 2:     speed_multi = -2   * (speed - 2)   ** 2 + 1.25
-			else:               speed_multi = 1.25
-
-			#无空敲
+			if self.pp_type.get() == "TUF":
+				if speed == 1: speed_multi = 1
+				elif speed <= 1.1: speed_multi = 1 - (speed - 1) * 5
+				elif speed <= 1.5: speed_multi = 0.5
+				elif speed <= 2: speed_multi = speed - 1
+				elif speed > 2: speed_multi = 1
+				else: 
+					log_error(LanguageData.get("gui.calc.function(except).speed_so_low"))
+					return
+			elif self.pp_type.get() == "AQR" or self.pp_type.get() == "ADOFAI.GG":
+				if speed < 1:       speed_multi = 0
+				elif speed < 1.1:   speed_multi = 25   * (speed - 1.1) ** 2 + 0.75
+				elif speed < 1.2:   speed_multi = 0.75
+				elif speed < 1.25:  speed_multi = 50   * (speed - 1.2) ** 2 + 0.75
+				elif speed < 1.3:   speed_multi = -50  * (speed - 1.3) ** 2 + 1
+				elif speed < 1.5:   speed_multi = 1
+				elif speed < 1.75:  speed_multi = 2    * (speed - 1.5) ** 2 + 1
+				elif speed < 2:     speed_multi = -2   * (speed - 2)   ** 2 + 1.25
+				else:               speed_multi = 1.25
 			base_score = score_base * xacc_multi * speed_multi * (1.1 if no_early else 1)
 
-			log_info(LanguageData.get("gui.calc.function(success)", [round(base_score * (1.2 if not world_first else 1.1)), round(base_score * ((0.9 ** (ranked_position - 1)) if ranked_position <= 20 else 0))]))
+			self.final_score = [round(base_score * (1.2 if not world_first else 1.1), 4), round(base_score * ((0.9 ** (ranked_position - 1)) if ranked_position <= 20 else 0), 4)]
+			ttk.Label(frame, text=LanguageData.get("gui.calc.function(success_normal)", [self.final_score[0]]))\
+				.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="wee")
+			ttk.Label(frame, text=LanguageData.get("gui.calc.function(success_rank)", [self.final_score[1]]))\
+				.grid(row=4, column=2, columnspan=2, padx=5, pady=5, sticky="wee")
 		except Exception as e:
 			log_fail(LanguageData.get("gui.noeffect.function(except).error", [e.__class__.__name__, e]))
 
@@ -426,9 +439,15 @@ class calc:
 			.grid(row=2, column=2, padx=5, pady=5, sticky="e")
 		self.world_rank_entry = ttk.Entry(frame, width=12)
 		self.world_rank_entry.grid(row=2, column=3, padx=5, pady=5, sticky="we")
+		# 添加世界排名输入框
+		ttk.Label(frame, text=LanguageData.get("gui.calc.pp_type"))\
+			.grid(row=3, column=0, padx=5, pady=5, sticky="e")
+		self.pp_type = ttk.Combobox(frame, values=["TUF","AQR", "ADOFAI.GG"], state="readonly", width=12)
+		self.pp_type.grid(row=3, column=1, padx=5, pady=5, sticky="we")
+		self.pp_type.current(0)
 		#计算按钮
-		ttk.Button(frame, text=LanguageData.get("gui.calc.calcScore"), command=lambda: self.action(self))\
-			.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
+		ttk.Button(frame, text=LanguageData.get("gui.calc.calcScore"), command=lambda: self.action(self, frame))\
+			.grid(row=3, column=2, columnspan=2, padx=10, pady=5, sticky="we")
 		pass
 ################################################################
 # search chart ui & function                                   # 搜索谱面界面和函数
@@ -771,7 +790,8 @@ class menu:
 			"版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释\n- 优化代码排版",
 			"版本 1.1.0:\n- 添加了模组下载\n- 修复代码bug\n- 修复无法正常选择语言问题\n- 修复url错误问题",
 			"版本 1.1.1:\n- 使用了缓存化以防止每次ModDownload或Search的时候出现等待过久的情况\n- 可手动选择外网url()\n- 使用分离ADOFAICore并且修复大量来自ADOFAI屎山特性和优化逻辑\n- 去特效允许自行选择保存的文件名称",
-			#"版本 1.1.2:\n- 为缓存添加了清除功能",
+			"版本 1.1.2:\n- 修复了转换导致的bool类型消失\n- 对TUF倍速成绩修改做出让步",
+			#"版本 1.1.3:\n- 为缓存添加了清除功能",
 		]
 	@staticmethod
 	def log_showUIWithV1():

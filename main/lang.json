@@ -31,15 +31,18 @@
         "is_tooEarly": "是否空敲:",
         "is_firstClear": "是否首通:",
         "is_rank": "世界排名:",
+        "pp_type": "公式类型:",
         "calcScore": "计算Score",
         "function(except)": {
           "error_level": "错误的等级",
-          "xacc_so_low": "未定义X精准度低于95%(可以通过配置文件定义)",
+          "xacc_so_low": "未定义:X精准度低于95%",
+          "speed_so_low": "未定义:倍速低于95%",
           "write_empty": "请填写空白部分",
           "write_rank": "请填写排名",
           "error": "错误:\n${0}:${1}"
         },
-        "function(success)": "一般分数${0} | 排名分数${1}"
+        "function(success_normal)": "一般分数:${0}",
+        "function(success_rank)": "排名分数:${0}"
       },
       "levelsearch": {
         "name": "获取关卡信息",

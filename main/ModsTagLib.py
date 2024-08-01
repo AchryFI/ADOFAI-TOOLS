@@ -141,14 +141,13 @@ class language:
     self.lang = None;
     self.locale = {"2052":"zh_cn", "1033":"en_us", "1042":"kr"}
     pass
-  def get(self, data:str, repl:object="", start:int=0):
+  def get(self, data:str, repl:object=None):
     """
-      用于保存非静态变量
+      获取语言文本并且替换${}格式的内容(可用dict定义格式名称)
       params: 
         self (language)
         data (str): 要获取的格式化文本 
-        repl (object, ""): 转换的内容 支持自动检测类型并且转换 
-        data (int, 0): 定义"替换"从哪个数字开始
+        repl (object, ""): 转换的内容 支持自动检测类型并且转换(可用: dict, list, tuple, str, int, float)
       return: 
         data (except.str)
         result (str)
@@ -168,11 +167,20 @@ class language:
       self.mtl.write("No get lang \"%s\" as lang.json. Please check if your language file is corrupted, and if that doesn't work, contact the developer"%data, 4)
       return data
     result = str(result)
-    if type(repl) != tuple and type(repl) != list: repl = [repl]
-    elif type(repl) == tuple: repl = list(repl)
-    for value in range(start, len(repl)+start):
-      result = result.replace("${%s}"%value, str(repl[value-start]))
+    if repl == None: return result
+
+    if type(repl) == tuple: repl = list(repl)
+    if type(repl) != list and type(repl) != dict: repl = [repl]
+    if type(repl) == list:
+      repl_ = {}
+      for i in range(len(repl)):
+        repl_[str(i)] = repl[i]
+      repl = repl_
+
+    for value in repl.keys():
+      result = result.replace("${%s}"%value, str(repl[value]))
     return result
+
 class bilibiliDownload:
   def __init__(self, url=""):
     self.url = url
