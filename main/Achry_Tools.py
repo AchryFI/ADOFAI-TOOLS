@@ -15,6 +15,7 @@ from json import loads, dumps
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 
 import multiprocessing
+import asyncio
 import requests
 import webbrowser
 import sys
@@ -740,9 +741,7 @@ class modDownload:
 		# mod = self.get_selecting()['values'][0]
 		for item in self.data:
 			if mod == item['id']:
-				print(item)
 				link = Acceleration + item['parsedDownload']
-		print(link)
 
 		webbrowser.open(link)
 
@@ -943,7 +942,7 @@ class menu:
 ################################################################
 
 Tkinter_StartUI = tk.Tk()
-Tkinter_StartUI.title("ADOFAI Tools _ v1.1.1 _ _Achry_")
+Tkinter_StartUI.title("ADOFAI Tools _ v1.1.2 _ _Achry_")
 Tkinter_StartUI.geometry("640x560")
 # 创建Notebook
 NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
