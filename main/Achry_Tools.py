@@ -4,8 +4,10 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
+
 from ModsTagLib import *
 from ADOFAICore import *
+
 from os import remove, system, path
 from re import sub as re_sub
 from time import time as time_time
@@ -14,9 +16,9 @@ from traceback import format_exc
 from json import loads, dumps
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 
-import multiprocessing
 import asyncio
 import requests
+import grequests
 import webbrowser
 import sys
 import win32con
@@ -51,6 +53,7 @@ def show_update_info():
 		ConfigData["skip_update_info"] = True
 		ConfigData["Acceleration"] = False
 		update_config()
+
 ################################################################
 # Log content function                                         # 日志内容功能
 ################################################################
@@ -84,35 +87,7 @@ class noEffect:
 		self.this = self
 		self.main_frame = None
 		self.insert_effect = []
-		self.array_StringVar = [
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar(),
-			tk.StringVar()
-		]
+		self.array_StringVar = [tk.StringVar()] * len(adofai_const().effect)
 		self.log_text = None
 		self.entry_path = None
 		self.entry_convertName = None
@@ -598,9 +573,8 @@ class downloadFile:
 		self.this = self
 		self.main_frame = None
 		self.action_entry = None
-		self.status = None
 		self.path = None
-		self.progress = None
+		self.success_result = None
 
 	@staticmethod
 	def select_file(self):
@@ -619,12 +593,13 @@ class downloadFile:
 
 		try:
 			# 发起 GET 请求
-			response = requests.get(Acceleration + self.action_entry.get(), stream=True)
+			url_data = self.action_entry.get()
+			if ("drive.google" in url_data): url_data = url_data.replace("?usp=shraing", "")
+			response = requests.get(Acceleration + url_data, stream=True)
 			if response.status_code != 200:
 				log_error(LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
 
-			self.status.configure(text=LanguageData.get("gui.filedownload.function().downloading"))
 			file_size = response.headers.get('Content-Length')
 			file_size = float('nan') if not file_size else int(file_size)
 
@@ -645,8 +620,8 @@ class downloadFile:
 				if chunk:
 					open(self.path.get() + '/' + filename, "ab").write(chunk)
 					bytes_written += len(chunk)
-					self.status.configure(text=LanguageData.get("gui.filedownload.function().downloadingprocess", [round(bytes_written / 1048576,2), round(file_size / 1048576,2)]))
-					self.progress['value'] = bytes_written / file_size * 100
+					StatusBar.update_status_text(LanguageData.get("gui.filedownload.function().downloadingprocess" , [round(bytes_written / 1048576,2), round(file_size / 1048576,2)]))
+					# StatusBar.update_status_bar(bytes_written / file_size * 100)
 					Tkinter_StartUI.update_idletasks()
 				if 'Error 404'.encode(encoding='utf-8') in chunk or not chunk:
 					log_error(LanguageData.get("gui.filedownload.function(except).link_not_find", [self.action_entry.get()]))
@@ -684,12 +659,6 @@ class downloadFile:
 
 		ttk.Button(setting_frame, text=LanguageData.get("gui.filedownload.browse"), command=lambda: downloadFile.select_file(self))\
 			.grid(row=1, column=2, padx=5, pady=5)
-
-		self.status = ttk.Label(setting_frame, text=LanguageData.get("gui.filedownload.status"))
-		self.status.grid(row=2, column=0, padx=5, pady=5)
-
-		self.progress = ttk.Progressbar(self.main_frame, orient="horizontal", length=200, mode="determinate")
-		self.progress.grid(row=3, column=0, padx=5, pady=5, sticky="ew", columnspan=1)
 		pass
 ################################################################
 # mod download function                                        # mod下载
@@ -942,7 +911,7 @@ class menu:
 ################################################################
 
 Tkinter_StartUI = tk.Tk()
-Tkinter_StartUI.title("ADOFAI Tools _ v1.1.2 _ _Achry_")
+Tkinter_StartUI.title("ADOFAI Tools _ v1.1.1 _ _Achry_")
 Tkinter_StartUI.geometry("640x560")
 # 创建Notebook
 NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
@@ -979,6 +948,35 @@ search.main(NewSelf["search"], NOTEBOOK)
 downloadFile.main(NewSelf["downloadFile"], NOTEBOOK)
 modDownload.main(NewSelf["modDownload"], NOTEBOOK)
 menu.main(NewSelf["menu"], NOTEBOOK)
+
+class StatusBar:
+	# 状态栏
+	status_bar_frame = ttk.Frame(Tkinter_StartUI)
+	status_bar_frame.pack(side="bottom", fill="x")
+
+	status_bar_label = ttk.Label(status_bar_frame, text="就绪")
+	status_bar_label.pack(side="left", padx=(5, 0))
+
+	progress_bar = ttk.Progressbar(status_bar_frame, orient="horizontal", length=200, mode="determinate")
+	progress_bar.pack(side="right", padx=(5, 0))
+
+	@staticmethod
+	def update_status_text(message: str):
+		"""更新状态栏文字
+		param:
+		message: str 要修改的文字
+		"""
+		StatusBar.status_bar_label.config(text=message)
+	
+	@staticmethod
+	def update_status_bar(progress:int=0):
+		"""更新状态栏进度条进度
+		param:
+		progress: int 要修改的进度
+		"""
+		StatusBar.progress_bar.config(value=progress)
+
+StatusBar.update_status_bar(44)
 
 try:
 	show_update_info()
