@@ -1,5 +1,5 @@
 import os, _io, sys, re, json
-from tkinter import messagebox
+import cython
 
 class adofai_level_data:
   class exception(Exception):
@@ -7,17 +7,18 @@ class adofai_level_data:
       super().__init__(message)
 
   def __init__(self, data):
-    self.data = data
-    self.index = 0
-    self.max_index = len(data)-1
-    self.success = False
-    self.type = ""
-    self.result = {}
+    self.data:str = data
+    self.index:int = 0
+    self.max_index:int = len(data)-1
+    self.success:bool = False
+    self.type:str = ""
+    self.result:dict = {}
   def encode(self) -> str:
-    jsonDecode = self.result;
-    output = ""
+    jsonDecode:dict = self.result;
+    output:str = ""
     output += "{\n\t"+json.dumps({self.type : jsonDecode[self.type]}, separators=[", ", ": "])[:-1][1:]+", ";
     output += json.dumps({"settings": jsonDecode["settings"]}, indent="\t", separators=[", ", ": "])[:-2][1:]+", \n\t\"actions\": [ \n";
+    out:dict
     for out in jsonDecode["actions"]:
       output += "\t\t";
       output += json.dumps(out, separators=[", ", ": "])+",\n";
@@ -30,28 +31,30 @@ class adofai_level_data:
     output = output[:-2]+"\n\t]\n}";
     return output;
   def new(file:str) -> object:
-    return adofai_level_data(open(file, "r", encoding="UTF-8-SIG").read())
+    obj:object = open(file, "r", encoding="UTF-8-SIG")
+    res:str = obj.read()
+    obj.close()
+    return adofai_level_data(res)
   def decode(self) -> None:
     if self.data[0] != "{": raise adofai_level_data.exception("it not adofai syntax")
-    self.result = self.task_object()
+    self.result:dict = self.task_object()
     if not "decorations" in self.result: self.result["decorations"] = []
     if not "actions" in self.result: self.result["actions"] = []
     if "pathData" in self.result: self.type = "pathData"
     elif "angleData" in self.result: self.type = "angleData"
     else: raise adofai_level_data.exception("can't find tile data type")
-    if self.index >= self.max_index: pass
   def skip_space_and_tab(self) -> None:
     while 1:
-      i = self.data[self.index]
+      i:str = self.data[self.index]
       if i == " " or i == "\t": self.index += 1
       else: break
   def task_type(self) -> str:
     return self.task_string()
   def task_string(self) -> str:
     self.index += 1
-    this_result = ""
+    this_result:str = ""
     while 1:
-      i = self.data[self.index]
+      i:str = self.data[self.index]
       if self.index >= self.max_index: break;
       if i == "\\":
         this_result += self.data[self.index:self.index+1]
@@ -70,10 +73,10 @@ class adofai_level_data:
         self.index += 1
     return this_result
   def task_number(self) -> float|int:
-    this_result = ""
-    is_float = False;
+    this_result:str = ""
+    is_float:bool = False;
     while 1:
-      i = self.data[self.index]
+      i:str = self.data[self.index]
       if i in "-0123456789": 
         this_result += i
       elif i == "." or i == "E" or i == "e" or i == "+":
@@ -85,7 +88,7 @@ class adofai_level_data:
     return float(this_result) if is_float else int(this_result)
   def task_array(self) -> list:
     self.index += 1
-    this_result = []
+    this_result:list = []
     while 1:
       self.skip_space_and_tab()
       i = self.data[self.index] 
@@ -111,11 +114,11 @@ class adofai_level_data:
     return this_result
   def task_object(self) -> dict:
     self.index += 1
-    t = None
-    this_result = {}
+    t:str = None
+    this_result:dict = {}
     while 1:
       self.skip_space_and_tab()
-      i = self.data[self.index] 
+      i:str = self.data[self.index] 
       if i == "\n": 
         self.index += 1
       elif t == None: 
@@ -150,50 +153,35 @@ class adofai_level_data:
     return this_result
   pass
 class adofai_const:
-  def __init__(self):
-    self.Rad2Deg = 57.295780181884766
-    self.effect = [
-      "AddDecoration",
-      "MoveDecorations",
-      "AddText",
-      "SetText",
-      "SetObject",
-      "AddObject",
-      "SetDefaultText",
-      "SetFrameRate",
-      "SetFilterAdvanced",
-      "SetFloorIcon",
-      "AnimateTrack",
-      "MoveTrack",
-      "PositionTrack",
-      "RecolorTrack",
-      "ColorTrack",
-      "CustomBackground",
-      "Flash",
-      "MoveCamera",
-      "SetFilter",
-      "HallOfMirrors",
-      "ShakeScreen",
-      "Bloom",
-      "ScalePlanets",
-      "ScreenTile",
-      "ScreenScroll",
-      "RepeatEvents",
-      "SetConditionalEvents"
-    ]
-    # self.action = []
-    # self.decorations = []
-
-if __name__ == '__main__':
-  import time
-  res = 0;
-  for i in range(20):
-    s = time.time();
-    convert = adofai_level_data.new("18616.adofai")
-    convert.decode()
-    e = time.time();
-    res += e-s
-    print(e-s)
-  print()
-  print(res/20)
-
+  Rad2Deg:cython.double = 57.295780181884766
+  effect:list[str] = [
+    "AddDecoration",
+    "MoveDecorations",
+    "AddText",
+    "SetText",
+    "SetObject",
+    "AddObject",
+    "SetDefaultText",
+    "SetFrameRate",
+    "SetFilterAdvanced",
+    "SetFloorIcon",
+    "AnimateTrack",
+    "MoveTrack",
+    "PositionTrack",
+    "RecolorTrack",
+    "ColorTrack",
+    "CustomBackground",
+    "Flash",
+    "MoveCamera",
+    "SetFilter",
+    "HallOfMirrors",
+    "ShakeScreen",
+    "Bloom",
+    "ScalePlanets",
+    "ScreenTile",
+    "ScreenScroll",
+    "RepeatEvents",
+    "SetConditionalEvents"
+  ]
+  # self.action = []
+  # self.decorations = []
