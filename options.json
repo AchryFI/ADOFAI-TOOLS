@@ -1,9 +1,10 @@
 {
-  "Version": [10,0,6],
+  "Version": [10,0,7],
   "DebugMode": false,
-  "AsyncBuild": true,
+  "MultiThreadBuild": false,
   "BuildTool": "E:\\data\\User.modstag.BuildTool",
   "SitePackagesInstall": ["ttkbootstrap", "tqdm", "requests"],
+  "CopyName": ["lang.json"],
   "BuildData": [
     {
       "ModelName": "Achry_Tools",
@@ -11,8 +12,7 @@
       "ModelIsOneFile": true,
       "ModelIsTK": true,
       "ModelIsICON": "logo.ico",
-      "BuildToolName": null,
-      "CopyName": ["lang.json"]
+      "BuildToolName": null
     }
   ]
 }
