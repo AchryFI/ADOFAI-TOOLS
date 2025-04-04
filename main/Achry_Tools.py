@@ -69,7 +69,7 @@ def log_error(content):
 def log_info(content):
 	messagebox.showinfo(LanguageData.get("info"), content)
 	ModsTagLog.write(content, 1)
-def log_insert(ins, content, lvl=1, failcustom=False):
+def log_insert(ins, content, lvl=1, failcustom=False, write_log=True):
 	"""
 	ins : insert id
 	content : tkinter input
@@ -78,7 +78,7 @@ def log_insert(ins, content, lvl=1, failcustom=False):
 	if lvl == 4: 
 		if failcustom:  ModsTagLog.write(content, lvl)
 		else: ModsTagLog.write(format_exc(), lvl)
-	else: ModsTagLog.write(content, lvl)
+	elif write_log: ModsTagLog.write(content, lvl)
 
 ################################################################
 # noEffect ui & function                                       # 去特效界面和函数
@@ -88,7 +88,9 @@ class noEffect:
 		self.this = self
 		self.main_frame = None
 		self.insert_effect = []
-		self.array_StringVar = [tk.StringVar()] * len(adofai_const().effect)
+		self.array_StringVar = []
+		for s in range(len(adofai_const().effect)):
+			self.array_StringVar.append(tk.StringVar())
 		self.log_text = None
 		self.entry_path = None
 		self.entry_convertName = None
@@ -436,6 +438,9 @@ class search:
 		self.combo_box = None
 		self.entry_id = None
 		self.entry_artist = None
+		self.special_diff_show_setting = []
+		for s in range(3):
+			self.special_diff_show_setting.append(tk.StringVar())
 		self.entry_music = None
 		self.entry_author = None
 		self.log_text = None
@@ -451,7 +456,7 @@ class search:
 				return
 		else:
 			CacheData["search"] = {}
-			try: CacheData["search"]["TUF"] = requests.get("https://api.tuforums.com/v2/database/levels?limit=999999").json()["results"];print(CacheData)
+			try: CacheData["search"]["TUF"] = requests.get("https://api.tuforums.com/v2/database/levels?limit=999999").json()["results"]
 			except: CacheData["search"]["TUF"] = []
 			if 'statusCode' in CacheData["search"]["TUF"]:
 				self.log_text.delete(1.0, tk.END) 
@@ -490,7 +495,8 @@ class search:
 					return
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
 				 	[info['id'], info['artist'], info['song'], info['charter'], info['vfxer'], info['difficulty']['name'], info['difficulty']['legacy'], info['videoLink'], info['dlLink'], info['workshopLink']]
-				))
+					),write_log=False
+				)
 			elif self.combo_box.get() == 'ADOFAI.GG':
 				info = self.get_info(id)
 
@@ -503,12 +509,12 @@ class search:
 				
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(ADOFAIGG_success)",
 					[info['id'], info["artists"], info['title'], info["creators"], info['difficulty'], info['video'], info['download'], info['workshop'], info['tiles'], info["tags"]]
-				))
+				), write_log=False)
 			elif self.combo_box.get() == 'AQR':
 				info = self.get_info(int(id)+10000)
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(AQR_success)", 
 					[info['artist'], info['song'], info['author'], info['difficulties'], info['level'], info['vluation'], info['video_herf'], info['href']]
-				))
+				), write_log=False)
 			else:
 				raise ValueError("combo_box not find")
 
@@ -517,24 +523,50 @@ class search:
 
 	@staticmethod
 	def query(self):
+		for s in self.special_diff_show_setting:
+			print(s.get())
 		try:
-			url = Acceleration + f"https://be.tuforums.com/levels?query=&artistQuery={self.entry_artist.get()}&songQuery={self.entry_music.get()}&creatorQuery={self.entry_author.get()}&offset=10&random=false&lim"
-			response = requests.get(url, headers={"accept": "application/json"})
+			special_diff = [s.get() for s in self.special_diff_show_setting]
+			show_diff = []
+			if "Quantum" in special_diff:
+				show_diff.extend(["Q2", "Q2+", "Q3", "Q3+", "Q4", "Qq"])
+			if "Extra" in special_diff:
+				show_diff.extend(["Gimmick", "Marathon"])
+			if "Hide" in special_diff:
+				show_diff.extend(["-2", "-21", "Unranked"])
+			print(show_diff)
+
+			searching_info = ""
+			if self.entry_artist.get() != "":
+				searching_info += f"artist:{self.entry_artist.get()}"
+			if self.entry_music.get() != "":
+				searching_info += f",song:{self.entry_music.get()}"
+			if self.entry_author.get() != "":
+				searching_info += f",charter:{self.entry_author.get()}"
+			if searching_info != "":
+				if searching_info[0] == ",":
+					searching_info = searching_info.replace(',','',1)
+			body = {"pguRange" :{"from": "P1", "to": "U20"}, "specialDifficulties": show_diff}
+			url = f"https://api.tuforums.com/v2/database/levels/filter?limit=300000&offset=0&query={searching_info}&sort=RECENT_ASC&deletedFilter=hide&clearedFilter=show"
+			response = requests.post(url, headers={"content-type": "application/json"}, data=json.dumps(body))
 			info = response.json()
 			self.log_text.delete(1.0, tk.END)
 			log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(find)", [info['count']]))
 			for infos in info['results']:
-				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
-					[infos['id'], infos['artist'], infos['song'], infos['creator'], infos['diff'], infos['pguDiff'], infos['vidLink'], infos['dlLink'], infos['workshopLink']]
-				) + '\n\n--------\n\n')
+				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)",
+														   [infos['id'], infos['artist'], infos['song'], infos['charter'],
+															infos['vfxer'], infos['difficulty']['name'],
+															infos['difficulty']['legacy'], infos['videoLink'],
+															infos['dlLink'], infos['workshopLink']]
+														   ) + '\n\n--------\n\n', write_log=False)
 
 		except Exception as e:
 			log_fail(LanguageData.get("gui.levelsearch.function(except).error", [e.__class__.__name__, e]))
-
 	def main(self, NOTEBOOK):
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.levelsearch.name")
 		self.cache_data()
+
 
 		# 通过ID查询部分
 		id_frame = ttk.Labelframe(self.main_frame, text=LanguageData.get("gui.levelsearch.search_id"))
@@ -563,6 +595,25 @@ class search:
 			.grid(row=2, column=0, padx=5, pady=5)
 		self.entry_author = ttk.Entry(info_frame,width=35)
 		self.entry_author.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
+
+		#info_frame = ttk.Labelframe(info_frame, text=LanguageData.get("gui.levelsearch.sort_settings"))
+		#info_frame.grid(fill="x", padx=10, pady=5)
+
+		sort_frame = ttk.Label(info_frame, text=LanguageData.get("gui.levelsearch.special_diff_show_settings")) \
+			.grid(row=0, column=2, padx=5, pady=5)
+
+		ttk.Checkbutton(info_frame, text='显示量子难度(Q1,Q2...)', variable=self.special_diff_show_setting[0], onvalue='Quantum', offvalue="").grid(row=1, column=2, padx=5, pady=5)
+		ttk.Checkbutton(info_frame, text='显示Gimmick, Marathon', variable=self.special_diff_show_setting[1], onvalue='Extra', offvalue="").grid(row=2,
+																												 column=2,
+																												 padx=5,
+																												 pady=5)
+		ttk.Checkbutton(info_frame, text='显示-21, -2 ,0', variable=self.special_diff_show_setting[2], onvalue='Hide', offvalue="").grid(row=3,
+																												 column=2,
+																												 padx=5,
+																												 pady=5)
+
+
+
 		ttk.Button(info_frame, text=LanguageData.get("gui.levelsearch.search"), command=lambda: self.query(self))\
 			.grid(row=3, columnspan=2, padx=5, pady=5, sticky="ew")
 		# 日志部分
@@ -908,6 +959,7 @@ class menu:
 		editmenu.add_command(label=LanguageData.get("menu.debug.log.name_v1"),command=menu.log_showUIWithV1)
 		editmenu.add_command(label=LanguageData.get("menu.debug.cache.clear"),command=menu.cache_clear)
 		editmenu.add_command(label=LanguageData.get("menu.debug.cache.reload"),command=menu.cache_reload)
+		editmenu.add_command(label=LanguageData.get("menu.debug.breakpoint"), command=lambda: breakpoint())
 		menu_menu.add_cascade(label="调试", menu=editmenu)
 
 		Tkinter_StartUI.config(menu=menu_menu)
