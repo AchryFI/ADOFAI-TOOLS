@@ -1,3 +1,6 @@
+import requests
+#import grequests
+
 import tkinter as tk
 from tkinter import ttk as tkinter
 import ttkbootstrap as ttk
@@ -17,8 +20,6 @@ from json import loads, dumps
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 
 import asyncio
-import requests
-import grequests
 import webbrowser
 import sys
 import win32con
@@ -450,7 +451,7 @@ class search:
 				return
 		else:
 			CacheData["search"] = {}
-			try: CacheData["search"]["TUF"] = requests.get(Acceleration + "https://be.tuforums.com/levels").json()["results"]
+			try: CacheData["search"]["TUF"] = requests.get("https://api.tuforums.com/v2/database/levels?limit=999999").json()["results"];print(CacheData)
 			except: CacheData["search"]["TUF"] = []
 			if 'statusCode' in CacheData["search"]["TUF"]:
 				self.log_text.delete(1.0, tk.END) 
@@ -482,9 +483,13 @@ class search:
 				return
 			self.log_text.delete(1.0, tk.END) 
 			if self.combo_box.get() == 'TUF':
+
 				info = self.get_info(id)
+				if info is None:
+					log_fail(LanguageData.get("gui.levelsearch.function(except).cant_find_level_id"))
+					return
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
-				 	[info['id'], info['artist'], info['song'], info['creator'], info['diff'], info['pguDiff'], info['vidLink'], info['dlLink'], info['workshopLink']]
+				 	[info['id'], info['artist'], info['song'], info['charter'], info['vfxer'], info['difficulty']['name'], info['difficulty']['legacy'], info['videoLink'], info['dlLink'], info['workshopLink']]
 				))
 			elif self.combo_box.get() == 'ADOFAI.GG':
 				info = self.get_info(id)
@@ -595,7 +600,8 @@ class downloadFile:
 			# 发起 GET 请求
 			url_data = self.action_entry.get()
 			if ("drive.google" in url_data): url_data = url_data.replace("?usp=shraing", "")
-			response = requests.get(Acceleration + url_data, stream=True)
+			print(Acceleration + url_data)
+			response = requests.get(Acceleration + url_data, stream=True, verify=False)
 			if response.status_code != 200:
 				log_error(LanguageData.get("gui.filedownload.function(except).fail", [response.status_code]))
 				return
