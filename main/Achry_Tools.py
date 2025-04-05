@@ -3,6 +3,7 @@ import requests
 
 import tkinter as tk
 from tkinter import ttk as tkinter
+from tkinter import messagebox
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
@@ -80,7 +81,6 @@ def log_insert(ins, content, lvl=1, failcustom=False, write_log=True):
 ################################################################
 class noEffect():
 	def __init__(self):
-		self.this = self
 		self.main_frame = None
 		self.insert_effect = []
 		self.array_StringVar = []
@@ -194,22 +194,21 @@ class noEffect():
 		setting_effect.grid(row=0, column=0)
 
 	def main(self, NOTEBOOK):
-		self.this = self
 		self.main_frame = GUILayout.CreateFrame(LanguageData.get("gui.noeffect.name"))
 		GUILayout.BeginHorizontal()
 		GUILayout.Label(LanguageData.get("gui.noeffect.file_path"))
 		self.entry_path = GUILayout.TextField(30)
-		GUILayout.Button(LanguageData.get("gui.noeffect.browse"), lambda: self.select_file())
-		GUILayout.Button(LanguageData.get("gui.noeffect.setting"), lambda: self.setting())
-		GUILayout.Button(LanguageData.get("gui.noeffect.check"), lambda: self.get_list_effect())
+		GUILayout.Button(LanguageData.get("gui.noeffect.browse"), lambda: self.select_file(self))
+		GUILayout.Button(LanguageData.get("gui.noeffect.setting"), lambda: self.setting(self))
+		GUILayout.Button(LanguageData.get("gui.noeffect.check"), lambda: self.get_list_effect(self))
 		GUILayout.EndHorizontal()
 		GUILayout.BeginHorizontal()
 		GUILayout.Label(LanguageData.get("gui.noeffect.convertName"))
 		self.entry_convertName = GUILayout.TextField(30)
 		GUILayout.Label(LanguageData.get("gui.noeffect.convertName_empty"))
 		GUILayout.EndHorizontal()
-		self.log_text = GUILayout.TextArea([10, 50])
-		GUILayout.Button(LanguageData.get("gui.noeffect.convert"), lambda: self.process_file())
+		self.log_text = GUILayout.TextArea([50, 10])
+		GUILayout.Button(LanguageData.get("gui.noeffect.convert"), lambda: self.process_file(self))
 		for i in range(len(self.array_StringVar)):
 			self.array_StringVar[i].set("T:"+adofai_const().effect[i])
 		self.insert(self, True)

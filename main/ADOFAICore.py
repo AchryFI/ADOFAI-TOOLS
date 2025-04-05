@@ -1,5 +1,4 @@
 import os, _io, sys, re, json
-from tkinter import messagebox
 
 class adofai_level_data:
   class exception(Exception):

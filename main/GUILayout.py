@@ -18,13 +18,27 @@ from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
 
 class FrameExtend():
 	def __init__(self, f):
-		self.Frame = f
+		self.Frames = [[f,0,0]]
+		self.Index = 0
 		self.Row = 0
 		self.Column = 0
-		self.Horizontal = False
-		self.ExtraFrame = None
-	def get_Frame(self):
-		return self.ExtraFrame if self.Horizontal else self.Frame
+	def LastFrame(self):
+		return self.Frames[self.Index][0]
+	def Frame(self):
+		return self.Frames[0][0]
+	def is_Passengers(self):
+		return self.Index > 0
+	def Add(self, frame):
+		self.Frames.append([frame, 0, 0])
+		self.Index += 1
+	def PP(self, fill):
+		self.Frames.pop()[0].pack(fill=fill)
+		self.Index -= 1
+		self.AddV()
+	def AddH(self):
+		self.Frames[self.Index][1] += 1
+	def AddV(self):
+		self.Frames[self.Index][2] += 1
 class Instance():
 	Notebook:tk.ttk.Notebook = None
 	CurrnetFrame:FrameExtend = None
@@ -62,66 +76,68 @@ def set_Frame(f):
 	Instance.CurrnetFrame = frame
 	return
 @staticmethod
-def set_ExtraFrame(f):
-	check_type(f, tk.ttk.Frame, True)
-	Instance.CurrnetFrame.ExtraFrame = f
-	return
-@staticmethod
 def CreateFrame(name):
 	check_type(name, str, True)
 	frame = ttkbootstrap.Frame(Instance.Notebook)
 	Instance.Notebook.add(frame, text=name)
 	set_Frame(frame)
 	return frame
+
 @staticmethod
-def BeginHorizontal():
-	Instance.CurrnetFrame.ExtraFrame = ttkbootstrap.Frame(Instance.CurrnetFrame.Frame)
+def BeginHorizontal(f=None):
+	if (f == None):
+		Instance.CurrnetFrame.Add(ttkbootstrap.Frame(Instance.CurrnetFrame.Frame()))
+	else:
+		check_type(name, tk.ttk.Frame, True)
+		Instance.CurrnetFrame.Add(f)
 	Instance.CurrnetFrame.Column = 0
-	Instance.CurrnetFrame.Horizontal = True
 @staticmethod
-def EndHorizontal():
+def EndHorizontal(fill="x"):
 	Instance.CurrnetFrame.Row += 1
-	Instance.CurrnetFrame.Horizontal = False
-	Instance.CurrnetFrame.ExtraFrame.pack(fill="x")
+	Instance.CurrnetFrame.PP(fill)
+
+
 @staticmethod
-def BaseInvoke(core, x = 5):
-	if (Instance.CurrnetFrame.Horizontal):
+def BaseInvoke(core, x=5):
+	if (Instance.CurrnetFrame.is_Passengers()):
 		core.grid(row=Instance.CurrnetFrame.Row, column=Instance.CurrnetFrame.Column, padx=x, pady=5)
 	else:
 		core.pack(fill="x")
 	Instance.CurrnetFrame.Column += 1
+
+
 @staticmethod
-def Label(text, x = 5):
+def Label(text, x=5):
 	check_type(text, str, True)
-	ins = ttkbootstrap.Label(Instance.CurrnetFrame.get_Frame(), text=text)
-	if (Instance.CurrnetFrame.Horizontal):
+	ins = ttkbootstrap.Label(Instance.CurrnetFrame.LastFrame(), text=text)
+	if (Instance.CurrnetFrame.is_Passengers()):
 		ins.grid(row=Instance.CurrnetFrame.Row, column=Instance.CurrnetFrame.Column, padx=x, pady=5)
 	else:
 		ins.pack(fill="x")
 	Instance.CurrnetFrame.Column += 1
 @staticmethod
-def Button(text, command, x = 5):
+def Button(text, command, x=5):
 	check_type(text, str, True)
 	check_type(command, function, True)
-	ins = ttkbootstrap.Button(Instance.CurrnetFrame.get_Frame(), text=text)
-	if (Instance.CurrnetFrame.Horizontal):
+	ins = ttkbootstrap.Button(Instance.CurrnetFrame.LastFrame(), text=text, command=command)
+	if (Instance.CurrnetFrame.is_Passengers()):
 		ins.grid(row=Instance.CurrnetFrame.Row, column=Instance.CurrnetFrame.Column, padx=x, pady=5, sticky="ew")
 	else:
 		ins.pack(fill="x")
 	Instance.CurrnetFrame.Column += 1
 @staticmethod
-def TextField(width, x = 5):
-	ins = ttkbootstrap.Entry(Instance.CurrnetFrame.get_Frame(), width=width)
-	if (Instance.CurrnetFrame.Horizontal):
+def TextField(width, x=5):
+	ins = ttkbootstrap.Entry(Instance.CurrnetFrame.LastFrame(), width=width)
+	if (Instance.CurrnetFrame.is_Passengers()):
 		ins.grid(row=Instance.CurrnetFrame.Row, column=Instance.CurrnetFrame.Column, padx=x, pady=5)
 	else:
 		ins.pack(fill="x")
 	Instance.CurrnetFrame.Column += 1
 	return ins
 @staticmethod
-def TextArea(size, x = 5):
-	ins = ScrolledText(Instance.CurrnetFrame.get_Frame(), height=size[1], width=size[0])
-	if (Instance.CurrnetFrame.Horizontal):
+def TextArea(size, x=5):
+	ins = ScrolledText(Instance.CurrnetFrame.LastFrame(), height=size[1], width=size[0])
+	if (Instance.CurrnetFrame.is_Passengers()):
 		ins.grid(row=Instance.CurrnetFrame.Row, column=Instance.CurrnetFrame.Column, padx=x, pady=5)
 	else:
 		ins.pack(fill="both", expand=True)
@@ -131,5 +147,4 @@ def TextArea(size, x = 5):
 
 
 if __name__ == '__main__':
-	set_Notebook(None)
 	pass
