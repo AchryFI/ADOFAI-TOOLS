@@ -19,6 +19,7 @@ from traceback import format_exc
 from json import loads, dumps
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 
+import GUILayout
 import asyncio
 import webbrowser
 import sys
@@ -37,11 +38,7 @@ class _NoteBookClass:
 	def __init__(self, Tkinter_StartUI):
 		self.notebook = ttk.Notebook(Tkinter_StartUI, bootstyle='info')
 	def new_note(self, self_self, lang):
-		# MainBuild
-		main_frame = ttk.Frame(self.notebook)
-		self.notebook.add(main_frame, text=LanguageData.get(lang))
-		self_self.main_frame = main_frame
-		return main_frame
+		return GUILayout.CreateFrame(LanguageData.get(lang))
 def update_config():
 	open("config.json","w",encoding="UTF-8").write(json.dumps(ConfigData))
 def update_cache():
@@ -76,14 +73,13 @@ def log_insert(ins, content, lvl=1, failcustom=False, write_log=True):
 	"""
 	ins.insert(tk.END, content+"\n")
 	if lvl == 4: 
-		if failcustom:  ModsTagLog.write(content, lvl)
-		else: ModsTagLog.write(format_exc(), lvl)
+		ModsTagLog.write(content if failcustom else format_exc(), lvl)
 	elif write_log: ModsTagLog.write(content, lvl)
 
 ################################################################
 # noEffect ui & function                                       # 去特效界面和函数
 ################################################################
-class noEffect:
+class noEffect():
 	def __init__(self):
 		self.this = self
 		self.main_frame = None
@@ -200,33 +196,21 @@ class noEffect:
 
 	def main(self, NOTEBOOK):
 		self.this = self
-		self.main_frame = NOTEBOOK.new_note(self, "gui.noeffect.name")
-		frame = ttk.Frame(self.main_frame)
-		label_path = ttk.Label(frame, text=LanguageData.get("gui.noeffect.file_path"))
-		label_path.grid(row=0, column=0, padx=5, pady=5)
-		self.entry_path = ttk.Entry(frame, width=30)
-		self.entry_path.grid(row=0, column=1, padx=5, pady=5)
-		ttk.Button(frame, text=LanguageData.get("gui.noeffect.browse"), command=lambda: self.select_file(self))\
-			.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
-
-		ttk.Button(frame, text=LanguageData.get("gui.noeffect.setting"), command=lambda: self.setting(self))\
-			.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
-
-		ttk.Button(frame, text=LanguageData.get("gui.noeffect.check"), command=lambda: self.get_list_effect(self))\
-			.grid(row=0, column=4, padx=5, pady=5, sticky="ew")
-		frame.pack(fill="x")
-		frame2 = ttk.Frame(self.main_frame)
-		label_path = ttk.Label(frame2, text=LanguageData.get("gui.noeffect.convertName"))
-		label_path.grid(row=1, column=0, padx=5, pady=5)
-		self.entry_convertName = ttk.Entry(frame2, width=30)
-		self.entry_convertName.grid(row=1, column=1, padx=5, pady=5)
-		label_path = ttk.Label(frame2, text=LanguageData.get("gui.noeffect.convertName_empty"))
-		label_path.grid(row=1, column=2, padx=5, pady=5)
-		frame2.pack(fill="x")
-		self.log_text = ScrolledText(self.main_frame, height=10, width=50)
-		self.log_text.pack(fill="both", expand=True)
-		button_convert = ttk.Button(self.main_frame, text=LanguageData.get("gui.noeffect.convert"), command=lambda: self.process_file(self))
-		button_convert.pack(fill="x")
+		self.main_frame = GUILayout.CreateFrame(LanguageData.get("gui.noeffect.name"))
+		GUILayout.BeginHorizontal()
+		GUILayout.Label(LanguageData.get("gui.noeffect.file_path"))
+		self.entry_path = GUILayout.TextField(30)
+		GUILayout.Button(LanguageData.get("gui.noeffect.browse"), lambda: self.select_file())
+		GUILayout.Button(LanguageData.get("gui.noeffect.setting"), lambda: self.setting())
+		GUILayout.Button(LanguageData.get("gui.noeffect.check"), lambda: self.get_list_effect())
+		GUILayout.EndHorizontal()
+		GUILayout.BeginHorizontal()
+		GUILayout.Label(LanguageData.get("gui.noeffect.convertName"))
+		self.entry_convertName = GUILayout.TextField(30)
+		GUILayout.Label(LanguageData.get("gui.noeffect.convertName_empty"))
+		GUILayout.EndHorizontal()
+		self.log_text = GUILayout.TextArea([10, 50])
+		GUILayout.Button(LanguageData.get("gui.noeffect.convert"), lambda: self.process_file())
 		for i in range(len(self.array_StringVar)):
 			self.array_StringVar[i].set("T:"+adofai_const().effect[i])
 		self.insert(self, True)
@@ -888,13 +872,6 @@ class menu:
 
 	@staticmethod
 	def download_video(url):
-		dw = bilibiliDownload(url)
-		a = dw.get().select([0,0]).download()
-		open("data.mp4","wb").write(a[0])
-		open("data.aac","wb").write(a[1])
-		system("del download.mp4")
-		system("ffmpeg.exe -i data.mp4 -i data.aac download.mp4")
-		system("download.mp4")
 		pass
 
 	@staticmethod
@@ -973,6 +950,7 @@ Tkinter_StartUI.title("ADOFAI Tools _ v1.1.1 _ _Achry_")
 Tkinter_StartUI.geometry("640x560")
 # 创建Notebook
 NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
+GUILayout.set_Notebook(NOTEBOOK.notebook)
 
 open("cache.json", "a", encoding="utf-8").close()
 if (open("cache.json", "r", encoding="utf-8").read() == ""): 
