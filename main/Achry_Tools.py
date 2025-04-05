@@ -2,13 +2,9 @@ import requests
 #import grequests
 
 import tkinter as tk
-from tkinter import ttk as tkinter
+from tkinter import ttk as tkinter, filedialog
 from tkinter import messagebox
 import ttkbootstrap as ttk
-from docutils.nodes import option
-from matplotlib.font_manager import json_load
-from numpy.ma.core import filled
-from pyrr.rectangle import height
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
@@ -21,9 +17,7 @@ from ADOFAICore import *
 from os import remove, system, path
 from re import sub as re_sub
 from time import time as time_time
-from time import strftime,localtime
 from traceback import format_exc
-from json import loads, dumps
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 
 import GUILayout
@@ -993,6 +987,31 @@ class KeyViewerEditor:
 		self.key_count.delete(0, tk.END)
 		self.key_count.insert(0, self.profile["Keys"][selected_index[0]]["Count"])
 
+	@staticmethod
+	def save_key_change_func(self):
+		if self.profile == {}:
+			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			return
+		selected_index = self.keys_listbox.curselection()
+		new_keycode = self.key_code.get()
+		new_keycount = int(self.key_count.get())
+		self.profile["Keys"][selected_index[0]]["Code"] = new_keycode
+		self.profile["Keys"][selected_index[0]]["Count"] = new_keycount
+
+	@staticmethod
+	def export_profile(self):
+		if self.profile == {}:
+			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			return
+
+		file_path = filedialog.asksaveasfilename(
+			defaultextension=".txt",  # 默认文件扩展名
+			filetypes=[("KeyViewer V4 Profile", "*.json"), ("All types", "*.*")]  # 文件类型过滤器
+		)
+		with open(file_path, "w", encoding="utf-8") as f:
+			f.write(json.dumps(self.profile))
+		messagebox.showinfo("成功", "导出成功")
+
 	def main(self, NOTEBOOK):
 		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.keyviewereditor.name")
@@ -1042,6 +1061,13 @@ class KeyViewerEditor:
 			.grid(row=1, column=0, padx=3, pady=3, sticky="ew")
 		self.key_count = ttk.Entry(self.key_setting_frame, validate="key", validatecommand=validate_cmd)
 		self.key_count.grid(row=1, column=1, padx=3, pady=3, sticky="ew")
+
+		self.save_key_change = ttk.Button(self.key_setting_frame, text="保存", command=lambda : self.save_key_change_func(self))
+		self.save_key_change.grid(row=2, column=1, padx=3, pady=3, sticky="ew")
+
+		self.save_key_change = ttk.Button(self.key_setting_frame, text="导出",
+										  command=lambda: self.export_profile(self))
+		self.save_key_change.grid(row=3, column=1, padx=3, pady=3, sticky="ew")
 
 
 ################################################################
