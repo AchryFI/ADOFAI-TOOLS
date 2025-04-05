@@ -19,9 +19,7 @@ from traceback import format_exc
 from json import loads, dumps
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 
-import asyncio
 import webbrowser
-import sys
 import win32con
 # import logging
 
@@ -602,12 +600,12 @@ class search:
 		sort_frame = ttk.Label(info_frame, text=LanguageData.get("gui.levelsearch.special_diff_show_settings")) \
 			.grid(row=0, column=2, padx=5, pady=5)
 
-		ttk.Checkbutton(info_frame, text='显示量子难度(Q1,Q2...)', variable=self.special_diff_show_setting[0], onvalue='Quantum', offvalue="").grid(row=1, column=2, padx=5, pady=5)
-		ttk.Checkbutton(info_frame, text='显示Gimmick, Marathon', variable=self.special_diff_show_setting[1], onvalue='Extra', offvalue="").grid(row=2,
+		ttk.Checkbutton(info_frame, text=LanguageData.get("gui.levelsearch.special_diff_show_settings_text.Quantum"), variable=self.special_diff_show_setting[0], onvalue='Quantum', offvalue="").grid(row=1, column=2, padx=5, pady=5)
+		ttk.Checkbutton(info_frame, text=LanguageData.get("gui.levelsearch.special_diff_show_settings_text.Extra"), variable=self.special_diff_show_setting[1], onvalue='Extra', offvalue="").grid(row=2,
 																												 column=2,
 																												 padx=5,
 																												 pady=5)
-		ttk.Checkbutton(info_frame, text='显示-21, -2 ,0', variable=self.special_diff_show_setting[2], onvalue='Hide', offvalue="").grid(row=3,
+		ttk.Checkbutton(info_frame, text=LanguageData.get("gui.levelsearch.special_diff_show_settings_text.Hide"), variable=self.special_diff_show_setting[2], onvalue='Hide', offvalue="").grid(row=3,
 																												 column=2,
 																												 padx=5,
 																												 pady=5)
@@ -678,7 +676,7 @@ class downloadFile:
 					open(self.path.get() + '/' + filename, "ab").write(chunk)
 					bytes_written += len(chunk)
 					StatusBar.update_status_text(LanguageData.get("gui.filedownload.function().downloadingprocess" , [round(bytes_written / 1048576,2), round(file_size / 1048576,2)]))
-					# StatusBar.update_status_bar(bytes_written / file_size * 100)
+					StatusBar.update_status_bar(round(bytes_written / file_size * 100,0))
 					Tkinter_StartUI.update_idletasks()
 				if 'Error 404'.encode(encoding='utf-8') in chunk or not chunk:
 					log_error(LanguageData.get("gui.filedownload.function(except).link_not_find", [self.action_entry.get()]))
@@ -716,7 +714,7 @@ class downloadFile:
 
 		ttk.Button(setting_frame, text=LanguageData.get("gui.filedownload.browse"), command=lambda: downloadFile.select_file(self))\
 			.grid(row=1, column=2, padx=5, pady=5)
-		pass
+		self.path.insert(tk.END, os.path.join(os.path.expanduser("~"), 'Downloads'))
 ################################################################
 # mod download function                                        # mod下载
 ################################################################
@@ -964,6 +962,68 @@ class menu:
 
 		Tkinter_StartUI.config(menu=menu_menu)
 		pass
+
+
+class KeyViewerEditor:
+	def __init__(self):
+		self.this = self
+		self.main_frame = None
+		self.data = []
+		self.shadow_data = []
+		self.profile = {}
+
+	@staticmethod
+	def select_file(self):
+		filename = askopenfilename(filetypes=[('KeyViewer V4 Profile','*.json'),('All types','*.*')])
+		if filename:
+			# How???
+			self.path.delete(0, tk.END)
+			self.path.insert(tk.END, filename)
+
+	@staticmethod
+	def load_kv_profile(self, file_path):
+		with open(file_path, "r", encoding="utf-8") as f:
+			self.profile = json.load(f)["Keys"]
+		profile_key = [key["Code"] for key in self.profile]
+		for i in profile_key:
+			self.keys_listbox.insert("end", i)
+
+	def main(self, NOTEBOOK):
+		self.this = self
+		self.main_frame = NOTEBOOK.new_note(self, "gui.keyviewereditor.name")
+
+		# Download Setting Section
+		file_frame = ttk.Frame(self.main_frame)
+		file_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+		ttk.Label(file_frame, text=LanguageData.get("gui.keyviewereditor.file_path"))\
+			.grid(row=1, column=0, padx=5, pady=5)
+
+		self.path = ttk.Entry(file_frame, width=32)
+		self.path.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+
+		ttk.Button(file_frame, text=LanguageData.get("gui.keyviewereditor.browse"), command=lambda: KeyViewerEditor.select_file(self))\
+			.grid(row=1, column=2, padx=5, pady=5)
+
+		ttk.Button(file_frame, text=LanguageData.get("gui.keyviewereditor.load_kv_profile"), command=lambda: KeyViewerEditor.load_kv_profile(self, self.path.get()))\
+			.grid(row=1, column=3, padx=5, pady=5)
+
+		self.setting_key_frame = ttk.Frame(self.main_frame)
+		self.setting_key_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+
+		self.key_list_frame = ttk.LabelFrame(self.setting_key_frame, text=LanguageData.get("gui.keyviewereditor.key_list"))
+		self.key_list_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+		self.key_setting_frame = tk.LabelFrame(self.setting_key_frame)
+		self.key_setting_frame.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+
+
+		self.keys_listbox = tk.Listbox(self.key_list_frame)
+		self.keys_listbox.config(width=35,height=20)
+		self.keys_listbox.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+
+
+
 ################################################################
 # start function                                               # 启动函数
 ################################################################
@@ -998,15 +1058,16 @@ NewSelf = {
 	"search": search(),
 	"downloadFile": downloadFile(),
 	"menu": menu(),
-	"modDownload": modDownload()
+	"modDownload": modDownload(),
+	"KeyViewerEditor": KeyViewerEditor()
 }
 noEffect.main(NewSelf["noEffect"], NOTEBOOK)
 calc.main(NewSelf["calc"], NOTEBOOK)
 search.main(NewSelf["search"], NOTEBOOK)
 downloadFile.main(NewSelf["downloadFile"], NOTEBOOK)
 modDownload.main(NewSelf["modDownload"], NOTEBOOK)
+KeyViewerEditor.main(NewSelf["KeyViewerEditor"], NOTEBOOK)
 menu.main(NewSelf["menu"], NOTEBOOK)
-
 class StatusBar:
 	# 状态栏
 	status_bar_frame = ttk.Frame(Tkinter_StartUI)
@@ -1034,7 +1095,6 @@ class StatusBar:
 		"""
 		StatusBar.progress_bar.config(value=progress)
 
-StatusBar.update_status_bar(44)
 
 try:
 	show_update_info()
