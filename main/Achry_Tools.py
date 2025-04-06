@@ -220,7 +220,6 @@ class noEffect():
 ################################################################
 class calc:
 	def __init__(self):
-		self.this = self
 		self.main_frame = None
 		self.calc_level_combobox = None
 		self.calc_speed_entry = None
@@ -364,7 +363,6 @@ class calc:
 			log_fail(LanguageData.get("gui.noeffect.function(except).error", [e.__class__.__name__, e]))
 
 	def main(self, NOTEBOOK):
-		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.calc.name")
 		# 创建 LabelFrame
 		frame = ttk.LabelFrame(self.main_frame, text="PP")
@@ -417,7 +415,6 @@ class calc:
 ################################################################
 class search:
 	def __init__(self):
-		self.this = self
 		self.main_frame = None
 		self.combo_box = None
 		self.entry_id = None
@@ -547,7 +544,6 @@ class search:
 		except Exception as e:
 			log_fail(LanguageData.get("gui.levelsearch.function(except).error", [e.__class__.__name__, e]))
 	def main(self, NOTEBOOK):
-		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.levelsearch.name")
 		self.cache_data()
 
@@ -610,7 +606,6 @@ class search:
 ################################################################
 class downloadFile:
 	def __init__(self):
-		self.this = self
 		self.main_frame = None
 		self.action_entry = None
 		self.path = None
@@ -678,7 +673,6 @@ class downloadFile:
 
 	def main(self, NOTEBOOK):
 		# Google Drive Section
-		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.filedownload.name")
 
 		action_frame = ttk.LabelFrame(self.main_frame, text="download link")
@@ -706,7 +700,6 @@ class downloadFile:
 ################################################################
 class modDownload:
 	def __init__(self):
-		self.this = self
 		self.main_frame = None
 		self.data = []
 		self.shadow_data = []
@@ -756,7 +749,6 @@ class modDownload:
 		webbrowser.open(link)
 
 	def main(self, NOTEBOOK, Patch_NOTEBOOK_To_mainframe = False):
-		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.moddownload.name")
 		self.cache_data()
 
@@ -790,7 +782,6 @@ class modDownload:
 ################################################################
 class menu:
 	def __init__(self):
-		self.this = self
 		self.main_frame = None
 		self.changelog = [
 			"版本 1.0.1:\n- 删除了欢迎页面，添加了关于页面\n- 将f-string外层单引号改为双引号",
@@ -880,7 +871,6 @@ class menu:
 		system("explorer log")
 
 	def main(self, NOTEBOOK):
-		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.menu.name")
 
 		ttk.Label(self.main_frame, text=LanguageData.get("gui.menu.producer")).grid(row=0, column=0, padx=10, pady=5, sticky="w") 
@@ -928,8 +918,10 @@ class menu:
 
 		filemenu = ttk.Menu(menu_menu, tearoff=False)
 		filemenu.add_command(label="退出", command=lambda: exit())
-		#filemenu.add_command(label="下载大雪花", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1FS4y1a7DS/"))
-		#filemenu.add_command(label="下载ADOFAI游戏", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1BR4y1A7pM/"))
+		gtt = time.gmtime()
+		if (gtt.tm_mon == 4 and (gtt.tm_mday <= 7 or gtt.tm_wday <= 7)):
+			filemenu.add_command(label="下载大雪花", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1FS4y1a7DS/"))
+			filemenu.add_command(label="下载ADOFAI游戏", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1BR4y1A7pM/"))
 		menu_menu.add_cascade(label="文件", menu=filemenu)
 
 		editmenu = ttk.Menu(menu_menu, tearoff=False)
@@ -945,7 +937,6 @@ class menu:
 
 class KeyViewerEditor:
 	def __init__(self):
-		self.this = self
 		self.main_frame = None
 		self.data = []
 		self.shadow_data = []
@@ -1095,7 +1086,6 @@ class KeyViewerEditor:
 		plt.show()
 
 	def main(self, NOTEBOOK):
-		self.this = self
 		self.main_frame = NOTEBOOK.new_note(self, "gui.keyviewereditor.name")
 		validate_cmd = (self.main_frame.register(self.validate_input), '%P')  # '%P' 表示新值
 
