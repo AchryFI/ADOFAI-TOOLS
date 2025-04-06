@@ -3,7 +3,7 @@
   "DebugMode": false,
   "Async": false,
   "ToolPath": "D:\\data\\User.modstag.BuildTool",
-  "SitePackagesInstalls": ["ttkbootstrap", "tqdm", "requests"],
+  "SitePackagesInstalls": ["ttkbootstrap", "tqdm", "requests", "matplotlib"],
   "CopyFiles": ["lang.json"],
   "Datas": [
     {
