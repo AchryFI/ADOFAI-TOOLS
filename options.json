@@ -1,18 +1,18 @@
 {
-  "Version": [10,0,7],
+  "Version": "2.1.0",
   "DebugMode": false,
-  "MultiThreadBuild": false,
-  "BuildTool": "E:\\data\\User.modstag.BuildTool",
-  "SitePackagesInstall": ["ttkbootstrap", "tqdm", "requests"],
-  "CopyName": ["lang.json"],
-  "BuildData": [
+  "Async": false,
+  "ToolPath": "D:\\data\\User.modstag.BuildTool",
+  "SitePackagesInstalls": ["ttkbootstrap", "tqdm", "requests"],
+  "CopyFiles": ["lang.json"],
+  "Datas": [
     {
-      "ModelName": "Achry_Tools",
-      "ModelCMD": false,
-      "ModelIsOneFile": true,
-      "ModelIsTK": true,
-      "ModelIsICON": "logo.ico",
-      "BuildToolName": null
+      "Method": "PyInstaller",
+      "Name": "Achry_Tools",
+      "Icon": "logo.ico",
+      "PythonDir": null,
+      "Console": false,
+      "OneFile": true
     }
   ]
 }
