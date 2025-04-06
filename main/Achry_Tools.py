@@ -5,6 +5,8 @@ import tkinter as tk
 from tkinter import ttk as tkinter, filedialog
 from tkinter import messagebox
 import ttkbootstrap as ttk
+from matplotlib import pyplot as plt, ticker
+from matplotlib.font_manager import FontProperties
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
@@ -949,6 +951,8 @@ class KeyViewerEditor:
 		self.shadow_data = []
 		self.profile = {}
 		self.keys = []
+		self.last_select_index = None
+		self.all_keys = ('None', 'Backspace', 'Delete', 'Tab', 'Clear', 'Return', 'Pause', 'Escape', 'Space', 'Keypad0', 'Keypad1', 'Keypad2', 'Keypad3', 'Keypad4', 'Keypad5', 'Keypad6', 'Keypad7', 'Keypad8', 'Keypad9', 'KeypadPeriod', 'KeypadDivide', 'KeypadMultiply', 'KeypadMinus', 'KeypadPlus', 'KeypadEnter', 'KeypadEquals', 'UpArrow', 'DownArrow', 'RightArrow', 'LeftArrow', 'Insert', 'Home', 'End', 'PageUp', 'PageDown', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', 'F13', 'F14', 'F15', 'Alpha0', 'Alpha1', 'Alpha2', 'Alpha3', 'Alpha4', 'Alpha5', 'Alpha6', 'Alpha7', 'Alpha8', 'Alpha9', 'Exclaim', 'DoubleQuote', 'Hash', 'Dollar', 'Percent', 'Ampersand', 'Quote', 'LeftParen', 'RightParen', 'Asterisk', 'Plus', 'Comma', 'Minus', 'Period', 'Slash', 'Colon', 'Semicolon', 'Less', 'Equals', 'Greater', 'Question', 'At', 'LeftBracket', 'Backslash', 'RightBracket', 'Caret', 'Underscore', 'BackQuote', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'LeftCurlyBracket', 'Pipe', 'RightCurlyBracket', 'Tilde', 'Numlock', 'CapsLock', 'ScrollLock', 'RightShift', 'LeftShift', 'RightControl', 'LeftControl', 'RightAlt', 'LeftAlt', 'LeftApple', 'LeftWindows', 'RightApple', 'RightWindows', 'AltGr', 'Help', 'Print', 'SysReq', 'Break', 'Menu', 'Mouse0', 'Mouse1', 'Mouse2', 'Mouse3', 'Mouse4', 'Mouse5', 'Mouse6', 'JoystickButton0', 'JoystickButton1', 'JoystickButton2', 'JoystickButton3', 'JoystickButton4', 'JoystickButton5', 'JoystickButton6', 'JoystickButton7', 'JoystickButton8', 'JoystickButton9', 'JoystickButton10', 'JoystickButton11', 'JoystickButton12', 'JoystickButton13', 'JoystickButton14', 'JoystickButton15', 'JoystickButton16', 'JoystickButton17', 'JoystickButton18', 'JoystickButton19', 'Joystick1Button0', 'Joystick1Button1', 'Joystick1Button2', 'Joystick1Button3', 'Joystick1Button4', 'Joystick1Button5', 'Joystick1Button6', 'Joystick1Button7', 'Joystick1Button8', 'Joystick1Button9', 'Joystick1Button10', 'Joystick1Button11', 'Joystick1Button12', 'Joystick1Button13', 'Joystick1Button14', 'Joystick1Button15', 'Joystick1Button16', 'Joystick1Button17', 'Joystick1Button18', 'Joystick1Button19', 'Joystick2Button0', 'Joystick2Button1', 'Joystick2Button2', 'Joystick2Button3', 'Joystick2Button4', 'Joystick2Button5', 'Joystick2Button6', 'Joystick2Button7', 'Joystick2Button8', 'Joystick2Button9', 'Joystick2Button10', 'Joystick2Button11', 'Joystick2Button12', 'Joystick2Button13', 'Joystick2Button14', 'Joystick2Button15', 'Joystick2Button16', 'Joystick2Button17', 'Joystick2Button18', 'Joystick2Button19', 'Joystick3Button0', 'Joystick3Button1', 'Joystick3Button2', 'Joystick3Button3', 'Joystick3Button4', 'Joystick3Button5', 'Joystick3Button6', 'Joystick3Button7', 'Joystick3Button8', 'Joystick3Button9', 'Joystick3Button10', 'Joystick3Button11', 'Joystick3Button12', 'Joystick3Button13', 'Joystick3Button14', 'Joystick3Button15', 'Joystick3Button16', 'Joystick3Button17', 'Joystick3Button18', 'Joystick3Button19', 'Joystick4Button0', 'Joystick4Button1', 'Joystick4Button2', 'Joystick4Button3', 'Joystick4Button4', 'Joystick4Button5', 'Joystick4Button6', 'Joystick4Button7', 'Joystick4Button8', 'Joystick4Button9', 'Joystick4Button10', 'Joystick4Button11', 'Joystick4Button12', 'Joystick4Button13', 'Joystick4Button14', 'Joystick4Button15', 'Joystick4Button16', 'Joystick4Button17', 'Joystick4Button18', 'Joystick4Button19', 'Joystick5Button0', 'Joystick5Button1', 'Joystick5Button2', 'Joystick5Button3', 'Joystick5Button4', 'Joystick5Button5', 'Joystick5Button6', 'Joystick5Button7', 'Joystick5Button8', 'Joystick5Button9', 'Joystick5Button10', 'Joystick5Button11', 'Joystick5Button12', 'Joystick5Button13', 'Joystick5Button14', 'Joystick5Button15', 'Joystick5Button16', 'Joystick5Button17', 'Joystick5Button18', 'Joystick5Button19', 'Joystick6Button0', 'Joystick6Button1', 'Joystick6Button2', 'Joystick6Button3', 'Joystick6Button4', 'Joystick6Button5', 'Joystick6Button6', 'Joystick6Button7', 'Joystick6Button8', 'Joystick6Button9', 'Joystick6Button10', 'Joystick6Button11', 'Joystick6Button12', 'Joystick6Button13', 'Joystick6Button14', 'Joystick6Button15', 'Joystick6Button16', 'Joystick6Button17', 'Joystick6Button18', 'Joystick6Button19', 'Joystick7Button0', 'Joystick7Button1', 'Joystick7Button2', 'Joystick7Button3', 'Joystick7Button4', 'Joystick7Button5', 'Joystick7Button6', 'Joystick7Button7', 'Joystick7Button8', 'Joystick7Button9', 'Joystick7Button10', 'Joystick7Button11', 'Joystick7Button12', 'Joystick7Button13', 'Joystick7Button14', 'Joystick7Button15', 'Joystick7Button16', 'Joystick7Button17', 'Joystick7Button18', 'Joystick7Button19', 'Joystick8Button0', 'Joystick8Button1', 'Joystick8Button2', 'Joystick8Button3', 'Joystick8Button4', 'Joystick8Button5', 'Joystick8Button6', 'Joystick8Button7', 'Joystick8Button8', 'Joystick8Button9', 'Joystick8Button10', 'Joystick8Button11', 'Joystick8Button12', 'Joystick8Button13', 'Joystick8Button14', 'Joystick8Button15', 'Joystick8Button16', 'Joystick8Button17', 'Joystick8Button18', 'Joystick8Button19')
 	@staticmethod
 	def select_file(self):
 		filename = askopenfilename(filetypes=[('KeyViewer V4 Profile','*.json'),('All types','*.*')])
@@ -959,9 +963,18 @@ class KeyViewerEditor:
 
 	@staticmethod
 	def load_kv_profile(self, file_path):
-		with open(file_path, "r", encoding="utf-8") as f:
-			self.profile = json.load(f)
-			self.keys = self.profile["Keys"]
+		try:
+			with open(file_path, "r", encoding="utf-8") as f:
+				self.profile = json.load(f)
+				self.keys = self.profile["Keys"]
+		except FileNotFoundError:
+			messagebox.showerror(title="错误", message="找不到指定的文件")
+		except (KeyError, json.decoder.JSONDecodeError):
+			messagebox.showerror(title="错误", message="不是有效的KV配置")
+		except UnicodeDecodeError as g:
+			messagebox.showerror(title="错误", message=f"指定文件的编码无效\n{g.__class__.__name__}\n{g}")
+		except Exception as e:
+			log_fail(LanguageData.get("gui.noeffect.function(except).error", [e.__class__.__name__, e]))
 
 		profile_key = [key["Code"] for key in self.keys]
 		self.keys_listbox.delete(0, tk.END)
@@ -995,8 +1008,22 @@ class KeyViewerEditor:
 		selected_index = self.keys_listbox.curselection()
 		new_keycode = self.key_code.get()
 		new_keycount = int(self.key_count.get())
+		if new_keycode not in self.all_keys:
+			messagebox.showerror(title="错误", message="未知的键码")
+			return
+		if self.keys_listbox.curselection() == ():
+			messagebox.showerror(title="错误", message="没有选择的键")
+			self.key_code.set("")
+			self.key_count.delete(0, tk.END)
+			self.key_count.insert(0, "")
+			return
 		self.profile["Keys"][selected_index[0]]["Code"] = new_keycode
 		self.profile["Keys"][selected_index[0]]["Count"] = new_keycount
+		profile_key = [key["Code"] for key in self.keys]
+		self.keys_listbox.delete(0, tk.END)
+		for i in profile_key:
+			self.keys_listbox.insert("end", i)
+
 
 	@staticmethod
 	def export_profile(self):
@@ -1008,9 +1035,64 @@ class KeyViewerEditor:
 			defaultextension=".txt",  # 默认文件扩展名
 			filetypes=[("KeyViewer V4 Profile", "*.json"), ("All types", "*.*")]  # 文件类型过滤器
 		)
-		with open(file_path, "w", encoding="utf-8") as f:
-			f.write(json.dumps(self.profile))
-		messagebox.showinfo("成功", "导出成功")
+		try:
+			with open(file_path, "w", encoding="utf-8") as f:
+				f.write(json.dumps(self.profile))
+			messagebox.showinfo("成功", "导出成功")
+		except FileNotFoundError: ...
+
+	@staticmethod
+	def kv_analyze(self):
+		if self.profile == {}:
+			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			return
+		# 设置中文字体
+		plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置中文标签字体为黑体
+		plt.rcParams['axes.unicode_minus'] = False  # 正确显示负号
+		number_font = FontProperties(family='Times New Roman', size=10)
+		label_font = FontProperties(family='Times New Roman', size=10)
+		info = self.profile
+		keys_list = []
+		for key in info["Keys"]:
+			keys_list.append([key["Count"], key["Code"]])
+
+		sums = 0
+		for s in keys_list:
+			sums += int(s[0])
+		data = sorted(keys_list, key=lambda x: x[0], reverse=True)
+		values = [item[0] for item in data]  # 提取第一个元素作为条形的高度
+		labels = [item[1] for item in data]  # 提取第二个元素作为条形的标签
+
+		# 绘制条形图
+		plt.figure(figsize=(12, 8))  # 设置图形大小
+		bars = plt.bar(labels, values, color='skyblue')
+
+		# 添加标题和标签
+		plt.title(f'按键数统计（按键总数:{sums}）', fontsize=16)  # 添加标题
+		plt.xlabel('按键', fontsize=14)  # 添加x轴标签
+		plt.ylabel('按键次数', fontsize=14)  # 添加y轴标签
+
+		# 设置 y 轴不使用科学记数法
+		plt.gca().yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: '{:0,d}'.format(int(x))))
+
+		# 优化显示效果
+		plt.xticks(rotation=45, ha='right')  # 旋转x轴标签，防止重叠
+		plt.tight_layout()  # 自动调整布局
+
+		# 在每个条形上方显示数字（使用数字字体）
+		for bar in bars:
+			yval = bar.get_height()
+			plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=10,
+					 fontproperties=number_font)
+
+		# 设置 x 轴标签的字体（字母部分使用字母字体）
+		for label in plt.gca().get_xticklabels():
+			label.set_fontproperties(label_font)
+		for label in plt.gca().get_yticklabels():
+			label.set_fontproperties(label_font)
+
+		# 显示图形
+		plt.show()
 
 	def main(self, NOTEBOOK):
 		self.this = self
@@ -1054,7 +1136,7 @@ class KeyViewerEditor:
 
 		ttk.Label(self.key_setting_frame, text=LanguageData.get("gui.keyviewereditor.setting_key.key_code"))\
 			.grid(row=0, column=0, padx=3, pady=3, sticky="ew")
-		self.key_code = ttk.Combobox(self.key_setting_frame, state="readonly", values=('None', 'Backspace', 'Delete', 'Tab', 'Clear', 'Return', 'Pause', 'Escape', 'Space', 'Keypad0', 'Keypad1', 'Keypad2', 'Keypad3', 'Keypad4', 'Keypad5', 'Keypad6', 'Keypad7', 'Keypad8', 'Keypad9', 'KeypadPeriod', 'KeypadDivide', 'KeypadMultiply', 'KeypadMinus', 'KeypadPlus', 'KeypadEnter', 'KeypadEquals', 'UpArrow', 'DownArrow', 'RightArrow', 'LeftArrow', 'Insert', 'Home', 'End', 'PageUp', 'PageDown', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', 'F13', 'F14', 'F15', 'Alpha0', 'Alpha1', 'Alpha2', 'Alpha3', 'Alpha4', 'Alpha5', 'Alpha6', 'Alpha7', 'Alpha8', 'Alpha9', 'Exclaim', 'DoubleQuote', 'Hash', 'Dollar', 'Percent', 'Ampersand', 'Quote', 'LeftParen', 'RightParen', 'Asterisk', 'Plus', 'Comma', 'Minus', 'Period', 'Slash', 'Colon', 'Semicolon', 'Less', 'Equals', 'Greater', 'Question', 'At', 'LeftBracket', 'Backslash', 'RightBracket', 'Caret', 'Underscore', 'BackQuote', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'LeftCurlyBracket', 'Pipe', 'RightCurlyBracket', 'Tilde', 'Numlock', 'CapsLock', 'ScrollLock', 'RightShift', 'LeftShift', 'RightControl', 'LeftControl', 'RightAlt', 'LeftAlt', 'LeftApple', 'LeftWindows', 'RightApple', 'RightWindows', 'AltGr', 'Help', 'Print', 'SysReq', 'Break', 'Menu', 'Mouse0', 'Mouse1', 'Mouse2', 'Mouse3', 'Mouse4', 'Mouse5', 'Mouse6', 'JoystickButton0', 'JoystickButton1', 'JoystickButton2', 'JoystickButton3', 'JoystickButton4', 'JoystickButton5', 'JoystickButton6', 'JoystickButton7', 'JoystickButton8', 'JoystickButton9', 'JoystickButton10', 'JoystickButton11', 'JoystickButton12', 'JoystickButton13', 'JoystickButton14', 'JoystickButton15', 'JoystickButton16', 'JoystickButton17', 'JoystickButton18', 'JoystickButton19', 'Joystick1Button0', 'Joystick1Button1', 'Joystick1Button2', 'Joystick1Button3', 'Joystick1Button4', 'Joystick1Button5', 'Joystick1Button6', 'Joystick1Button7', 'Joystick1Button8', 'Joystick1Button9', 'Joystick1Button10', 'Joystick1Button11', 'Joystick1Button12', 'Joystick1Button13', 'Joystick1Button14', 'Joystick1Button15', 'Joystick1Button16', 'Joystick1Button17', 'Joystick1Button18', 'Joystick1Button19', 'Joystick2Button0', 'Joystick2Button1', 'Joystick2Button2', 'Joystick2Button3', 'Joystick2Button4', 'Joystick2Button5', 'Joystick2Button6', 'Joystick2Button7', 'Joystick2Button8', 'Joystick2Button9', 'Joystick2Button10', 'Joystick2Button11', 'Joystick2Button12', 'Joystick2Button13', 'Joystick2Button14', 'Joystick2Button15', 'Joystick2Button16', 'Joystick2Button17', 'Joystick2Button18', 'Joystick2Button19', 'Joystick3Button0', 'Joystick3Button1', 'Joystick3Button2', 'Joystick3Button3', 'Joystick3Button4', 'Joystick3Button5', 'Joystick3Button6', 'Joystick3Button7', 'Joystick3Button8', 'Joystick3Button9', 'Joystick3Button10', 'Joystick3Button11', 'Joystick3Button12', 'Joystick3Button13', 'Joystick3Button14', 'Joystick3Button15', 'Joystick3Button16', 'Joystick3Button17', 'Joystick3Button18', 'Joystick3Button19', 'Joystick4Button0', 'Joystick4Button1', 'Joystick4Button2', 'Joystick4Button3', 'Joystick4Button4', 'Joystick4Button5', 'Joystick4Button6', 'Joystick4Button7', 'Joystick4Button8', 'Joystick4Button9', 'Joystick4Button10', 'Joystick4Button11', 'Joystick4Button12', 'Joystick4Button13', 'Joystick4Button14', 'Joystick4Button15', 'Joystick4Button16', 'Joystick4Button17', 'Joystick4Button18', 'Joystick4Button19', 'Joystick5Button0', 'Joystick5Button1', 'Joystick5Button2', 'Joystick5Button3', 'Joystick5Button4', 'Joystick5Button5', 'Joystick5Button6', 'Joystick5Button7', 'Joystick5Button8', 'Joystick5Button9', 'Joystick5Button10', 'Joystick5Button11', 'Joystick5Button12', 'Joystick5Button13', 'Joystick5Button14', 'Joystick5Button15', 'Joystick5Button16', 'Joystick5Button17', 'Joystick5Button18', 'Joystick5Button19', 'Joystick6Button0', 'Joystick6Button1', 'Joystick6Button2', 'Joystick6Button3', 'Joystick6Button4', 'Joystick6Button5', 'Joystick6Button6', 'Joystick6Button7', 'Joystick6Button8', 'Joystick6Button9', 'Joystick6Button10', 'Joystick6Button11', 'Joystick6Button12', 'Joystick6Button13', 'Joystick6Button14', 'Joystick6Button15', 'Joystick6Button16', 'Joystick6Button17', 'Joystick6Button18', 'Joystick6Button19', 'Joystick7Button0', 'Joystick7Button1', 'Joystick7Button2', 'Joystick7Button3', 'Joystick7Button4', 'Joystick7Button5', 'Joystick7Button6', 'Joystick7Button7', 'Joystick7Button8', 'Joystick7Button9', 'Joystick7Button10', 'Joystick7Button11', 'Joystick7Button12', 'Joystick7Button13', 'Joystick7Button14', 'Joystick7Button15', 'Joystick7Button16', 'Joystick7Button17', 'Joystick7Button18', 'Joystick7Button19', 'Joystick8Button0', 'Joystick8Button1', 'Joystick8Button2', 'Joystick8Button3', 'Joystick8Button4', 'Joystick8Button5', 'Joystick8Button6', 'Joystick8Button7', 'Joystick8Button8', 'Joystick8Button9', 'Joystick8Button10', 'Joystick8Button11', 'Joystick8Button12', 'Joystick8Button13', 'Joystick8Button14', 'Joystick8Button15', 'Joystick8Button16', 'Joystick8Button17', 'Joystick8Button18', 'Joystick8Button19'))
+		self.key_code = ttk.Combobox(self.key_setting_frame, values=self.all_keys)
 		self.key_code.grid(row=0, column=1, padx=3, pady=3, sticky="ew")
 
 		ttk.Label(self.key_setting_frame, text=LanguageData.get("gui.keyviewereditor.setting_key.key_count")) \
@@ -1068,6 +1150,8 @@ class KeyViewerEditor:
 		self.save_key_change = ttk.Button(self.key_setting_frame, text="导出",
 										  command=lambda: self.export_profile(self))
 		self.save_key_change.grid(row=3, column=1, padx=3, pady=3, sticky="ew")
+
+		ttk.Button(file_frame, text="显示kv按键分析",command=lambda: self.kv_analyze(self)).grid(row=1, column=4, padx=5, pady=10, sticky="ew")
 
 
 ################################################################
