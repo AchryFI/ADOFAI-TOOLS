@@ -1,0 +1,1316 @@
+{
+            "Count": 0, 
+            "Code": "None", 
+            "DummyName": null, 
+            "Font": "Default", 
+            "EnableKPSMeter": false, 
+            "UpdateTextAlways": false, 
+            "EnableCountText": true, 
+            "EnableOutlineImage": true, 
+            "DisableSorting": false, 
+            "DoNotScaleText": true, 
+            "BackgroundBlurEnabled": false, 
+            "TextFontSize": 75, 
+            "CountTextFontSize": 50, 
+            "Text": 
+            {
+                "Pressed": null, 
+                "Released": null, 
+                "PressedEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "ReleasedEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Status": 
+                {
+                    "Expanded": false, 
+                    "Enabled": true
+                }
+            }, 
+            "CountText": 
+            {
+                "Pressed": null, 
+                "Released": null, 
+                "PressedEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "ReleasedEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Status": 
+                {
+                    "Expanded": false, 
+                    "Enabled": true
+                }
+            }, 
+            "Background": 
+            {
+                "Pressed": null, 
+                "Released": null, 
+                "PressedEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "ReleasedEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Status": 
+                {
+                    "Expanded": false, 
+                    "Enabled": true
+                }
+            }, 
+            "Outline": 
+            {
+                "Pressed": null, 
+                "Released": null, 
+                "PressedEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "ReleasedEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Status": 
+                {
+                    "Expanded": false, 
+                    "Enabled": true
+                }
+            }, 
+            "TextConfig": 
+            {
+                "VectorConfig": 
+                {
+                    "Rotation": 
+                    {
+                        "Pressed": [0, 0, 0], 
+                        "Released": [0, 0, 0], 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Offset": 
+                    {
+                        "Pressed": [0, 0, 0], 
+                        "Released": [0, 0, 0], 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Scale": 
+                    {
+                        "Pressed": [0.899999976158142, 0.899999976158142], 
+                        "Released": [1, 1], 
+                        "PressedEase": 
+                        {
+                            "Ease": "OutQuad", 
+                            "Duration": 0.100000001490116, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "OutQuad", 
+                            "Duration": 0.100000001490116, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Pivot": "MiddleCenter", 
+                    "Anchor": "MiddleCenter"
+                }, 
+                "Color": 
+                {
+                    "Pressed": 
+                    {
+                        "gradientEnabled": false, 
+                        "topLeft": [0, 0, 0, 1], 
+                        "topRight": [0, 0, 0, 1], 
+                        "bottomLeft": [0, 0, 0, 1], 
+                        "bottomRight": [0, 0, 0, 1], 
+                        "topLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "topRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Released": 
+                    {
+                        "gradientEnabled": false, 
+                        "topLeft": [1, 1, 1, 1], 
+                        "topRight": [1, 1, 1, 1], 
+                        "bottomLeft": [1, 1, 1, 1], 
+                        "bottomRight": [1, 1, 1, 1], 
+                        "topLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "topRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "ChangeColorWithJudge": false, 
+                "JudgeColors": null, 
+                "JudgeColorEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }
+            }, 
+            "CountTextConfig": 
+            {
+                "VectorConfig": 
+                {
+                    "Rotation": 
+                    {
+                        "Pressed": [0, 0, 0], 
+                        "Released": [0, 0, 0], 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Offset": 
+                    {
+                        "Pressed": [0, 0, 0], 
+                        "Released": [0, 0, 0], 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Scale": 
+                    {
+                        "Pressed": [0.899999976158142, 0.899999976158142], 
+                        "Released": [1, 1], 
+                        "PressedEase": 
+                        {
+                            "Ease": "OutQuad", 
+                            "Duration": 0.100000001490116, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "OutQuad", 
+                            "Duration": 0.100000001490116, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Pivot": "MiddleCenter", 
+                    "Anchor": "MiddleCenter"
+                }, 
+                "Color": 
+                {
+                    "Pressed": 
+                    {
+                        "gradientEnabled": false, 
+                        "topLeft": [0, 0, 0, 1], 
+                        "topRight": [0, 0, 0, 1], 
+                        "bottomLeft": [0, 0, 0, 1], 
+                        "bottomRight": [0, 0, 0, 1], 
+                        "topLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "topRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Released": 
+                    {
+                        "gradientEnabled": false, 
+                        "topLeft": [1, 1, 1, 1], 
+                        "topRight": [1, 1, 1, 1], 
+                        "bottomLeft": [1, 1, 1, 1], 
+                        "bottomRight": [1, 1, 1, 1], 
+                        "topLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "topRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "ChangeColorWithJudge": false, 
+                "JudgeColors": null, 
+                "JudgeColorEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }
+            }, 
+            "BackgroundConfig": 
+            {
+                "VectorConfig": 
+                {
+                    "Rotation": 
+                    {
+                        "Pressed": [0, 0, 0], 
+                        "Released": [0, 0, 0], 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Offset": 
+                    {
+                        "Pressed": [0, 0, 0], 
+                        "Released": [0, 0, 0], 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Scale": 
+                    {
+                        "Pressed": [0.899999976158142, 0.899999976158142], 
+                        "Released": [1, 1], 
+                        "PressedEase": 
+                        {
+                            "Ease": "OutQuad", 
+                            "Duration": 0.100000001490116, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "OutQuad", 
+                            "Duration": 0.100000001490116, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Pivot": "MiddleCenter", 
+                    "Anchor": "MiddleCenter"
+                }, 
+                "Color": 
+                {
+                    "Pressed": 
+                    {
+                        "gradientEnabled": false, 
+                        "topLeft": [1, 1, 1, 1], 
+                        "topRight": [1, 1, 1, 1], 
+                        "bottomLeft": [1, 1, 1, 1], 
+                        "bottomRight": [1, 1, 1, 1], 
+                        "topLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "topRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Released": 
+                    {
+                        "gradientEnabled": false, 
+                        "topLeft": [0, 0, 0, 0.400000005960464], 
+                        "topRight": [0, 0, 0, 0.400000005960464], 
+                        "bottomLeft": [0, 0, 0, 0.400000005960464], 
+                        "bottomRight": [0, 0, 0, 0.400000005960464], 
+                        "topLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "topRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "ChangeColorWithJudge": false, 
+                "JudgeColors": null, 
+                "JudgeColorEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }
+            }, 
+            "OutlineConfig": 
+            {
+                "VectorConfig": 
+                {
+                    "Rotation": 
+                    {
+                        "Pressed": [0, 0, 0], 
+                        "Released": [0, 0, 0], 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Offset": 
+                    {
+                        "Pressed": [0, 0, 0], 
+                        "Released": [0, 0, 0], 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Scale": 
+                    {
+                        "Pressed": [0.899999976158142, 0.899999976158142], 
+                        "Released": [1, 1], 
+                        "PressedEase": 
+                        {
+                            "Ease": "OutQuad", 
+                            "Duration": 0.100000001490116, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "OutQuad", 
+                            "Duration": 0.100000001490116, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Pivot": "MiddleCenter", 
+                    "Anchor": "MiddleCenter"
+                }, 
+                "Color": 
+                {
+                    "Pressed": 
+                    {
+                        "gradientEnabled": false, 
+                        "topLeft": [1, 1, 1, 1], 
+                        "topRight": [1, 1, 1, 1], 
+                        "bottomLeft": [1, 1, 1, 1], 
+                        "bottomRight": [1, 1, 1, 1], 
+                        "topLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "topRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Released": 
+                    {
+                        "gradientEnabled": false, 
+                        "topLeft": [1, 1, 1, 1], 
+                        "topRight": [1, 1, 1, 1], 
+                        "bottomLeft": [1, 1, 1, 1], 
+                        "bottomRight": [1, 1, 1, 1], 
+                        "topLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "topRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomLeftStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }, 
+                        "bottomRightStatus": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "ChangeColorWithJudge": false, 
+                "JudgeColors": null, 
+                "JudgeColorEase": 
+                {
+                    "Ease": "Unset", 
+                    "Duration": 0, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }
+            }, 
+            "BackgroundRoundness": 0, 
+            "OutlineRoundness": 0, 
+            "BackgroundBlurConfig": 
+            {
+                "Spacing": 2, 
+                "Vibrancy": 0.300000011920929, 
+                "Status": 
+                {
+                    "Expanded": false, 
+                    "Enabled": true
+                }
+            }, 
+            "VectorConfig": 
+            {
+                "Rotation": 
+                {
+                    "Pressed": [0, 0, 0], 
+                    "Released": [0, 0, 0], 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Offset": 
+                {
+                    "Pressed": [0, 0, 0], 
+                    "Released": [0, 0, 0], 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Scale": 
+                {
+                    "Pressed": [1, 1], 
+                    "Released": [1, 1], 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Pivot": "MiddleCenter", 
+                "Anchor": "MiddleCenter"
+            }, 
+            "RainEnabled": false, 
+            "Rain": 
+            {
+                "Speed": 
+                {
+                    "Pressed": 400, 
+                    "Released": 400, 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Length": 
+                {
+                    "Pressed": 400, 
+                    "Released": 400, 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "Softness": 
+                {
+                    "Pressed": 100, 
+                    "Released": 100, 
+                    "PressedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ReleasedEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "Status": 
+                    {
+                        "Expanded": false, 
+                        "Enabled": true
+                    }
+                }, 
+                "PoolSize": 25, 
+                "Roundness": 0, 
+                "ObjectConfig": 
+                {
+                    "VectorConfig": 
+                    {
+                        "Rotation": 
+                        {
+                            "Pressed": [0, 0, 0], 
+                            "Released": [0, 0, 0], 
+                            "PressedEase": 
+                            {
+                                "Ease": "Unset", 
+                                "Duration": 0, 
+                                "Status": 
+                                {
+                                    "Expanded": false, 
+                                    "Enabled": true
+                                }
+                            }, 
+                            "ReleasedEase": 
+                            {
+                                "Ease": "Unset", 
+                                "Duration": 0, 
+                                "Status": 
+                                {
+                                    "Expanded": false, 
+                                    "Enabled": true
+                                }
+                            }, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Offset": 
+                        {
+                            "Pressed": [0, 0, 0], 
+                            "Released": [0, 0, 0], 
+                            "PressedEase": 
+                            {
+                                "Ease": "Unset", 
+                                "Duration": 0, 
+                                "Status": 
+                                {
+                                    "Expanded": false, 
+                                    "Enabled": true
+                                }
+                            }, 
+                            "ReleasedEase": 
+                            {
+                                "Ease": "Unset", 
+                                "Duration": 0, 
+                                "Status": 
+                                {
+                                    "Expanded": false, 
+                                    "Enabled": true
+                                }
+                            }, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Scale": 
+                        {
+                            "Pressed": [1, 1], 
+                            "Released": [1, 1], 
+                            "PressedEase": 
+                            {
+                                "Ease": "Unset", 
+                                "Duration": 0, 
+                                "Status": 
+                                {
+                                    "Expanded": false, 
+                                    "Enabled": true
+                                }
+                            }, 
+                            "ReleasedEase": 
+                            {
+                                "Ease": "Unset", 
+                                "Duration": 0, 
+                                "Status": 
+                                {
+                                    "Expanded": false, 
+                                    "Enabled": true
+                                }
+                            }, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Pivot": "MiddleCenter", 
+                        "Anchor": "MiddleCenter"
+                    }, 
+                    "Color": 
+                    {
+                        "Pressed": 
+                        {
+                            "gradientEnabled": false, 
+                            "topLeft": [1, 1, 1, 1], 
+                            "topRight": [1, 1, 1, 1], 
+                            "bottomLeft": [1, 1, 1, 1], 
+                            "bottomRight": [1, 1, 1, 1], 
+                            "topLeftStatus": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }, 
+                            "topRightStatus": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }, 
+                            "bottomLeftStatus": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }, 
+                            "bottomRightStatus": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Released": 
+                        {
+                            "gradientEnabled": false, 
+                            "topLeft": [1, 1, 1, 1], 
+                            "topRight": [1, 1, 1, 1], 
+                            "bottomLeft": [1, 1, 1, 1], 
+                            "bottomRight": [1, 1, 1, 1], 
+                            "topLeftStatus": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }, 
+                            "topRightStatus": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }, 
+                            "bottomLeftStatus": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }, 
+                            "bottomRightStatus": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "PressedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "ReleasedEase": 
+                        {
+                            "Ease": "Unset", 
+                            "Duration": 0, 
+                            "Status": 
+                            {
+                                "Expanded": false, 
+                                "Enabled": true
+                            }
+                        }, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }, 
+                    "ChangeColorWithJudge": false, 
+                    "JudgeColors": null, 
+                    "JudgeColorEase": 
+                    {
+                        "Ease": "Unset", 
+                        "Duration": 0, 
+                        "Status": 
+                        {
+                            "Expanded": false, 
+                            "Enabled": true
+                        }
+                    }
+                }, 
+                "RainImages": 
+                [
+                ], 
+                "ImageDisplayMode": "Sequential", 
+                "Direction": "Up"
+            }, 
+            "Codes": 
+            [
+            ]
+        }

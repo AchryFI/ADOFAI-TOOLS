@@ -114,7 +114,11 @@
         "file_path": "KV配置文件路径",
         "browse": "浏览",
         "load_kv_profile": "加载kv配置",
-        "key_list": "按键列表"
+        "key_list": "按键列表",
+        "key_setting": "按键设置",
+        "setting_key":{
+        "key_count": "按键数量",
+        "key_code": "按键代码"}
       }
     },
     "menu":{

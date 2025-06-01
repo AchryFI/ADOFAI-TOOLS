@@ -23,7 +23,7 @@ from traceback import format_exc
 from win32clipboard import OpenClipboard,SetClipboardData,CloseClipboard
 
 import GUILayout
-import asyncio
+import copy
 import webbrowser
 import win32con
 # import logging
@@ -938,12 +938,16 @@ class menu:
 class KeyViewerEditor:
 	def __init__(self):
 		self.main_frame = None
+		self.listbox_index = -1
 		self.data = []
 		self.shadow_data = []
 		self.profile = {}
 		self.keys = []
 		self.last_select_index = None
-		self.all_keys = ('None', 'Backspace', 'Delete', 'Tab', 'Clear', 'Return', 'Pause', 'Escape', 'Space', 'Keypad0', 'Keypad1', 'Keypad2', 'Keypad3', 'Keypad4', 'Keypad5', 'Keypad6', 'Keypad7', 'Keypad8', 'Keypad9', 'KeypadPeriod', 'KeypadDivide', 'KeypadMultiply', 'KeypadMinus', 'KeypadPlus', 'KeypadEnter', 'KeypadEquals', 'UpArrow', 'DownArrow', 'RightArrow', 'LeftArrow', 'Insert', 'Home', 'End', 'PageUp', 'PageDown', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', 'F13', 'F14', 'F15', 'Alpha0', 'Alpha1', 'Alpha2', 'Alpha3', 'Alpha4', 'Alpha5', 'Alpha6', 'Alpha7', 'Alpha8', 'Alpha9', 'Exclaim', 'DoubleQuote', 'Hash', 'Dollar', 'Percent', 'Ampersand', 'Quote', 'LeftParen', 'RightParen', 'Asterisk', 'Plus', 'Comma', 'Minus', 'Period', 'Slash', 'Colon', 'Semicolon', 'Less', 'Equals', 'Greater', 'Question', 'At', 'LeftBracket', 'Backslash', 'RightBracket', 'Caret', 'Underscore', 'BackQuote', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'LeftCurlyBracket', 'Pipe', 'RightCurlyBracket', 'Tilde', 'Numlock', 'CapsLock', 'ScrollLock', 'RightShift', 'LeftShift', 'RightControl', 'LeftControl', 'RightAlt', 'LeftAlt', 'LeftApple', 'LeftWindows', 'RightApple', 'RightWindows', 'AltGr', 'Help', 'Print', 'SysReq', 'Break', 'Menu', 'Mouse0', 'Mouse1', 'Mouse2', 'Mouse3', 'Mouse4', 'Mouse5', 'Mouse6', 'JoystickButton0', 'JoystickButton1', 'JoystickButton2', 'JoystickButton3', 'JoystickButton4', 'JoystickButton5', 'JoystickButton6', 'JoystickButton7', 'JoystickButton8', 'JoystickButton9', 'JoystickButton10', 'JoystickButton11', 'JoystickButton12', 'JoystickButton13', 'JoystickButton14', 'JoystickButton15', 'JoystickButton16', 'JoystickButton17', 'JoystickButton18', 'JoystickButton19', 'Joystick1Button0', 'Joystick1Button1', 'Joystick1Button2', 'Joystick1Button3', 'Joystick1Button4', 'Joystick1Button5', 'Joystick1Button6', 'Joystick1Button7', 'Joystick1Button8', 'Joystick1Button9', 'Joystick1Button10', 'Joystick1Button11', 'Joystick1Button12', 'Joystick1Button13', 'Joystick1Button14', 'Joystick1Button15', 'Joystick1Button16', 'Joystick1Button17', 'Joystick1Button18', 'Joystick1Button19', 'Joystick2Button0', 'Joystick2Button1', 'Joystick2Button2', 'Joystick2Button3', 'Joystick2Button4', 'Joystick2Button5', 'Joystick2Button6', 'Joystick2Button7', 'Joystick2Button8', 'Joystick2Button9', 'Joystick2Button10', 'Joystick2Button11', 'Joystick2Button12', 'Joystick2Button13', 'Joystick2Button14', 'Joystick2Button15', 'Joystick2Button16', 'Joystick2Button17', 'Joystick2Button18', 'Joystick2Button19', 'Joystick3Button0', 'Joystick3Button1', 'Joystick3Button2', 'Joystick3Button3', 'Joystick3Button4', 'Joystick3Button5', 'Joystick3Button6', 'Joystick3Button7', 'Joystick3Button8', 'Joystick3Button9', 'Joystick3Button10', 'Joystick3Button11', 'Joystick3Button12', 'Joystick3Button13', 'Joystick3Button14', 'Joystick3Button15', 'Joystick3Button16', 'Joystick3Button17', 'Joystick3Button18', 'Joystick3Button19', 'Joystick4Button0', 'Joystick4Button1', 'Joystick4Button2', 'Joystick4Button3', 'Joystick4Button4', 'Joystick4Button5', 'Joystick4Button6', 'Joystick4Button7', 'Joystick4Button8', 'Joystick4Button9', 'Joystick4Button10', 'Joystick4Button11', 'Joystick4Button12', 'Joystick4Button13', 'Joystick4Button14', 'Joystick4Button15', 'Joystick4Button16', 'Joystick4Button17', 'Joystick4Button18', 'Joystick4Button19', 'Joystick5Button0', 'Joystick5Button1', 'Joystick5Button2', 'Joystick5Button3', 'Joystick5Button4', 'Joystick5Button5', 'Joystick5Button6', 'Joystick5Button7', 'Joystick5Button8', 'Joystick5Button9', 'Joystick5Button10', 'Joystick5Button11', 'Joystick5Button12', 'Joystick5Button13', 'Joystick5Button14', 'Joystick5Button15', 'Joystick5Button16', 'Joystick5Button17', 'Joystick5Button18', 'Joystick5Button19', 'Joystick6Button0', 'Joystick6Button1', 'Joystick6Button2', 'Joystick6Button3', 'Joystick6Button4', 'Joystick6Button5', 'Joystick6Button6', 'Joystick6Button7', 'Joystick6Button8', 'Joystick6Button9', 'Joystick6Button10', 'Joystick6Button11', 'Joystick6Button12', 'Joystick6Button13', 'Joystick6Button14', 'Joystick6Button15', 'Joystick6Button16', 'Joystick6Button17', 'Joystick6Button18', 'Joystick6Button19', 'Joystick7Button0', 'Joystick7Button1', 'Joystick7Button2', 'Joystick7Button3', 'Joystick7Button4', 'Joystick7Button5', 'Joystick7Button6', 'Joystick7Button7', 'Joystick7Button8', 'Joystick7Button9', 'Joystick7Button10', 'Joystick7Button11', 'Joystick7Button12', 'Joystick7Button13', 'Joystick7Button14', 'Joystick7Button15', 'Joystick7Button16', 'Joystick7Button17', 'Joystick7Button18', 'Joystick7Button19', 'Joystick8Button0', 'Joystick8Button1', 'Joystick8Button2', 'Joystick8Button3', 'Joystick8Button4', 'Joystick8Button5', 'Joystick8Button6', 'Joystick8Button7', 'Joystick8Button8', 'Joystick8Button9', 'Joystick8Button10', 'Joystick8Button11', 'Joystick8Button12', 'Joystick8Button13', 'Joystick8Button14', 'Joystick8Button15', 'Joystick8Button16', 'Joystick8Button17', 'Joystick8Button18', 'Joystick8Button19')
+
+		with open("single_key.json", "r", encoding="utf-8") as f:
+			self.single_key = json.load(f)
+		
 	@staticmethod
 	def select_file(self):
 		filename = askopenfilename(filetypes=[('KeyViewer V4 Profile','*.json'),('All types','*.*')])
@@ -986,10 +990,16 @@ class KeyViewerEditor:
 
 	@staticmethod
 	def on_select(self):
-		selected_index = self.keys_listbox.curselection()
-		self.key_code.set(self.profile["Keys"][selected_index[0]]["Code"])
+		if self.keys_listbox.curselection() != ():
+			self.listbox_index = self.keys_listbox.curselection()
+		elif self.profile == {}:
+			return
+		else:
+			self.keys_listbox.selection_set(self.listbox_index[0])
+			return
+		self.key_code.set(self.profile["Keys"][self.listbox_index[0]]["Code"])
 		self.key_count.delete(0, tk.END)
-		self.key_count.insert(0, self.profile["Keys"][selected_index[0]]["Count"])
+		self.key_count.insert(0, self.profile["Keys"][self.listbox_index[0]]["Count"])
 
 	@staticmethod
 	def save_key_change_func(self):
@@ -999,7 +1009,7 @@ class KeyViewerEditor:
 		selected_index = self.keys_listbox.curselection()
 		new_keycode = self.key_code.get()
 		new_keycount = int(self.key_count.get())
-		if new_keycode not in self.all_keys:
+		if new_keycode not in adofai_const().all_keys:
 			messagebox.showerror(title="错误", message="未知的键码")
 			return
 		if self.keys_listbox.curselection() == ():
@@ -1031,6 +1041,41 @@ class KeyViewerEditor:
 				f.write(json.dumps(self.profile))
 			messagebox.showinfo("成功", "导出成功")
 		except FileNotFoundError: ...
+
+
+	@staticmethod
+	def delete_keys(self):
+		if self.profile == {}:
+			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			return
+		selected_index = self.keys_listbox.curselection()
+
+		if self.keys_listbox.curselection() == ():
+			messagebox.showerror(title="错误", message="没有选择的键")
+			self.key_code.set("")
+			self.key_count.delete(0, tk.END)
+			self.key_count.insert(0, "")
+			return
+		
+		del self.profile["Keys"][selected_index[0]]
+		profile_key = [key["Code"] for key in self.keys]
+		self.keys_listbox.delete(0, tk.END)
+		for i in profile_key:
+			self.keys_listbox.insert("end", i)
+
+	@staticmethod
+	def add_keys(self):
+		if self.profile == {}:
+			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			return
+		keycode = self.key_code2.get()
+		key_json = copy.deepcopy(self.single_key)
+		key_json["Code"] = keycode
+		self.profile["Keys"].append(key_json)
+		profile_key = [key["Code"] for key in self.keys]
+		self.keys_listbox.delete(0, tk.END)
+		for i in profile_key:
+			self.keys_listbox.insert("end", i)
 
 	@staticmethod
 	def kv_analyze(self):
@@ -1115,18 +1160,24 @@ class KeyViewerEditor:
 		self.keys_listbox_scroll_bar.grid(row=1, column=1, padx=0, pady=0, sticky="ns")
 
 		self.keys_listbox = tk.Listbox(self.key_list_frame, yscrollcommand=self.keys_listbox_scroll_bar.set)
-		self.keys_listbox.config(width=35,height=20)
+		self.keys_listbox.config(width=35,height=15)
 		self.keys_listbox.grid(row=1, column=0, padx=5, pady=10, sticky="ew")
 		self.keys_listbox.bind("<<ListboxSelect>>", lambda x: self.on_select(self))
 
 		self.keys_listbox_scroll_bar.config(command=self.keys_listbox.yview)
+
+		self.key_code2 = ttk.Combobox(self.key_list_frame, values=adofai_const().all_keys, state="readonly")
+		self.key_code2.grid(row=2, column=0, padx=3, pady=3, sticky="ew")
+		self.add_key_button = ttk.Button(self.key_list_frame, text="添加", command=lambda : self.add_keys(self))
+		self.add_key_button.grid(row=3, column=0, padx=3, pady=3, sticky="ew")
+
 
 		self.key_setting_frame = tk.LabelFrame(self.setting_key_frame, text=LanguageData.get("gui.keyviewereditor.key_setting"))
 		self.key_setting_frame.grid(row=0, column=1, padx=10, pady=10, sticky="ne")
 
 		ttk.Label(self.key_setting_frame, text=LanguageData.get("gui.keyviewereditor.setting_key.key_code"))\
 			.grid(row=0, column=0, padx=3, pady=3, sticky="ew")
-		self.key_code = ttk.Combobox(self.key_setting_frame, values=self.all_keys)
+		self.key_code = ttk.Combobox(self.key_setting_frame, values=adofai_const().all_keys, state="readonly")
 		self.key_code.grid(row=0, column=1, padx=3, pady=3, sticky="ew")
 
 		ttk.Label(self.key_setting_frame, text=LanguageData.get("gui.keyviewereditor.setting_key.key_count")) \
@@ -1139,7 +1190,11 @@ class KeyViewerEditor:
 
 		self.save_key_change = ttk.Button(self.key_setting_frame, text="导出",
 										  command=lambda: self.export_profile(self))
-		self.save_key_change.grid(row=3, column=1, padx=3, pady=3, sticky="ew")
+		self.save_key_change.grid(row=4, column=1, padx=3, pady=3, sticky="ew")
+
+		self.delete_key = ttk.Button(self.key_setting_frame, text="删除该按键",
+										  command=lambda: self.delete_keys(self))
+		self.delete_key.grid(row=3, column=1, padx=3, pady=3, sticky="ew")
 
 		ttk.Button(file_frame, text="显示kv按键分析",command=lambda: self.kv_analyze(self)).grid(row=1, column=4, padx=5, pady=10, sticky="ew")
 
