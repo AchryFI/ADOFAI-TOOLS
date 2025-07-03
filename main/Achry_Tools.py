@@ -178,7 +178,7 @@ class noEffect():
 		log_window.geometry("480x540")
 		style = ttk.Style()
 		style.configure("custom.TCheckbutton", font=("Consolas", 10))
-		setting_effect = ttk.LabelFrame(log_window, text="需要去的", width=20)
+		setting_effect = ttk.LabelFrame(log_window, text=LanguageData.get("gui.noeffect.effects_need_to_remove"), width=20)
 
 		select_array = []
 		row = 0
@@ -301,6 +301,9 @@ class calc:
 				difficult = self.calc_level_combobox.get() #难度
 				speed = float(self.calc_speed_entry.get())
 				xacc = float(self.calc_x_accuracy_entry.get())
+				if not (0 <= xacc and xacc <= 100):
+					log_error(LanguageData.get("gui.calc.function(except).wrong_xacc"))
+					return
 			else:
 				log_error(LanguageData.get("gui.calc.function(except).write_empty"))
 				return
@@ -309,6 +312,9 @@ class calc:
 				ranked_position = int(self.world_rank_entry.get())
 			else:
 				log_error(LanguageData.get("gui.calc.function(except).write_rank"))
+				return
+			if int(self.world_rank_entry.get()) <= 0:
+				log_error(LanguageData.get("gui.calc.function(except).wrong_rank"))
 				return
 
 			no_early = self.calc_empty_hit_combobox.get() == LanguageData.get('no') or xacc == 100
@@ -919,19 +925,19 @@ class menu:
 		menu_menu = ttk.Menu(Tkinter_StartUI)
 
 		filemenu = ttk.Menu(menu_menu, tearoff=False)
-		filemenu.add_command(label="退出", command=lambda: exit())
+		filemenu.add_command(label=LanguageData.get("menu.file.exit"), command=lambda: exit())
 		gtt = time.gmtime()
 		if (gtt.tm_mon == 4 and (gtt.tm_mday <= 7 or gtt.tm_wday <= 7)):
 			filemenu.add_command(label="下载大雪花", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1FS4y1a7DS/"))
 			filemenu.add_command(label="下载ADOFAI游戏", command=lambda: menu.download_video("https://www.bilibili.com/video/BV1BR4y1A7pM/"))
-		menu_menu.add_cascade(label="文件", menu=filemenu)
+		menu_menu.add_cascade(label=LanguageData.get("menu.file.name"), menu=filemenu)
 
 		editmenu = ttk.Menu(menu_menu, tearoff=False)
 		editmenu.add_command(label=LanguageData.get("menu.debug.log.name_v1"),command=menu.log_showUIWithV1)
 		editmenu.add_command(label=LanguageData.get("menu.debug.cache.clear"),command=menu.cache_clear)
 		editmenu.add_command(label=LanguageData.get("menu.debug.cache.reload"),command=menu.cache_reload)
 		editmenu.add_command(label=LanguageData.get("menu.debug.breakpoint"), command=lambda: breakpoint())
-		menu_menu.add_cascade(label="调试", menu=editmenu)
+		menu_menu.add_cascade(label=LanguageData.get("menu.debug.name"), menu=editmenu)
 
 		Tkinter_StartUI.config(menu=menu_menu)
 		pass
@@ -965,11 +971,11 @@ class KeyViewerEditor:
 				self.profile = json.load(f)
 				self.keys = self.profile["Keys"]
 		except FileNotFoundError:
-			messagebox.showerror(title="错误", message="找不到指定的文件")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).cant_find_file"))
 		except (KeyError, json.decoder.JSONDecodeError):
-			messagebox.showerror(title="错误", message="不是有效的KV配置")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).invaild_kv_file"))
 		except UnicodeDecodeError as g:
-			messagebox.showerror(title="错误", message=f"指定文件的编码无效\n{g.__class__.__name__}\n{g}")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).invaild_kv_file", [g.__class__.__name__, g]))
 		except Exception as e:
 			log_fail(LanguageData.get("gui.noeffect.function(except).error", [e.__class__.__name__, e]))
 
@@ -1006,10 +1012,10 @@ class KeyViewerEditor:
 	@staticmethod
 	def save_key_change_func(self):
 		if self.profile == {}:
-			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).not_load_kv_profile"))
 			return
 		if self.keys_listbox.curselection() == ():
-			messagebox.showerror(title="错误", message="没有选择的键")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).no_keys_selected"))
 			self.key_code.set("")
 			self.key_count.delete(0, tk.END)
 			self.key_count.insert(0, "")
@@ -1019,7 +1025,7 @@ class KeyViewerEditor:
 		new_keycode = self.key_code.get()
 		new_keycount = int(self.key_count.get())
 		if new_keycode not in adofai_const().all_keys:
-			messagebox.showerror(title="错误", message="未知的键码")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).unknown_keycode"))
 			return
 
 		self.profile["Keys"][selected_index[0]]["Code"] = new_keycode
@@ -1033,7 +1039,7 @@ class KeyViewerEditor:
 	@staticmethod
 	def export_profile(self):
 		if self.profile == {}:
-			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).not_load_kv_profile"))
 			return
 
 		file_path = filedialog.asksaveasfilename(
@@ -1050,12 +1056,12 @@ class KeyViewerEditor:
 	@staticmethod
 	def delete_keys(self):
 		if self.profile == {}:
-			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).not_load_kv_profile"))
 			return
 		selected_index = self.keys_listbox.curselection()
 
 		if self.keys_listbox.curselection() == ():
-			messagebox.showerror(title="错误", message="没有选择的键")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).no_keys_selected"))
 			self.key_code.set("")
 			self.key_count.delete(0, tk.END)
 			self.key_count.insert(0, "")
@@ -1070,11 +1076,11 @@ class KeyViewerEditor:
 	@staticmethod
 	def add_keys(self):
 		if self.profile == {}:
-			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).not_load_kv_profile"))
 			return
 		keycode = self.key_code2.get()
 		if keycode not in adofai_const().all_keys:
-			messagebox.showerror(title="错误", message="未知的键码")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).unknown_keycode"))
 			return
 		
 		key_json = copy.deepcopy(self.single_key)
@@ -1088,7 +1094,7 @@ class KeyViewerEditor:
 	@staticmethod
 	def kv_analyze(self):
 		if self.profile == {}:
-			messagebox.showerror(title="错误", message="还没有加载KV配置")
+			messagebox.showerror(title=LanguageData.get("error"), message=LanguageData.get("gui.keyviewereditor.function(except).not_load_kv_profile"))
 			return
 		# 设置中文字体
 		plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置中文标签字体为黑体

@@ -138,7 +138,7 @@ class language:
     """
     self.mtl = None
     self.not_find_json = ""
-    self.lang = None;
+    self.lang = None
     self.locale = {"2052":"zh_cn", "1033":"en_us", "1042":"kr"}
     pass
   def get(self, data:str, repl:object=None):
@@ -153,8 +153,7 @@ class language:
         result (str)
     """
     from win32api import GetSystemDefaultLangID
-    if (self.lang == None) and (str(GetSystemDefaultLangID()) in self.locale): self.lang = self.locale[str(GetSystemDefaultLangID())]
-    else: self.lang = "en_us"
+    if (self.lang == None): self.lang = self.locale.get(str(GetSystemDefaultLangID()), "en_us")
     if not os.path.exists("lang.json"):
       self.mtl.write("Can't read the lang file.If the language file does exist and it still shows this error, contact the developer, or try the following method: \n\nput the program in the English path (without special symbols)")
       return data
