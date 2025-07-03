@@ -10,6 +10,7 @@ from matplotlib.font_manager import FontProperties
 from ttkbootstrap.constants import *
 from ttkbootstrap.scrolled import ScrolledText
 from tkinter.filedialog import askopenfilename, askdirectory, asksaveasfilename
+from tkinter import colorchooser
 
 from win32comext.axscript.client.framework import profile
 
@@ -26,6 +27,7 @@ import GUILayout
 import copy
 import webbrowser
 import win32con
+import subprocess
 # import logging
 
 ################################################################################################################################
@@ -1006,18 +1008,20 @@ class KeyViewerEditor:
 		if self.profile == {}:
 			messagebox.showerror(title="错误", message="还没有加载KV配置")
 			return
-		selected_index = self.keys_listbox.curselection()
-		new_keycode = self.key_code.get()
-		new_keycount = int(self.key_count.get())
-		if new_keycode not in adofai_const().all_keys:
-			messagebox.showerror(title="错误", message="未知的键码")
-			return
 		if self.keys_listbox.curselection() == ():
 			messagebox.showerror(title="错误", message="没有选择的键")
 			self.key_code.set("")
 			self.key_count.delete(0, tk.END)
 			self.key_count.insert(0, "")
 			return
+		
+		selected_index = self.keys_listbox.curselection()
+		new_keycode = self.key_code.get()
+		new_keycount = int(self.key_count.get())
+		if new_keycode not in adofai_const().all_keys:
+			messagebox.showerror(title="错误", message="未知的键码")
+			return
+
 		self.profile["Keys"][selected_index[0]]["Code"] = new_keycode
 		self.profile["Keys"][selected_index[0]]["Count"] = new_keycount
 		profile_key = [key["Code"] for key in self.keys]
@@ -1069,6 +1073,10 @@ class KeyViewerEditor:
 			messagebox.showerror(title="错误", message="还没有加载KV配置")
 			return
 		keycode = self.key_code2.get()
+		if keycode not in adofai_const().all_keys:
+			messagebox.showerror(title="错误", message="未知的键码")
+			return
+		
 		key_json = copy.deepcopy(self.single_key)
 		key_json["Code"] = keycode
 		self.profile["Keys"].append(key_json)
@@ -1197,6 +1205,377 @@ class KeyViewerEditor:
 		self.delete_key.grid(row=3, column=1, padx=3, pady=3, sticky="ew")
 
 		ttk.Button(file_frame, text="显示kv按键分析",command=lambda: self.kv_analyze(self)).grid(row=1, column=4, padx=5, pady=10, sticky="ew")
+		
+
+class ReplayEditor:
+	def __init__(self):
+		self.main_frame = None
+		self.replay_file_data = {}
+		self.shadow_data = []
+		self.listbox_index = -1
+
+	@staticmethod
+	def select_file(self):
+		filename = askopenfilename(filetypes=[('Replay File','*.rpl'),('Binary Files',["*.bin","*.dat"]),('All types','*.*')])
+		if filename:
+			# How???
+			self.path.delete(0, tk.END)
+			self.path.insert(tk.END, filename)
+
+	@staticmethod
+	def load_replay_profile(self, file_path):
+		command = ["ReplayDeserializer.exe",  # 可执行文件名
+				   file_path, 		 		  # rpl 文件路径	
+			 	   r".\temp.json",	  		  # json 输出路径
+			       "",	  			  		  # rpl 保存路径
+				   "De"]	  		  		  # 方式(De or En)
+		process = subprocess.Popen(
+			command,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,
+			text=True
+		)
+		stdout, stderr = process.communicate()
+		if stderr:
+			messagebox.showerror(title="错误", message=f"Replay文件解析出现问题: {stderr}")
+			return
+
+		
+
+		with open(r".\temp.json", "r", encoding="utf-8") as f:
+			try:
+				self.replay_file_data = json.load(f)
+			except json.JSONDecodeError as e:
+				messagebox.showerror(title="错误", message=f"Replay文件解析出现问题: {e}")
+				return
+		
+		self.PreviewImagePath.delete(0, tk.END)
+		self.PreviewImagePath.insert(0, self.replay_file_data.get("PreviewImagePath", ""))
+
+		self.Path.delete(0, tk.END)
+		self.Path.insert(0, self.replay_file_data.get("Path", ""))
+
+		self.SongName.delete(0, tk.END)
+		self.SongName.insert(0, self.replay_file_data.get("SongName", ""))
+
+		self.ArtistName.delete(0, tk.END)
+		self.ArtistName.insert(0, self.replay_file_data.get("ArtistName", ""))
+
+		self.AuthorName.delete(0, tk.END)
+		self.AuthorName.insert(0, self.replay_file_data.get("AuthorName", ""))
+
+		self.Difficulty.set(self.replay_file_data.get("Difficulty", "Normal"))
+
+		self.BluePlanet.delete(0, tk.END)
+
+		#把rgb颜色转换为十六进制
+		blue_planet = self.replay_file_data.get("BluePlanet", {"R": 0, "G": 0, "B": 255, "A": 255})
+		blue_hex = "#{:02x}{:02x}{:02x}{:02x}".format(
+			int(blue_planet["R"] * 255),
+			int(blue_planet["G"] * 255),
+			int(blue_planet["B"] * 255),
+			int(blue_planet["A"] * 255)
+		)
+		self.BluePlanet.insert(0, blue_hex)
+
+		self.RedPlanet.delete(0, tk.END)
+		#把rgb颜色转换为十六进制
+		red_planet = self.replay_file_data.get("RedPlanet", {"R": 255, "G": 0, "B": 0, "A": 255})
+		red_hex = "#{:02x}{:02x}{:02x}{:02x}".format(
+			int(red_planet["R"] * 255),
+			int(red_planet["G"] * 255),
+			int(red_planet["B"] * 255),
+			int(red_planet["A"] * 255)
+		)
+		self.RedPlanet.insert(0, red_hex)
+
+		self.Speed.delete(0, tk.END)
+		self.Speed.insert(0, self.replay_file_data.get("Speed", 1.0))
+
+	@staticmethod
+	def export_replay_profile(self):
+		if self.replay_file_data == {}:
+			messagebox.showerror(title="错误", message="还没有加载Replay配置")
+			return
+
+		file_path = filedialog.asksaveasfilename(
+			defaultextension=".json",  # 默认文件扩展名
+			filetypes=[("Replay File", "*.rpl"), ("All types", "*.*")]  # 文件类型过滤器
+		)
+		if not file_path:
+			return
+		
+		with open("temp.json", "w", encoding="utf-8") as f:
+			try:
+				json.dump(self.replay_file_data, f, indent=4)
+			except TypeError as e:
+				messagebox.showerror(title="错误", message=f"Replay文件保存出现问题: {e}")
+				return
+		
+		command = ["ReplayDeserializer.exe",  # 可执行文件名
+				   r".\temp.json", 		 		  # rpl 文件路径	
+			 	   r".\temp.json",	  		  # json 输出路径
+			       file_path,	  			  		  # rpl 保存路径
+				   "En"]	  		  		  # 方式(De or En)
+		process = subprocess.Popen(
+			command,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,
+			text=True
+		)
+		print(process.communicate())
+
+	@staticmethod
+	def save_change(self):
+		if self.replay_file_data == {}:
+			messagebox.showerror(title="错误", message="还没有加载Replay配置")
+			return
+
+		self.replay_file_data["PreviewImagePath"] = self.PreviewImagePath.get()
+		self.replay_file_data["Path"] = self.Path.get()
+		self.replay_file_data["SongName"] = self.SongName.get()
+		self.replay_file_data["ArtistName"] = self.ArtistName.get()
+		self.replay_file_data["AuthorName"] = self.AuthorName.get()
+		self.replay_file_data["Difficulty"] = self.Difficulty.get()
+		if self.Speed.get() == "":
+			messagebox.showerror(title="错误", message="速度不能为空")
+			return
+		self.replay_file_data["Speed"] = float(self.Speed.get())
+		self.replay_file_data["BluePlanet"] = {
+			"R": int(self.BluePlanet.get()[1:3], 16) / 255,
+			"G": int(self.BluePlanet.get()[3:5], 16) / 255,
+			"B": int(self.BluePlanet.get()[5:7], 16) / 255,
+			"A": int(self.BluePlanet.get()[7:9], 16) / 255
+		}
+		self.replay_file_data["RedPlanet"] = {
+			"R": int(self.RedPlanet.get()[1:3], 16) / 255,
+			"G": int(self.RedPlanet.get()[3:5], 16) / 255,
+			"B": int(self.RedPlanet.get()[5:7], 16) / 255,
+			"A": int(self.RedPlanet.get()[7:9], 16) / 255
+		}
+		self.replay_file_data["Speed"] = float(self.Speed.get())
+
+	@staticmethod
+	def set_blue_planet_color(self):
+		color = colorchooser.askcolor(title="选择蓝色星球颜色", initialcolor="#0000FF")
+		if color[1] is not None:
+			self.BluePlanet.delete(0, tk.END)
+			self.BluePlanet.insert(0, color[1]+"ff")
+
+	@staticmethod
+	def set_red_planet_color(self):
+		color = colorchooser.askcolor(title="选择红色星球颜色", initialcolor="#FF0000")
+		if color[1] is not None:
+			self.RedPlanet.delete(0, tk.END)
+			self.RedPlanet.insert(0, color[1]+"ff") #json中颜色需要带有alpha通道
+
+	def validate_input(self, new_value):
+		# 检查新值是否为空或为正整数
+		if new_value == "":
+			return True
+		try:
+			int_value = float(new_value)
+			return (int_value >= 0)  # 只允许正整数
+		except ValueError:
+			return False
+		
+	@staticmethod
+	def on_select(self):
+		if self.keys_listbox.curselection() != ():
+			self.listbox_index = self.keys_listbox.curselection()
+		elif self.replay_file_data == {}:
+			return
+		else:
+			self.keys_listbox.selection_set(self.listbox_index[0])
+			return
+		self.key_code.set(self.replay_file_data["Tiles"][self.listbox_index[0]]["Key"])
+		self.HitAngleRatio.delete(0, tk.END)
+		self.HitAngleRatio.insert(0, self.replay_file_data["Tiles"][self.listbox_index[0]]["HitAngleRatio"])
+		self.Hitmargin.set(self.replay_file_data["Tiles"][self.listbox_index[0]]["Hitmargin"])
+		self.HeldTime.delete(0, tk.END)
+		self.HeldTime.insert(0, self.replay_file_data["Tiles"][self.listbox_index[0]]["HeldTime"])
+
+
+	@staticmethod
+	def save_key_change_func(self):
+		if self.replay_file_data == {}:
+			messagebox.showerror(title="错误", message="还没有加载Replay文件")
+			return
+		if self.keys_listbox.curselection() == ():
+			messagebox.showerror(title="错误", message="没有选择的键")
+			self.key_code.set("")
+			self.key_count.delete(0, tk.END)
+			self.key_count.insert(0, "")
+			return
+		
+		selected_index = self.keys_listbox.curselection()
+		new_keycode = self.key_code.get()
+		new_hitAngleRatio = float(self.HitAngleRatio.get())
+		new_hitMargin = self.Hitmargin.get()
+		new_heldTime = float(self.HeldTime.get())
+
+		if new_keycode not in adofai_const().all_keys:
+			messagebox.showerror(title="错误", message="未知的键码")
+			return
+
+		self.replay_file_data["Tiles"][selected_index[0]]["Key"] = new_keycode
+		self.replay_file_data["Tiles"][selected_index[0]]["HitAngleRatio"] = new_hitAngleRatio
+		self.replay_file_data["Tiles"][selected_index[0]]["Hitmargin"] = new_hitMargin
+		self.replay_file_data["Tiles"][selected_index[0]]["HeldTime"] = new_heldTime
+
+		self.keys_listbox.delete(0, tk.END)
+		for s in self.replay_file_data["Tiles"]:
+			self.keys_listbox.insert("end", str(s["SeqID"])+"("+s["Key"]+")")
+
+	##############################################
+	@staticmethod
+	def edit_key_info(self):
+		if self.replay_file_data == {}:
+			messagebox.showerror(title="错误", message="还没有加载Replay配置")
+			return
+		
+		# 创建 Toplevel 窗口对象（即新窗口）
+		new_window = tk.Toplevel(Tkinter_StartUI)
+		new_window.title("砖块编辑器")
+		new_window.geometry("600x600")
+
+		file_frame = ttk.Frame(new_window)
+		file_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+		self.setting_key_frame = ttk.Frame(new_window)
+		self.setting_key_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+
+		self.key_list_frame = ttk.LabelFrame(self.setting_key_frame, text=LanguageData.get("gui.keyviewereditor.key_list"))
+		self.key_list_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+		self.keys_listbox_scroll_bar = (tk.Scrollbar(self.key_list_frame))
+		self.keys_listbox_scroll_bar.grid(row=1, column=1, padx=0, pady=0, sticky="ns")
+
+		self.keys_listbox = tk.Listbox(self.key_list_frame, yscrollcommand=self.keys_listbox_scroll_bar.set)
+		self.keys_listbox.config(width=35,height=15)
+		self.keys_listbox.grid(row=1, column=0, padx=5, pady=10, sticky="ew")
+		self.keys_listbox.bind("<<ListboxSelect>>", lambda x: self.on_select(self))
+
+		self.keys_listbox_scroll_bar.config(command=self.keys_listbox.yview)
+
+		self.key_setting_frame = tk.LabelFrame(self.setting_key_frame, text=LanguageData.get("gui.keyviewereditor.key_setting"))
+		self.key_setting_frame.grid(row=0, column=1, padx=10, pady=10, sticky="ne")
+
+		ttk.Label(self.key_setting_frame, text=LanguageData.get("gui.keyviewereditor.setting_key.key_code"))\
+			.grid(row=0, column=0, padx=3, pady=3, sticky="ew")
+		self.key_code = ttk.Combobox(self.key_setting_frame, values=adofai_const().all_keys, state="readonly")
+		self.key_code.grid(row=0, column=1, padx=3, pady=3, sticky="ew")
+
+		ttk.Label(self.key_setting_frame, text="HitAngleRatio") \
+			.grid(row=1, column=0, padx=3, pady=3, sticky="ew")
+		self.HitAngleRatio = ttk.Entry(self.key_setting_frame, validate="key")
+		self.HitAngleRatio.grid(row=1, column=1, padx=3, pady=3, sticky="ew")
+
+		ttk.Label(self.key_setting_frame, text="Hitmargin") \
+			.grid(row=2, column=0, padx=3, pady=3, sticky="ew")
+		self.Hitmargin = ttk.Combobox(self.key_setting_frame, values=adofai_const().all_margins, state="readonly")
+		self.Hitmargin.grid(row=2, column=1, padx=3, pady=3, sticky="ew")
+
+		ttk.Label(self.key_setting_frame, text="HeldTime") \
+			.grid(row=3, column=0, padx=3, pady=3, sticky="ew")
+		self.HeldTime = ttk.Entry(self.key_setting_frame)
+		self.HeldTime.grid(row=3, column=1, padx=3, pady=3, sticky="ew")
+		
+		
+		self.HitAngleRatio.grid(row=1, column=1, padx=3, pady=3, sticky="ew")
+
+		self.save_key_change = ttk.Button(self.key_setting_frame, text="保存", command=lambda : self.save_key_change_func(self))
+		self.save_key_change.grid(row=7, column=1, padx=3, pady=3, sticky="ew")
+
+		self.on_loading_tile_editor_action(self)
+
+	@staticmethod
+	def on_loading_tile_editor_action(self):
+		for s in self.replay_file_data["Tiles"]:
+			self.keys_listbox.insert("end", str(s["SeqID"])+"("+s["Key"]+")")
+
+	def main(self, NOTEBOOK, Patch_NOTEBOOK_To_mainframe = False):
+		self.main_frame = NOTEBOOK.new_note(self, "gui.moddownload.name")
+
+				# Download Setting Section
+		file_frame = ttk.Frame(self.main_frame)
+		file_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+		ttk.Label(file_frame, text=LanguageData.get("gui.keyviewereditor.file_path"))\
+			.grid(row=1, column=0, padx=5, pady=5)
+
+		self.path = ttk.Entry(file_frame, width=32)
+		self.path.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+
+		ttk.Button(file_frame, text=LanguageData.get("gui.keyviewereditor.browse"), command=lambda: ReplayEditor.select_file(self))\
+			.grid(row=1, column=2, padx=5, pady=5)
+
+		ttk.Button(file_frame, text=LanguageData.get("gui.keyviewereditor.load_kv_profile"), command=lambda: ReplayEditor.load_replay_profile(self, self.path.get()))\
+			.grid(row=1, column=3, padx=5, pady=5)
+
+		basic_info_frame_frame = ttk.Frame(self.main_frame)
+		basic_info_frame_frame.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+
+		self.basic_info_frame = ttk.LabelFrame(basic_info_frame_frame, text=LanguageData.get("gui.keyviewereditor.key_list"))
+		self.basic_info_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+		ttk.Label(self.basic_info_frame, text="预览图片路径")\
+			.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+		self.PreviewImagePath = ttk.Entry(self.basic_info_frame, width=24)
+		self.PreviewImagePath.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
+		ttk.Label(self.basic_info_frame, text="ADOFAI关卡路径")\
+			.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+		self.Path = ttk.Entry(self.basic_info_frame, width=24)
+		self.Path.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+
+		ttk.Label(self.basic_info_frame, text="歌曲名字")\
+			.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+		self.SongName = ttk.Entry(self.basic_info_frame, width=24)
+		self.SongName.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+		
+		ttk.Label(self.basic_info_frame, text="艺术家名字")\
+			.grid(row=1, column=2, padx=5, pady=5, sticky="w")
+		self.ArtistName = ttk.Entry(self.basic_info_frame, width=24)
+		self.ArtistName.grid(row=1, column=3, padx=5, pady=5, sticky="ew")
+
+		ttk.Label(self.basic_info_frame, text="关卡作者")\
+			.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+		self.AuthorName = ttk.Entry(self.basic_info_frame, width=24)
+		self.AuthorName.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
+
+		ttk.Label(self.basic_info_frame, text="判定")\
+			.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+		self.Difficulty = ttk.Combobox(self.basic_info_frame, values=["Lenient", "Normal", "Strict"], state="readonly")
+		self.Difficulty.grid(row=2, column=3, padx=5, pady=5, sticky="ew")
+
+		self.RedPlanetColorButton = ttk.Button(self.basic_info_frame, text="红色星球颜色",\
+										  command=lambda: self.set_red_planet_color(self))
+		self.RedPlanetColorButton.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+		self.RedPlanet = ttk.Entry(self.basic_info_frame, width=24)
+		self.RedPlanet.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+
+		self.BluePlanetColorBotton = ttk.Button(self.basic_info_frame, text="蓝色星球颜色",\
+										  command=lambda: self.set_blue_planet_color(self))
+		self.BluePlanetColorBotton.grid(row=3, column=2, padx=5, pady=5, sticky="ew")
+		self.BluePlanet = ttk.Entry(self.basic_info_frame, width=24)
+		self.BluePlanet.grid(row=3, column=3, padx=5, pady=5, sticky="ew")
+
+		ttk.Label(self.basic_info_frame, text="速度")\
+			.grid(row=4, column=0, padx=5, pady=5, sticky="w")
+		self.Speed = ttk.Entry(self.basic_info_frame, width=24)
+		self.Speed.config(validate="key", validatecommand=(self.basic_info_frame.register(self.validate_input), '%P'))
+		self.Speed.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
+
+		self.SaveButton = ttk.Button(self.basic_info_frame, text="保存", command=lambda: self.save_change(self))
+		self.SaveButton.grid(row=4, column=3, padx=5, pady=5, sticky="ew")
+
+		self.edit_tile_info_botton = ttk.Button(self.main_frame, text="编辑按键", command=lambda: self.edit_key_info(self))
+		self.edit_tile_info_botton.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+
+		self.export_replay_profile_button = ttk.Button(self.main_frame, text="导出", command=lambda: self.export_replay_profile(self))
+		self.export_replay_profile_button.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+
 
 
 ################################################################
@@ -1235,7 +1614,8 @@ NewSelf = {
 	"downloadFile": downloadFile(),
 	"menu": menu(),
 	"modDownload": modDownload(),
-	"KeyViewerEditor": KeyViewerEditor()
+	"KeyViewerEditor": KeyViewerEditor(),
+	"ReplayEditor": ReplayEditor()
 }
 noEffect.main(NewSelf["noEffect"], NOTEBOOK)
 calc.main(NewSelf["calc"], NOTEBOOK)
@@ -1243,6 +1623,7 @@ search.main(NewSelf["search"], NOTEBOOK)
 downloadFile.main(NewSelf["downloadFile"], NOTEBOOK)
 modDownload.main(NewSelf["modDownload"], NOTEBOOK)
 KeyViewerEditor.main(NewSelf["KeyViewerEditor"], NOTEBOOK)
+ReplayEditor.main(NewSelf["ReplayEditor"], NOTEBOOK)
 menu.main(NewSelf["menu"], NOTEBOOK)
 class StatusBar:
 	# 状态栏

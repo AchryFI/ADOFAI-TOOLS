@@ -181,6 +181,20 @@ class adofai_const:
       "RepeatEvents",
       "SetConditionalEvents"
     ]
+    self.all_margins = [ 
+      "TooEarly",
+      "VeryEarly",
+      "EarlyPerfect",
+      "Perfect",
+      "LatePerfect",
+      "VeryLate",
+      "TooLate",
+      "Multipress",
+      "FailMiss",
+      "FailOverload",
+      "Auto",
+      "OverPress"
+  ]
     # self.action = []
     # self.decorations = []
 
