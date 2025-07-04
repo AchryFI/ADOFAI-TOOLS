@@ -1222,7 +1222,7 @@ class ReplayEditor:
 
 	@staticmethod
 	def select_file(self):
-		filename = askopenfilename(filetypes=[('Replay File','*.rpl'),('Binary Files',["*.bin","*.dat"]),('All types','*.*')])
+		filename = askopenfilename(filetypes=[('Replay File','*.rpl')])
 		if filename:
 			# How???
 			self.path.delete(0, tk.END)
@@ -1232,9 +1232,8 @@ class ReplayEditor:
 	def load_replay_profile(self, file_path):
 		command = ["ReplayDeserializer.exe",  # 可执行文件名
 				   file_path, 		 		  # rpl 文件路径	
-			 	   r".\temp.json",	  		  # json 输出路径
-			       "",	  			  		  # rpl 保存路径
-				   "De"]	  		  		  # 方式(De or En)
+			 	   r".\temp.json"   		  # json 输出路径
+		]
 		process = subprocess.Popen(
 			command,
 			stdout=subprocess.PIPE,
@@ -1318,10 +1317,9 @@ class ReplayEditor:
 				return
 		
 		command = ["ReplayDeserializer.exe",  # 可执行文件名
-				   r".\temp.json", 		 		  # rpl 文件路径	
 			 	   r".\temp.json",	  		  # json 输出路径
-			       file_path,	  			  		  # rpl 保存路径
-				   "En"]	  		  		  # 方式(De or En)
+			       file_path			  		  # rpl 保存路径
+		]
 		process = subprocess.Popen(
 			command,
 			stdout=subprocess.PIPE,
