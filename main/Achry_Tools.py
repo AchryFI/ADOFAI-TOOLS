@@ -797,9 +797,8 @@ class menu:
 			"版本 1.0.3:\n- 删除了logging库 转用log 这使得允许自动保存日志(更方便调试)\n- 更新了日志颜色区分",
 			"版本 1.0.4:\n- 优化noeffect逻辑\n- 添加中英注释\n- 优化代码排版",
 			"版本 1.1.0:\n- 添加了模组下载\n- 修复代码bug\n- 修复无法正常选择语言问题\n- 修复url错误问题",
-			"版本 1.1.1:\n- 使用了缓存化以防止每次ModDownload或Search的时候出现等待过久的情况\n- 可手动选择外网url()\n- 使用分离ADOFAICore并且修复大量来自ADOFAI屎山特性和优化逻辑\n- 去特效允许自行选择保存的文件名称",
-			"版本 1.1.2:\n- 修复了转换导致的bool类型消失\n- 对TUF倍速成绩修改做出让步",
-			#"版本 1.1.3:\n- 为缓存添加了清除功能",
+			"版本 1.1.1:\n- 使用了缓存化以防止每次ModDownload或Search的时候出现等待过久的情况\n- 可手动选择外网url()\n- 使用分离ADOFAICore并且修复大量来自ADOFAI屎山特性和优化逻辑\n- 去特效允许自行选择保存的文件名称 \n- 修复了转换导致的bool类型消失\n- 对TUF倍速成绩修改做出让步",
+			"版本 1.1.2:\n- 添加Kv编辑器和Replay编辑器 \n- 修复了语言如果不是指定语言就报错的问题"
 		]
 	@staticmethod
 	def log_showUIWithV1():
@@ -1586,8 +1585,10 @@ class ReplayEditor:
 ################################################################
 
 Tkinter_StartUI = tk.Tk()
-Tkinter_StartUI.title("ADOFAI Tools _ v1.1.1 _ _Achry_")
+Tkinter_StartUI.title("ADOFAI Tools _ v1.1.2 _ _Achry_")
 Tkinter_StartUI.geometry("640x560")
+version = [1, 1, 2] # 版本号
+authors = ["Achry", "Modstag"] # 作者列表
 # 创建Notebook
 NOTEBOOK = _NoteBookClass(Tkinter_StartUI)
 GUILayout.set_Notebook(NOTEBOOK.notebook)
@@ -1599,7 +1600,7 @@ CacheData = json.loads(open("cache.json", "r", encoding="utf-8").read())
 
 open("config.json", "a", encoding="utf-8").close()
 if (open("config.json", "r", encoding="utf-8").read() == ""): 
-	open("config.json", "w", encoding="utf-8").write("{\n\t\"version\": [1,1,1],\n\t\"lang\": null,\n\t\"skip_update_info\": false,\n\t\"Acceleration\": true\n}")
+	open("config.json", "w", encoding="utf-8").write(f"{{\n\t\"version\": {version},\n\t\"lang\": null,\n\t\"skip_update_info\": false,\n\t\"Acceleration\": true\n}}")
 ConfigData = json.loads(open("config.json", "r", encoding="utf-8").read())
 
 if (ConfigData["Acceleration"]): Acceleration = "https://hjtbrz.mcfuns.cn/application/FileDownload/download.php?file_url="

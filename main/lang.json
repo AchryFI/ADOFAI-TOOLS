@@ -218,118 +218,216 @@
   "en_us": {
     "gui": {
       "noeffect": {
-        "name": "Effects Remove",
+        "name": "Remove Effects",
+        "convertName": "Converted File Name",
+        "convertName_empty": "If empty, it will automatically fill in \"Non-Effect.adofai\"",
         "convert": "Convert",
         "browse": "Browse",
-        "setting": "settings",
-        "insert": "insert",
-        "check": "check",
-        "pop": "pop",
-        "file_path": "Enter Your File Path:",
-        "removed": "Effects removed:",
-        "remove_success": "Remove\"${0}\"Successfully",
-        "add_success": "Add\"${0}\"Successfully",
-        "get_list_effect": "These effects will be removed: ${0}",
+        "setting": "Settings",
+        "insert": "Insert",
+        "check": "Check",
+        "pop": "Pop",
+        "file_path": "Level Path:",
+        "removed": "Effects Removed:",
+        "effects_need_to_remove": "Effects to Remove",
+        "remove_success": "Successfully removed \"${0}\"",
+        "add_success": "Successfully added \"${0}\"",
+        "get_list_effect": "Current removed effects: ${0}",
         "function(except)": {
-          "not_adofai_file": "File isn't an adofai file!",
-          "not_select_file": "File Can't Be Null",
-          "error": "ERROR:\n${0}:${1}"
+          "not_adofai_file": "Selected file is not an ADOFAI file",
+          "not_select_file": "No file selected",
+          "error": "Error:\n${0}:${1}"
         },
-        "function(success)": "Remove Effects Successfully, file saved to >>  ${0}/Non_effect.adofai, spent ${1}s"
+        "function(success)": "Effect removal successful! File saved to >> ${0}/Non_effect.adofai, took ${1}s"
       },
       "calc": {
-        "name": "Playpoint Calculator",
-        "level": "Level(Not PGU):",
-        "speed": "Speed:",
+        "name": "Calculator",
+        "level": "Level:",
+        "speed": "Speed Multiplier:",
         "xacc": "X-Accuracy:",
-        "is_tooEarly": "with Tooearly?:",
-        "is_firstClear": "Worlds first?:",
-        "is_rank": "World's Rank:",
-        "calcScore": "Calculate Playpoint",
+        "is_tooEarly": "Too Early:",
+        "is_firstClear": "First Clear:",
+        "is_rank": "World Rank:",
+        "pp_type": "Formula Type:",
+        "calcScore": "Calculate Score",
         "function(except)": {
-          "error_level": "Invalid Level",
-          "xacc_so_low": "Your X-Accuracy is so low lol",
-          "write_empty": "Please fill in the blanks",
-          "write_rank": "Please fill in the rank",
-          "error": "ERROR:\n${0}:${1}"
+          "error_level": "Invalid level",
+          "xacc_so_low": "Undefined: X-Accuracy below 95%",
+          "speed_so_low": "Undefined: Speed multiplier below 95%",
+          "write_empty": "Please fill in the blank",
+          "write_rank": "Please enter the rank",
+          "wrong_xacc": "Invalid X-Accuracy input!",
+          "wrong_rank": "Invalid rank input!",
+          "error": "Error:\n${0}:${1}"
         },
-        "function(success)": "Score${0} | Ranked Score${1}"
+        "function(success_normal)": "Normal score: ${0}",
+        "function(success_rank)": "Ranked score: ${0}"
       },
       "levelsearch": {
-        "name": "GetLevelInfo",
+        "name": "Level Information Search",
         "id": "ID:",
         "search_id": "ID Search",
         "search": "Search",
-        "info_search": "Search Information(TUF only)",
+        "info_search": "Information Search (Only supports TUF)",
         "artist": "Artist:",
         "song": "Song:",
-        "author": "Author:",
-        "function(except)": {
-          "id_is_empty": "Error: ID can't be Null\n\n\nSearched id: ${0}",
-          "status_error": "Error: ${0}\nCode: ${1}\n\n\nSearched id: ${2}",
-          "error": "ERROR:\n${0}:${1}"
+        "author": "Level Author:",
+        "special_diff_show_settings": "Special Difficulty Display Settings",
+        "special_diff_show_settings_text": {
+          "Hide": "Show -21, -2, 0",
+          "Quantum": "Show Quantum difficulties (Q2, Q2+, Q3, etc.)",
+          "Extra": "Show Marathon, Gimmick"
         },
-        "function(TUF_success)": "TUR ID: ${0}\nSong: ${1} - ${2}\nAuthor: ${4}\nDifficulty: ${5}(${5})\nVideo Link: ${6}\nDownload Link: ${7}\nSteam Workshop Link: ${8}",
-        "function(ADOFAIGG_success)": "AdofaiGG ID: ${0}\nSong: ${1} - ${2}\nAuthor: ${4}\nDifficulty: ${5}\nVideo Link: ${5}\nDownload Link: ${6}\nSteam Workshop Link: ${7}\nTiles: ${8}\nTag: ${9}",
-        "function(AQR_success)": "Song: ${0} - ${1}\nAuthor: ${2}\nDifficulty/Quality: ${3}/${4}\nVluation: ${5}\nVideo Link: ${6}\nDownload Link: ${7}",
-        "function(find)": "Found ${0} Levels\n\n--------\n\n"
+        "function(except)": {
+          "id_is_empty": "Error: ID is empty\nQuery ID: ${0}",
+          "status_error": "Error: ${0}\nStatus Code: ${1}\nQuery ID: ${2}",
+          "error": "Error:\n${0}:${1}"
+        },
+        "function(TUF_success)": "Level ID: ${0}\nSong: ${1} - ${2}\nLevel Author: ${3} | ${4}\nDifficulty: ${5} (${6})\nVideo Link: ${7}\nDownload Link: ${8}\nWorkshop Link: ${9}",
+        "function(ADOFAIGG_success)": "Level ID: ${0}\nSong: ${1} - ${2}\nLevel Author: ${4}\nDifficulty: ${5}\nVideo Link: ${5}\nDownload Link: ${6}\nWorkshop Link: ${7}\nObject Count: ${8}\nTags: ${9}",
+        "function(AQR_success)": "Song: ${0} - ${1}\nLevel Author: ${2}\nDifficulty/Quality: ${3}/${4}\nRating: ${5}\nVideo Link: ${6}\nDownload Link: ${7}",
+        "function(find)": "Found ${0} levels\n--------"
       },
       "filedownload": {
-        "name": "File Download(Non-Chinese players don't need)",
+        "name": "Download from Web",
         "download": "Download",
         "save_path": "Save Path:",
         "browse": "Browse",
         "status": "Status:",
         "function(except)": {
-          "id_is_empty": "File ID Can't Be Null!",
-          "id_not_find": "Error: The current file ID [${0}] does not exist",
-          "link_is_empty": "Link Can't Be Null!",
-          "link_not_find": "Error: url [${0}] isn't Found",
-          "fail": "Request FAILED: ${0}",
-          "error_dict": "The specified directory cannot be accessed:\n[${0}/${1}]\n${2}:${4}",
-          "error": "ERROR:\n${0}:${1}"
+          "id_is_empty": "File ID cannot be empty",
+          "id_not_find": "Error: Specified file ID [${0}] not found",
+          "link_is_empty": "Link cannot be empty",
+          "link_not_find": "Error: URL [${0}] not found",
+          "fail": "Request failed: ${0}",
+          "error_dict": "Cannot access specified directory:\n[${0}/${1}]\n${2}:${4}",
+          "error": "Error:\n${0}:${1}"
         },
         "function()": {
-          "downloading": "Status: Downloading...",
-          "downloadingprocess": "Status: Downloading Progress: ${0}MB / ${1}MB"
+          "downloading": "Status: Downloading file from server",
+          "downloadingprocess": "Status: Downloaded ${0}MB / ${1}MB"
         },
-        "function(success)": "File Downloaded Successfully ${0}"
+        "function(success)": "File ${0} downloaded successfully"
       },
       "moddownload": {
-        "name": "mod Download",
+        "name": "Mod Download",
         "download": "Download",
         "reload": "Reload",
-        "signName": "Modname",
+        "signName": "Name",
         "version": "Version",
         "author": "Author",
-        "modID": "updateTime",
-        "select_mod_version": "选择版本"
+        "modID": "Mod ID",
+        "select_mod_version": "Select Version"
       },
       "menu": {
-        "name": "关于",
-        "producer": "主制作: ",
-        "specialThanks": "特别感谢: ",
-        "contact_us": "联系我们",
-        "email": "邮箱: ",
-        "updateLog": "更新日志",
-        "github": "Github链接"
-      }
-    },
-    "menu":{
-      "debug":{
-        "log":{
-          "name_v1": "日志V1",
-          "name_v2": "日志V2",
-          "open_log_dir": "打开日志目录",
-          "copy": "复制",
-          "function(copy_success)": "已复制"
+        "name": "About",
+        "producer": "Producer: ",
+        "specialThanks": "Special Thanks: ",
+        "contact_us": "Contact Us",
+        "email": "Email: ",
+        "updateLog": "Update Log",
+        "github": "GitHub Link"
+      },
+      "keyviewereditor": {
+        "name": "KeyViewer Editor",
+        "file_path": "KV Profile Path",
+        "browse": "Browse",
+        "load_kv_profile": "Load KV Profile",
+        "key_list": "Key List",
+        "key_setting": "Key Settings",
+        "save": "Save",
+        "export_kv_profile": "Export KV Profile",
+        "delete_key": "Delete Key",
+        "add_key": "Add Key",
+        "setting_key": {
+          "key_count": "Key Count",
+          "key_code": "Key Code"
+        },
+        "function(except)": {
+          "cant_find_file": "Specified file not found",
+          "invaild_kv_file": "Specified KV profile is invalid",
+          "invaild_encoder": "Invalid file encoding\n${0}\n${1}",
+          "not_load_kv_profile": "No KV profile loaded",
+          "no_keys_selected": "No keys selected",
+          "unknown_keycode": "Unknown key code"
+        },
+        "function(success)": {
+          "export_success": "Export successful"
+        },
+        "kv_analyze": {
+          "button_name": "Show KV Key Analysis",
+          "plot_title": "Key Press Count (Total Keys: ${0})",
+          "plot_x_label": "Keys",
+          "plot_y_label": "Press Count"
+        }
+      },
+      "replayeditor": {
+        "name": "Replay Editor",
+        "file_path": "Replay File Path",
+        "browse": "Browse",
+        "load_replay_profile": "Load Replay",
+        "replay_info": "Replay File Info",
+        "preview_image_path": "Preview Image Path",
+        "adoai_level_file_path": "ADOFAI Level File Path",
+        "song_name": "Song Name",
+        "artist_name": "Artist Name",
+        "level_author": "Level Author",
+        "hitmargin": "Hit Margin",
+        "red_planet_color": "Red Planet Color",
+        "blue_planet_color": "Blue Planet Color",
+        "level_speed": "Speed",
+        "save": "Save",
+        "edit_key_press": "Edit Key Press",
+        "export_replay_profile": "Export Replay File",
+        "function(except)": {
+          "cant_analyze_replay": "Replay file analysis failed: ${0}",
+          "not_load_replay_profile": "No replay file loaded",
+          "cant_save_replay": "Replay file saving failed: ${0}",
+          "speed_cannot_be_empty": "Speed cannot be empty",
+          "no_keys_selected": "No keys selected",
+          "unknown_keycode": "Unknown key code"
+        },
+        "edit_replay_info": {
+          "select_blue_planet_color": "Select Blue Planet Color",
+          "select_red_planet_color": "Select Red Planet Color"
+        },
+        "keyeditor": {
+          "name": "Key Editor",
+          "key_press_list": "Key Press List",
+          "key_setting": "Key Settings",
+          "key_code": "Key Code",
+          "HitAngleRatio": "Hit Angle Ratio",
+          "HeldTime": "Hold Time",
+          "hitmargin": "Hit Margin",
+          "save": "Save"
         }
       }
     },
-    "info": "结果",
-    "error": "错误",
-    "fail": "失败",
-    "yes": "是",
-    "no": "否"
+    "menu": {
+      "file": {
+        "name": "File",
+        "exit": "Exit"
+      },
+      "debug": {
+        "name": "Debug",
+        "breakpoint": "Breakpoint Debugging",
+        "log": {
+          "name_v1": "Log V1",
+          "name_v2": "Log V2",
+          "open_log_dir": "Open Log Directory",
+          "function(copy_success)": "Copied"
+        },
+        "cache": {
+          "clear": "Clear Log",
+          "reload": "Reload Log"
+        }
+      }
+    },
+    "info": "Result",
+    "error": "Error",
+    "fail": "Failed",
+    "yes": "Yes",
+    "no": "No",
+    "success": "Success"
   }
 }
