@@ -119,9 +119,14 @@
         "load_kv_profile": "加载kv配置",
         "key_list": "按键列表",
         "key_setting": "按键设置",
+        "save": "保存",
+        "export_kv_profile": "导出kv配置",
+        "delete_key": "删除按键",
+        "add_key": "添加按键",
         "setting_key":{
           "key_count": "按键数量",
-          "key_code": "按键代码"},
+          "key_code": "按键代码"
+        },
         "function(except)": {
           "cant_find_file":"找不到指定的文件",
           "invaild_kv_file":"指定的kv配置无效",
@@ -129,7 +134,57 @@
           "not_load_kv_profile":"还没有加载KV配置",
           "no_keys_selected":"没有选择的键",
           "unknown_keycode":"未知的键码"
-
+        },
+        "function(success)": {
+            "export_success":"导出成功"
+        },
+        "kv_analyze": {
+          "button_name": "显示kv按键分析",
+          "plot_title":"按键数统计（按键总数:${0}）",
+          "plot_x_label":"按键",
+          "plot_y_label":"按键次数"
+        }
+      },
+      "replayeditor":{
+        "name": "Replay编辑器",
+        "file_path": "Replay文件路径",
+        "browse": "浏览",
+        "load_replay_profile": "加载Replay",
+        "replay_info": "Replay文件信息",
+        "preview_image_path": "预览图片路径",
+        "adoai_level_file_path": "ADOFAI关卡路径",
+        "song_name": "歌曲名字",
+        "artist_name": "艺术家名字",
+        "level_author": "关卡作者",
+        "hitmargin": "判定",
+        "red_planet_color": "红色星球颜色",
+        "blue_planet_color": "蓝色星球颜色",
+        "level_speed": "速度",
+        "save": "保存",
+        "edit_key_press": "编辑按键",
+        "export_replay_profile": "导出Replay文件",
+        "function(except)": {
+          "cant_analyze_replay": "Replay文件解析出现问题: ${0}",
+          "not_load_replay_profile": "还没有加载Replay文件",
+          "cant_save_replay": "Replay文件保存出现问题: ${0}",
+          "speed_cannot_be_empty": "速度不能为空",
+          "no_keys_selected": "没有选择的键",
+          "unknown_keycode": "未知的键码"
+        },
+        "edit_replay_info":{
+            "select_blue_planet_color": "选择蓝色星球颜色",
+            "select_red_planet_color": "选择红色星球颜色"
+        },
+        "keyeditor": {
+          "name": "按键编辑器",
+          "key_press_list": "按键列表",
+          "key_setting": "按键设置",
+          "key_code": "按键代码",
+          "HitAngleRatio": "偏差角度比",
+          "HeldTime": "按键时长",
+          "hitmargin": "判定",
+          "save": "保存"
+          
         }
       }
     },
@@ -157,7 +212,8 @@
     "error": "错误",
     "fail": "失败",
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "success": "成功"
   },
   "en_us": {
     "gui": {
