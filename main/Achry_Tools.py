@@ -345,6 +345,19 @@ class calc:
 		if is_no_hold_tap:
 			score_v2_mtp *= 0.9
 		return score_orig * score_v2_mtp
+	
+	@staticmethod
+	def calculate_ranked_score(pass_scores):
+		result = {}
+		for idx, score in enumerate(pass_scores):
+			if idx < 20:
+				weight = 0.9 ** idx
+				ranked_score = score * weight
+			else:
+				ranked_score = 0
+			# 使用分数作为 key，保存计算后的值
+			result[score] = ranked_score
+		return result
 
 	@staticmethod
 	def action(self, frame):
@@ -370,16 +383,46 @@ class calc:
 											   xacc,
 											   int(self.calc_tooEarly.get()),
 											   int(self.calc_tile_count_entry.get()),
-											   speed, is_marathon, is_no_hold_tap), 2), 0]
+											   speed, is_marathon, is_no_hold_tap), 2), "输入tuf玩家ID获取排名分数"]
 			except ValueError as e:
 				log_error(LanguageData.get("gui.calc.function(except).error_value", [e.__class__.__name__, e]))
 				return
 
+			try: 
+				player_id = self.calc_tuf_player_id_entry.get()
+				if player_id == '':
+					player_id = 2147483647
+				else:
+					player_id = int(player_id)
+			except ValueError:
+				log_error(LanguageData.get("gui.calc.function(except).player_id_not_number"))
+				return
+			if player_id < 0:
+				log_error(LanguageData.get("gui.calc.function(except).player_id_not_find", [player_id]))
+				return
+			
+			pass_scores = []
+			if player_id != 2147483647:
+				player_info_req = requests.get(f"https://api.tuforums.com/v2/database/players/{player_id}")
+				if player_info_req.status_code == 404:
+					log_error(LanguageData.get("gui.calc.function(except).player_id_not_find", [player_id]))
+				if player_info_req.status_code == 500:
+					log_error(LanguageData.get("gui.calc.function(except).tuf_server_error", [player_info_req.status_code, player_info_req.text]))
+				if player_info_req.status_code == 200:
+					player_info = player_info_req.json()
+					all_passes = player_info.get("passes", [])
+					if all_passes:
+						for _ in all_passes:
+							pass_scores.append(_["scoreV2"])
+						pass_scores.append(self.final_score[0])
+						pass_scores.sort(reverse=True)
+						result = self.calculate_ranked_score(pass_scores)
+						self.final_score[1] = round(result[self.final_score[0]], 2)
 
 			ttk.Label(frame, text=LanguageData.get("gui.calc.function(success_normal)", [self.final_score[0]]))\
-				.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="wee")
+				.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="wee")
 			ttk.Label(frame, text=LanguageData.get("gui.calc.function(success_rank)", [self.final_score[1]]))\
-				.grid(row=4, column=2, columnspan=2, padx=5, pady=5, sticky="wee")
+				.grid(row=5, column=2, columnspan=2, padx=5, pady=5, sticky="wee")
 		except Exception as e:
 			log_fail(LanguageData.get("gui.noeffect.function(except).error", [e.__class__.__name__, e]))
 
@@ -426,9 +469,15 @@ class calc:
 			.grid(row=3, column=0, padx=5, pady=5, sticky="e")
 		self.calc_tile_count_entry = ttk.Entry(frame, width=12)
 		self.calc_tile_count_entry.grid(row=3, column=1, padx=5, pady=5, sticky="we")
+
+		ttk.Label(frame, text=LanguageData.get("gui.calc.tuf_player_id"))\
+			.grid(row=3, column=2, padx=5, pady=5, sticky="e")
+		self.calc_tuf_player_id_entry = ttk.Entry(frame, width=12)
+		self.calc_tuf_player_id_entry.grid(row=3, column=3, padx=5, pady=5, sticky="we")
+
 		#计算按钮
 		ttk.Button(frame, text=LanguageData.get("gui.calc.calcScore"), command=lambda: self.action(self, frame))\
-			.grid(row=3, column=2, columnspan=2, padx=10, pady=5, sticky="we")
+			.grid(row=4, column=0, columnspan=4, padx=10, pady=5, sticky="we")
 		pass
 ################################################################
 # search chart ui & function                                   # 搜索谱面界面和函数

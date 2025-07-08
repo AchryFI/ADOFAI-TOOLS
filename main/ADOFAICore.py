@@ -103,7 +103,7 @@ class adofai_level_data:
       elif i == "{": 
         this_result.append(self.task_object())
       elif i == "]":
-        self.index += 2
+        self.index += 1
         break
       else:
         self.index += 1

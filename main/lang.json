@@ -34,6 +34,7 @@
         "is_not_standard_hold": "是否是非标准长按设置:",
         "tile_count": "砖块数量:",
         "calcScore": "计算Score",
+        "tuf_player_id": "TUF玩家ID（非必填）:",
         "function(except)": {
           "error_level": "错误的等级",
           "xacc_so_low": "未定义:X精准度低于95%",
@@ -43,7 +44,11 @@
           "wrong_xacc":"X精准度输入有误！",
           "wrong_rank":"排名输入有误！",
           "error": "错误:\n${0}:${1}",
-          "error_value": "错误:数据填写有误！\n${0}:${1}"
+          "error_value": "错误:数据填写有误！\n${0}:${1}",
+          "player_id_not_find": "错误:指定的TUF玩家ID [${0}] 不存在",
+          "player_id_is_empty": "错误:TUF玩家ID不能为空",
+          "player_id_not_number": "错误:TUF玩家ID必须是数字",
+          "tuf_server_error": "错误:TUF服务器异常\n状态码:${0}\n错误信息:${1}"
         },
         "function(success_normal)": "一般分数:${0}",
         "function(success_rank)": "排名分数:${0}"
