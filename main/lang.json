@@ -29,10 +29,10 @@
         "level": "等级:",
         "speed": "倍速:",
         "xacc": "X-准度:",
-        "is_tooEarly": "是否空敲:",
-        "is_firstClear": "是否首通:",
-        "is_rank": "世界排名:",
-        "pp_type": "公式类型:",
+        "tooEarly": "空敲:",
+        "is_Marathon": "是否是Marathon评级:",
+        "is_not_standard_hold": "是否是非标准长按设置:",
+        "tile_count": "砖块数量:",
         "calcScore": "计算Score",
         "function(except)": {
           "error_level": "错误的等级",
@@ -42,7 +42,8 @@
           "write_rank": "请填写排名",
           "wrong_xacc":"X精准度输入有误！",
           "wrong_rank":"排名输入有误！",
-          "error": "错误:\n${0}:${1}"
+          "error": "错误:\n${0}:${1}",
+          "error_value": "错误:数据填写有误！\n${0}:${1}"
         },
         "function(success_normal)": "一般分数:${0}",
         "function(success_rank)": "排名分数:${0}"
@@ -245,7 +246,7 @@
         "level": "Level:",
         "speed": "Speed Multiplier:",
         "xacc": "X-Accuracy:",
-        "is_tooEarly": "Too Early:",
+        "tooEarly": "Too Early:",
         "is_firstClear": "First Clear:",
         "is_rank": "World Rank:",
         "pp_type": "Formula Type:",

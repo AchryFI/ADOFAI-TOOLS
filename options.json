@@ -10,7 +10,7 @@
       "Method": "PyInstaller",
       "Name": "Achry_Tools",
       "Icon": "logo.ico",
-      "PythonDir": null,
+      "PythonDir": "D:\\Python3.12.4\\python.exe",
       "Console": false,
       "OneFile": true
     }

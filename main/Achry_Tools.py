@@ -164,7 +164,7 @@ class noEffect():
 
 			convert.result = file_contents
 			file_directory = path.dirname(filename)
-			open(file_directory+'/'+self.entry_convertName.get() if self.entry_convertName.get() != "" else "Non-Effect.adofai",'w',encoding="utf8").write(convert.encode())
+			open(file_directory+'/'+(self.entry_convertName.get() if self.entry_convertName.get() != "" else "Non-Effect.adofai"),'w',encoding="utf8").write(convert.encode())
 			end_time = time_time()
 			log_insert(self.log_text, LanguageData.get("gui.noeffect.function(success)", [file_directory, round(end_time-start,3)]))
 		except Exception as e:
@@ -232,71 +232,125 @@ class calc:
 		self.pp_type = None
 		self.final_score = None
 		self.value = {
-			"1": 0.05,
-			"2": 0.1,
-			"3": 0.2,
-			"4": 0.3,
-			"5": 0.4,
-			"6": 0.5,
-			"7": 0.6,
-			"8": 0.7,
-			"9": 0.8,
-			"10": 0.9,
-			"11": 1,
-			"12": 2,
-			"13": 3,
-			"14": 5,
-			"15": 10,
-			"16": 15,
-			"17": 20,
-			"18": 30,
-			"18.5": 45,
-			"19": 60,
-			"19.5": 75,
-			"20": 100,
-			"20.05": 110,
-			"20.1": 120,
-			"20.15": 130,
-			"20.2": 140,
-			"20.25": 150,
-			"20.3": 160,
-			"20.35": 170,
-			"20.4": 180,
-			"20.45": 190,
-			"20.5": 200,
-			"20.55": 210,
-			"20.6": 220,
-			"20.65": 230,
-			"20.7": 240,
-			"20.75": 250,
-			"20.8": 275,
-			"20.85": 300,
-			"20.9": 350,
-			"20.95": 400,
-			"21": 500,
-			"21.025": 600,
-			"21.05": 700,
-			"21.075": 850,
-			"21.1": 1000,
-			"21.125": 1300,
-			"21.15": 1600,
-			"21.175": 1800,
-			"21.2": 2000,
-			"21.225": 2500,
-			"21.25": 3000,
-			"21.275": 4000,
-			"21.3": 5000
+			"P1": 0.1,
+			"P2": 0.2,
+			"P3": 0.3,
+			"P4": 0.4,
+			"P5": 0.5,
+			"P6": 0.6,
+			"P7": 0.7,
+			"P8": 0.8,
+			"P9": 0.9,
+			"P10": 1,
+			"P11": 2,
+			"P12": 3,
+			"P13": 5,
+			"P14": 10,
+			"P15": 15,
+			"P16": 20,
+			"P17": 30,
+			"P18": 45,
+			"P19": 60,
+			"P20": 75,
+			"G1": 100,
+			"G2": 110,
+			"G3": 120,
+			"G4": 130,
+			"G5": 140,
+			"G6": 150,
+			"G7": 160,
+			"G8": 170,
+			"G9": 180,
+			"G10": 190,
+			"G11": 200,
+			"G12": 210,
+			"G13": 220,
+			"G14": 230,
+			"G15": 240,
+			"G16": 250,
+			"G17": 275,
+			"G18": 300,
+			"G19": 350,
+			"G20": 425,
+			"U1": 500,
+			"U2": 600,
+			"U3": 700,
+			"U4": 850,
+			"U5": 1000,
+			"U6": 1300,
+			"U7": 1600,
+			"U8": 1800,
+			"U9": 2000,
+			"U10": 2500,
+			"U11": 3000,
+			"U12": 4000,
 		}
+
+	@staticmethod
+	def get_score_v2_multiplier(misses, tiles, gm_const=315, start=1, end=50, start_deduc=10, end_deduc=50, pwr=0.7):
+		if misses == 0:
+			return 1.1
+		tp = (start + end) / 2
+		tp_deduc = (start_deduc + end_deduc) / 2
+		am = max(0, misses - int(tiles / gm_const))
+		if am == 0:
+			return 1
+		elif am <= start:
+			return 1 - start_deduc / 100
+		elif am <= tp:
+			k_one = ( ((am - start) / (tp - start)) ** pwr * (tp_deduc - start_deduc) ) / 100
+			return 1 - start_deduc / 100 - k_one
+		elif am <= end:
+			k_two = ( ((end - am) / (end - tp)) ** pwr * (end_deduc - tp_deduc) ) / 100
+			return 1 + k_two - end_deduc / 100
+		else:
+			return 1 - end_deduc / 100
+
+	@staticmethod
+	def get_xacc_multiplier(x_acc):
+		# x_acc为精准度百分比，如 97.6
+		if x_acc < 95:
+			return 1
+		elif x_acc < 100:
+			return -0.027 / (x_acc/100 - 1.0054) + 0.513
+		elif x_acc == 100:
+			return 10
+		else:
+			return 1
+
+	@staticmethod
+	def get_speed_multiplier(speed, is_marathon=False):
+		if is_marathon:
+			if not speed or speed == 1:
+				return 1
+			elif speed > 1:
+				return max(2 - speed, 0)
+		if not speed or speed == 1:
+			return 1
+		if speed < 1:
+			return 0
+		if speed < 1.1:
+			return -3.5 * speed + 4.5
+		if speed < 1.5:
+			return 0.65
+		if speed < 2:
+			return 0.7 * speed - 0.4
+		return 1
+
+	def get_score(self, base_score, x_acc, misses, tiles, speed, is_marathon=False, is_no_hold_tap=False):
+		xacc_mtp = self.get_xacc_multiplier(x_acc)
+		speed_mtp = self.get_speed_multiplier(speed, is_marathon)
+		score_orig = base_score * xacc_mtp * speed_mtp
+		score_v2_mtp = self.get_score_v2_multiplier(misses, tiles)
+		if is_no_hold_tap:
+			score_v2_mtp *= 0.9
+		return score_orig * score_v2_mtp
 
 	@staticmethod
 	def action(self, frame):
 		try:
 			#定义变量
 			base_score = None #关卡基础分
-			xacc_multi = None #精准分
-			speed_multi = None #速度分
-			no_early_multi = None #无空敲分
-
 			if self.calc_level_combobox.get() != '' and (self.calc_speed_entry.get()) != '' and self.calc_x_accuracy_entry.get() != '':
 				difficult = self.calc_level_combobox.get() #难度
 				speed = float(self.calc_speed_entry.get())
@@ -307,62 +361,21 @@ class calc:
 			else:
 				log_error(LanguageData.get("gui.calc.function(except).write_empty"))
 				return
-			
-			if self.world_rank_entry.get() != '':
-				ranked_position = int(self.world_rank_entry.get())
-			else:
-				log_error(LanguageData.get("gui.calc.function(except).write_rank"))
-				return
-			if int(self.world_rank_entry.get()) <= 0:
-				log_error(LanguageData.get("gui.calc.function(except).wrong_rank"))
-				return
+			is_marathon = self.calc_is_Marathon_combobox.get() == LanguageData.get('yes')
+			is_no_hold_tap = self.calc_is_not_standard_hold_combobox.get() == LanguageData.get('yes')
 
-			no_early = self.calc_empty_hit_combobox.get() == LanguageData.get('no') or xacc == 100
-
-			world_first = self.calc_first_clear_combobox.get() == LanguageData.get('yes')
-
-			#计算关卡基础分 难度等会获取即diff
-			if float(difficult) < 1: return 0
-
-			#基础分
 			score_base = self.value.get(str(difficult), None)
-			#判断基础分是否正确（输入不正确的难度会返回None)看上面代码
-			if score_base == None:
-				log_error(LanguageData.get("gui.calc.function(except).error_level"))
+			try:
+				self.final_score = [round(self.get_score(score_base,
+											   xacc,
+											   int(self.calc_tooEarly.get()),
+											   int(self.calc_tile_count_entry.get()),
+											   speed, is_marathon, is_no_hold_tap), 2), 0]
+			except ValueError as e:
+				log_error(LanguageData.get("gui.calc.function(except).error_value", [e.__class__.__name__, e]))
 				return
-		
-			#xacc基础分计算
-			if xacc == 100: xacc_multi = 7
-			elif xacc >= 99.8: xacc_multi = (xacc - 99.73334) * 15 + 3
-			elif xacc >= 99: xacc_multi = (xacc - 97) ** 1.5484 - 0.9249
-			elif xacc >= 95: xacc_multi = ((xacc - 94) ** 1.6) / 12.1326 + 0.9176
-			else:
-				log_error(LanguageData.get("gui.calc.function(except).xacc_so_low"))
-				return
-		
-			#速度分
-			if self.pp_type.get() == "TUF":
-				if speed == 1: speed_multi = 1
-				elif speed <= 1.1: speed_multi = 1 - (speed - 1) * 5
-				elif speed <= 1.5: speed_multi = 0.5
-				elif speed <= 2: speed_multi = speed - 1
-				elif speed > 2: speed_multi = 1
-				else: 
-					log_error(LanguageData.get("gui.calc.function(except).speed_so_low"))
-					return
-			elif self.pp_type.get() == "AQR" or self.pp_type.get() == "ADOFAI.GG":
-				if speed < 1:       speed_multi = 0
-				elif speed < 1.1:   speed_multi = 25   * (speed - 1.1) ** 2 + 0.75
-				elif speed < 1.2:   speed_multi = 0.75
-				elif speed < 1.25:  speed_multi = 50   * (speed - 1.2) ** 2 + 0.75
-				elif speed < 1.3:   speed_multi = -50  * (speed - 1.3) ** 2 + 1
-				elif speed < 1.5:   speed_multi = 1
-				elif speed < 1.75:  speed_multi = 2    * (speed - 1.5) ** 2 + 1
-				elif speed < 2:     speed_multi = -2   * (speed - 2)   ** 2 + 1.25
-				else:               speed_multi = 1.25
-			base_score = score_base * xacc_multi * speed_multi * (1.1 if no_early else 1)
 
-			self.final_score = [round(base_score * (1.2 if not world_first else 1.1), 4), round(base_score * ((0.9 ** (ranked_position - 1)) if ranked_position <= 20 else 0), 4)]
+
 			ttk.Label(frame, text=LanguageData.get("gui.calc.function(success_normal)", [self.final_score[0]]))\
 				.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="wee")
 			ttk.Label(frame, text=LanguageData.get("gui.calc.function(success_rank)", [self.final_score[1]]))\
@@ -391,29 +404,28 @@ class calc:
 			.grid(row=1, column=0, padx=5, pady=5, sticky="e")
 		self.calc_x_accuracy_entry = ttk.Entry(frame, width=12)
 		self.calc_x_accuracy_entry.grid(row=1, column=1, padx=5, pady=5, sticky="we")
-		# 添加是否空敲
-		ttk.Label(frame, text=LanguageData.get("gui.calc.is_tooEarly"))\
+		# 添加空敲数
+		ttk.Label(frame, text=LanguageData.get("gui.calc.tooEarly"))\
 			.grid(row=1, column=2, padx=5, pady=5, sticky="e")
-		self.calc_empty_hit_combobox = ttk.Combobox(frame, values=[LanguageData.get('yes'), LanguageData.get('no')], state="readonly", width=12)
-		self.calc_empty_hit_combobox.grid(row=1, column=3, padx=5, pady=5, sticky="we")
-		self.calc_empty_hit_combobox.current(1)  # 默认选择否
+		self.calc_tooEarly = ttk.Entry(frame, width=12)
+		self.calc_tooEarly.grid(row=1, column=3, padx=5, pady=5, sticky="we")
 		# 添加是否首通
-		ttk.Label(frame, text=LanguageData.get("gui.calc.is_firstClear"))\
+		ttk.Label(frame, text=LanguageData.get("gui.calc.is_Marathon"))\
 			.grid(row=2, column=0, padx=5, pady=5, sticky="e")
-		self.calc_first_clear_combobox = ttk.Combobox(frame, values=[LanguageData.get('yes'), LanguageData.get('no')], state="readonly", width=12)
-		self.calc_first_clear_combobox.grid(row=2, column=1, padx=5, pady=5, sticky="we")
-		self.calc_first_clear_combobox.current(1)  # 默认选择否
+		self.calc_is_Marathon_combobox = ttk.Combobox(frame, values=[LanguageData.get('yes'), LanguageData.get('no')], state="readonly", width=12)
+		self.calc_is_Marathon_combobox.grid(row=2, column=1, padx=5, pady=5, sticky="we")
+		self.calc_is_Marathon_combobox.current(1)  # 默认选择否
 		# 添加世界排名输入框
-		ttk.Label(frame, text=LanguageData.get("gui.calc.is_rank"))\
+		ttk.Label(frame, text=LanguageData.get("gui.calc.is_not_standard_hold"))\
 			.grid(row=2, column=2, padx=5, pady=5, sticky="e")
-		self.world_rank_entry = ttk.Entry(frame, width=12)
-		self.world_rank_entry.grid(row=2, column=3, padx=5, pady=5, sticky="we")
-		# 添加世界排名输入框
-		ttk.Label(frame, text=LanguageData.get("gui.calc.pp_type"))\
+		self.calc_is_not_standard_hold_combobox = ttk.Combobox(frame, values=[LanguageData.get('yes'), LanguageData.get('no')], state="readonly", width=12)
+		self.calc_is_not_standard_hold_combobox.grid(row=2, column=3, padx=5, pady=5, sticky="we")
+		self.calc_is_not_standard_hold_combobox.current(1)  # 默认选择否
+
+		ttk.Label(frame, text=LanguageData.get("gui.calc.tile_count"))\
 			.grid(row=3, column=0, padx=5, pady=5, sticky="e")
-		self.pp_type = ttk.Combobox(frame, values=["TUF","AQR", "ADOFAI.GG"], state="readonly", width=12)
-		self.pp_type.grid(row=3, column=1, padx=5, pady=5, sticky="we")
-		self.pp_type.current(0)
+		self.calc_tile_count_entry = ttk.Entry(frame, width=12)
+		self.calc_tile_count_entry.grid(row=3, column=1, padx=5, pady=5, sticky="we")
 		#计算按钮
 		ttk.Button(frame, text=LanguageData.get("gui.calc.calcScore"), command=lambda: self.action(self, frame))\
 			.grid(row=3, column=2, columnspan=2, padx=10, pady=5, sticky="we")
