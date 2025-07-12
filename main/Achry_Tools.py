@@ -497,7 +497,7 @@ class search:
 
 		
 	def cache_data(self, try_get_cache_item = True):
-		if not try_get_cache_item:
+		if try_get_cache_item:
 			try:
 				CacheData["search"]
 				CacheData["search"]["AQR"]
