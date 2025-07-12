@@ -494,31 +494,18 @@ class search:
 		self.entry_music = None
 		self.entry_author = None
 		self.log_text = None
+
+		
 	def cache_data(self, try_get_cache_item = True):
-		if try_get_cache_item:
+		if not try_get_cache_item:
 			try:
 				CacheData["search"]
-				CacheData["search"]["TUF"]
-				CacheData["search"]["ADOFAI.GG"]
 				CacheData["search"]["AQR"]
 			except:
 				self.cache_data(False)
 				return
 		else:
 			CacheData["search"] = {}
-			try: CacheData["search"]["TUF"] = requests.get("https://api.tuforums.com/v2/database/levels?limit=999999").json()["results"]
-			except: CacheData["search"]["TUF"] = []
-			if 'statusCode' in CacheData["search"]["TUF"]:
-				self.log_text.delete(1.0, tk.END) 
-				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", [info["message"], info["statusCode"]]), 3)
-				CacheData["search"]["TUF"] = []
-			try: CacheData["search"]["ADOFAI.GG"] = requests.get(Acceleration + "https://adofai.gg/api/v1/levels").json()["results"]
-			except: CacheData["search"]["ADOFAI.GG"] = []
-			if 'errors' in CacheData["search"]["ADOFAI.GG"]:
-				msg = info["errors"][0]
-				self.log_text.delete(1.0, tk.END) 
-				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(except).status_error", (msg["message"], msg["code"])), 3)
-				CacheData["search"]["ADOFAI.GG"] = []
 			try: CacheData["search"]["AQR"] = requests.get(Acceleration + "https://kdocs.adofaiaqr.top").json()
 			except: CacheData["search"]["AQR"] = []
 			update_cache()
@@ -539,32 +526,56 @@ class search:
 			self.log_text.delete(1.0, tk.END) 
 			if self.combo_box.get() == 'TUF':
 
-				info = self.get_info(id)
+				info_resp = requests.get("https://api.tuforums.com/v2/database/levels/byId/"+id)
+				if info_resp.status_code == 404 or info_resp.status_code == 400:
+					log_fail(LanguageData.get("gui.levelsearch.function(except).cant_find_level_id"))
+					return
+				if info_resp.status_code == 500 or info_resp.status_code != 200:
+					log_fail(LanguageData.get("gui.levelsearch.function(except).tuf_server_error", [info_resp.status_code, info_resp.text]))
+					return
+				
+				info = info_resp.json()
+
 				if info is None:
 					log_fail(LanguageData.get("gui.levelsearch.function(except).cant_find_level_id"))
 					return
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)", 
-				 	[info['id'], info['artist'], info['song'], info['charter'], info['vfxer'], info['difficulty']['name'], info['difficulty']['legacy'], info['videoLink'], info['dlLink'], info['workshopLink']]
+				 	[info['id'], info['artist'], info['song'], 
+	   				info['charter'], info['vfxer'], info['difficulty']['name'], 
+					info['difficulty']['legacy'], info['videoLink'], 
+					info['dlLink'], info['workshopLink'], info['clears']]
 					),write_log=False
 				)
 			elif self.combo_box.get() == 'ADOFAI.GG':
-				info = self.get_info(id)
+				info_resp = requests.get("https://api.adofai.gg/forum/v1/levels/"+id)
+				if info_resp.status_code == 404 or info_resp.status_code == 400:
+					log_fail(LanguageData.get("gui.levelsearch.function(except).cant_find_level_id"))
+					return
+				if info_resp.status_code == 500 or info_resp.status_code != 200:
+					log_fail(LanguageData.get("gui.levelsearch.function(except).tuf_server_error", [info_resp.status_code, info_resp.text]))
+					return
+				
+				info = info_resp.json()
 
-				try: info["artists"] = [artist['name'] for artist in info['music']['artists']]
+				if info is None:
+					log_fail(LanguageData.get("gui.levelsearch.function(except).cant_find_level_id"))
+					return
+
+				try: info["artists"] = ", ".join([artist['name'] for artist in info['music']['artists']])
 				except:  info["artists"] = "-"
-				try: info["creators"] = [creator['name'] for creator in info['creators']]
+				try: info["creators"] = ", ".join([creator['name'] for creator in info['creators']])
 				except: info["creators"] = "-"
-				try: info["tags"] = [tag['name'] for tag in info['tags']]
+				try: info["tags"] = ", ".join([tag['name'] for tag in info['tags']])
 				except: info["tags"] = "-"
 				
+				
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(ADOFAIGG_success)",
-					[info['id'], info["artists"], info['title'], info["creators"], info['difficulty'], info['video'], info['download'], info['workshop'], info['tiles'], info["tags"]]
+					[info['id'], info["artists"], info['title'], 
+	  				info["creators"], info['difficulty'], info['video'], 
+					info['download'], info['workshop'], info['tiles'], info["tags"]]
 				), write_log=False)
-			elif self.combo_box.get() == 'AQR':
-				info = self.get_info(int(id)+10000)
-				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(AQR_success)", 
-					[info['artist'], info['song'], info['author'], info['difficulties'], info['level'], info['vluation'], info['video_herf'], info['href']]
-				), write_log=False)
+			elif self.combo_box.get() == 'AMF':
+				pass
 			else:
 				raise ValueError("combo_box not find")
 
@@ -573,8 +584,6 @@ class search:
 
 	@staticmethod
 	def query(self):
-		for s in self.special_diff_show_setting:
-			print(s.get())
 		try:
 			special_diff = [s.get() for s in self.special_diff_show_setting]
 			show_diff = []
@@ -584,7 +593,6 @@ class search:
 				show_diff.extend(["Gimmick", "Marathon"])
 			if "Hide" in special_diff:
 				show_diff.extend(["-2", "-21", "Unranked"])
-			print(show_diff)
 
 			searching_info = ""
 			if self.entry_artist.get() != "":
@@ -596,18 +604,18 @@ class search:
 			if searching_info != "":
 				if searching_info[0] == ",":
 					searching_info = searching_info.replace(',','',1)
-			body = {"pguRange" :{"from": "P1", "to": "U20"}, "specialDifficulties": show_diff}
-			url = f"https://api.tuforums.com/v2/database/levels/filter?limit=300000&offset=0&query={searching_info}&sort=RECENT_ASC&deletedFilter=hide&clearedFilter=show"
-			response = requests.post(url, headers={"content-type": "application/json"}, data=json.dumps(body))
+			url = f"https://api.tuforums.com/v2/database/levels?limit=200&offset=0&query={searching_info}&sort=RECENT_ASC&deletedFilter=hide&clearedFilter=show&pguRange=P1, U20&specialDifficulties={','.join(show_diff)}"
+			response = requests.get(url, headers={"content-type": "application/json"})
 			info = response.json()
 			self.log_text.delete(1.0, tk.END)
-			log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(find)", [info['count']]))
+			log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(find)", [len(info['results'])]))
 			for infos in info['results']:
 				log_insert(self.log_text, LanguageData.get("gui.levelsearch.function(TUF_success)",
 														   [infos['id'], infos['artist'], infos['song'], infos['charter'],
 															infos['vfxer'], infos['difficulty']['name'],
 															infos['difficulty']['legacy'], infos['videoLink'],
-															infos['dlLink'], infos['workshopLink']]
+															infos['dlLink'], infos['workshopLink'],
+															infos['clears']]
 														   ) + '\n\n--------\n\n', write_log=False)
 
 		except Exception as e:
@@ -620,7 +628,7 @@ class search:
 		# 通过ID查询部分
 		id_frame = ttk.Labelframe(self.main_frame, text=LanguageData.get("gui.levelsearch.search_id"))
 		id_frame.pack(fill="x", padx=10, pady=5)
-		self.combo_box = ttk.Combobox(id_frame, values=["TUF", "ADOFAI.GG", "AQR"], state="readonly")
+		self.combo_box = ttk.Combobox(id_frame, values=["TUF", "ADOFAI.GG", "AMF"], state="readonly")
 		self.combo_box.current(0)  # 设置默认选择
 		self.combo_box.grid(row=1, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 		ttk.Label(id_frame, text=LanguageData.get("gui.levelsearch.id"))\
@@ -1676,7 +1684,7 @@ NewSelf = {
 	"noEffect": noEffect(),
 	"calc": calc(),
 	"search": search(),
-	"downloadFile": downloadFile(),
+#	"downloadFile": downloadFile(),
 	"menu": menu(),
 	"modDownload": modDownload(),
 	"KeyViewerEditor": KeyViewerEditor(),
@@ -1685,7 +1693,7 @@ NewSelf = {
 noEffect.main(NewSelf["noEffect"], NOTEBOOK)
 calc.main(NewSelf["calc"], NOTEBOOK)
 search.main(NewSelf["search"], NOTEBOOK)
-downloadFile.main(NewSelf["downloadFile"], NOTEBOOK)
+# downloadFile.main(NewSelf["downloadFile"], NOTEBOOK)
 modDownload.main(NewSelf["modDownload"], NOTEBOOK)
 KeyViewerEditor.main(NewSelf["KeyViewerEditor"], NOTEBOOK)
 ReplayEditor.main(NewSelf["ReplayEditor"], NOTEBOOK)
